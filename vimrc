@@ -58,18 +58,13 @@ let g:miniBufExplSplitToEdge = 0
 let g:miniBufExplBRSplit = 0   " Put new window above
 
 " NERDTree options
-" Open on startup
 autocmd StdinReadPre * let s:std_in=1
 autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | endif
-" Close if no files
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
-" Hide .pyc files
 let NERDTreeIgnore=['\.pyc$', '\~$']
-" Open NERDTree on CTRL + n
+let g:NERDTreeWinSize=40
 map <C-n> :NERDTreeToggle<CR>
 nmap <C-i> :NERDTreeFind<CR>
-" Wider NERDTree sidebar
-let g:NERDTreeWinSize=40
 
 " Pymode options
 let g:syntastic_python_checkers=['flake8']
@@ -88,19 +83,11 @@ let g:UltiSnipsExpandTrigger="<tab>"
 let g:UltiSnipsJumpForwardTrigger="<c-b>"
 let g:UltiSnipsJumpBackwardTrigger="<c-z>"
 
-" Encoding
 set encoding=utf-8
-
-" Line numbers
 set number
-" Show cursor line
 set cursorline
-" Ruler at bottom
 set ruler
-" Show command in the statusline
 set showcmd
-
-" Buffers
 set hidden
 
 " Search
@@ -159,9 +146,7 @@ autocmd Filetype html setlocal ts=2 sts=2 sw=2
 autocmd Filetype jinja setlocal ts=2 sts=2 sw=2
 autocmd Filetype css setlocal ts=2 sts=2 sw=2
 
-" Highlight
 syntax on
-
 set background=dark
 colorscheme solarized
 let g:airline_theme='solarized'
