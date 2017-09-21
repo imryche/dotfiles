@@ -28,6 +28,7 @@ Plugin 'kien/ctrlp.vim'
 Plugin 'mattn/emmet-vim'
 Plugin 'altercation/vim-colors-solarized'
 Plugin 'glench/vim-jinja2-syntax'
+Plugin 'pearofducks/ansible-vim'
 
 call vundle#end()            " required
 filetype plugin indent on    " required
@@ -141,6 +142,8 @@ au BufNewFile,BufRead *.js, *.html, *.css:
     \ set tabstop=2
     \ set softtabstop=2
     \ set shiftwidth=2
+
+au BufRead,BufNewFile *.yml set filetype=ansible
 
 autocmd Filetype html setlocal ts=2 sts=2 sw=2
 autocmd Filetype jinja setlocal ts=2 sts=2 sw=2
