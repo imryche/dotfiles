@@ -78,6 +78,7 @@ let g:pymode_rope = 0
 
 " Jedi options
 let g:jedi#smart_auto_mappings = 0
+let g:jedi#popup_on_dot = 0
 
 " UltiSnips configuration
 let g:UltiSnipsExpandTrigger="<tab>"
