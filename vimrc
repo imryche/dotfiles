@@ -16,7 +16,6 @@ Plugin 'honza/vim-snippets'
 Plugin 'othree/html5.vim'
 Plugin 'othree/xml.vim'
 Plugin 'airblade/vim-gitgutter'
-Plugin 'fholgado/minibufexpl.vim'
 Plugin 'python-mode/python-mode'
 Plugin 'davidhalter/jedi-vim'
 Plugin 'tmhedberg/SimpylFold'
@@ -87,7 +86,7 @@ let g:UltiSnipsJumpBackwardTrigger="<c-z>"
 
 set encoding=utf-8
 set number
-set cursorline
+set lazyredraw
 set ruler
 set showcmd
 set hidden
