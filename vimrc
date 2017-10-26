@@ -91,6 +91,7 @@ set ruler
 set wildmenu
 set showcmd
 set hidden
+set autoread
 
 " Search
 set nohlsearch
