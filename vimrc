@@ -93,6 +93,7 @@ set wildmenu
 set showcmd
 set hidden
 set autoread
+set relativenumber
 
 " Search
 set nohlsearch
