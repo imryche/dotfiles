@@ -92,6 +92,7 @@ set showcmd
 set hidden
 set autoread
 set relativenumber
+set autowrite " Automatically write before running commands
 
 " Search
 set nohlsearch
