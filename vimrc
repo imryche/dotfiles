@@ -88,6 +88,7 @@ set encoding=utf-8
 set number
 set lazyredraw
 set ruler
+set wildmenu
 set showcmd
 set hidden
 
