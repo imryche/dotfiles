@@ -29,6 +29,11 @@ call plug#end()
 " Map leader key to ,
 let mapleader = ","
 
+" Reduce <ESC> timeout
+set ttimeout
+set ttimeoutlen=20
+set notimeout
+
 " Custom key mappings
 map <leader>f :Ack ""<Left>
 map <leader>F :Ack "<C-r>""<Space>
