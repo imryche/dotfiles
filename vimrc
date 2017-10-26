@@ -29,6 +29,7 @@ Plugin 'mattn/emmet-vim'
 Plugin 'altercation/vim-colors-solarized'
 Plugin 'glench/vim-jinja2-syntax'
 Plugin 'pearofducks/ansible-vim'
+Plugin 'janko-m/vim-test'
 
 call vundle#end()            " required
 filetype plugin indent on    " required
