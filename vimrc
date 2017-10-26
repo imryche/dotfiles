@@ -14,7 +14,7 @@ Plug 'python-mode/python-mode'
 Plug 'davidhalter/jedi-vim'
 Plug 'tmhedberg/SimpylFold'
 Plug 'scrooloose/syntastic'
-Plug 'scrooloose/nerdtree'
+Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 Plug 'bling/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'kien/ctrlp.vim'
