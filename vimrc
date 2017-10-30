@@ -23,8 +23,11 @@ Plug 'altercation/vim-colors-solarized'
 Plug 'glench/vim-jinja2-syntax'
 Plug 'pearofducks/ansible-vim'
 Plug 'janko-m/vim-test'
+Plug 'vim-scripts/c.vim'
 
 call plug#end()
+
+filetype plugin indent on
 
 " Map leader key to ,
 let mapleader = ","
@@ -42,6 +45,9 @@ map <leader>s :w<CR>
 map <leader>sa :wa<CR>
 imap <expr> <tab> emmet#expandAbbrIntelligent("\<tab>")
 imap <C-Return> <CR><CR><C-o>k<Tab>
+
+" Write compile and run C program
+nnoremap <leader>b :w <CR> :!gcc % -o %< && ./%< <CR>
 
 " move vertically by visual line
 nnoremap j gj
@@ -83,6 +89,7 @@ let g:UltiSnipsExpandTrigger="<tab>"
 let g:UltiSnipsJumpForwardTrigger="<c-b>"
 let g:UltiSnipsJumpBackwardTrigger="<c-z>"
 
+set nocompatible
 set encoding=utf-8
 set number
 set lazyredraw
@@ -145,6 +152,11 @@ au BufNewFile,BufRead *.js, *.html, *.css:
     \ set tabstop=2
     \ set softtabstop=2
     \ set shiftwidth=2
+
+au BufNewFile,BufRead *.c,*.h:
+    \ set tabstop=4 |
+    \ set softtabstop=4 |
+    \ set shiftwidth=4
 
 au BufRead,BufNewFile *.yml set filetype=ansible
 
