@@ -58,10 +58,6 @@ nnoremap <leader>ev :vsp $MYVIMRC<CR>
 nnoremap <leader>ez :vsp ~/.zshrc<CR>
 nnoremap <leader>sv :source $MYVIMRC<CR>
 
-" MiniBufExplorer options
-let g:miniBufExplSplitToEdge = 0
-let g:miniBufExplBRSplit = 0   " Put new window above
-
 " NERDTree options
 autocmd StdinReadPre * let s:std_in=1
 autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | endif
