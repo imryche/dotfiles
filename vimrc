@@ -46,6 +46,7 @@ set ttimeoutlen=20
 set notimeout
 
 set number
+set numberwidth=6
 set ruler
 set showcmd
 
@@ -143,7 +144,7 @@ nnoremap <leader>b :BufExplorer<CR>
 map <C-n> :NERDTreeToggle<CR>
 
 " Write compile and run C program
-nnoremap <leader>b :w <CR> :!gcc % -o %< && ./%< <CR>
+nnoremap <leader>r :w <CR> :!gcc % -o %< && ./%< <CR>
 
 " ========= PLUGINS CONFIGURATION ========= 
 
@@ -161,7 +162,8 @@ let g:syntastic_python_pylint_post_args="--max-line-length=120"
 
 " Pymode
 let g:pymode_options_max_line_length = 120
-let g:pymode_breakpoint_bind = '<leader>br'
+" let g:pymode_breakpoint_bind = '<leader>br'
+let g:pymode_breakpoint = 0
 let g:pymode_virtualenv = 1
 let g:pymode_rope = 0
 
