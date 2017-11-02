@@ -15,6 +15,7 @@ Plug 'davidhalter/jedi-vim'
 Plug 'tmhedberg/SimpylFold'
 Plug 'scrooloose/syntastic'
 Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
+Plug 'jlanzarotta/bufexplorer'
 Plug 'bling/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'kien/ctrlp.vim'
@@ -29,72 +30,33 @@ call plug#end()
 
 filetype plugin indent on
 
+syntax on
+colorscheme solarized
+
 " Map leader key to ,
 let mapleader = ","
+
+set nocompatible
+set encoding=utf-8
+set background=dark
 
 " Reduce <ESC> timeout
 set ttimeout
 set ttimeoutlen=20
 set notimeout
 
-" Custom key mappings
-map <leader>f :Ack ""<Left>
-map <leader>F :Ack "<C-r>""<Space>
-map <leader>c :bd<CR>
-map <leader>s :w<CR>
-map <leader>sa :wa<CR>
-imap <expr> <tab> emmet#expandAbbrIntelligent("\<tab>")
-imap <C-Return> <CR><CR><C-o>k<Tab>
-
-" Write compile and run C program
-nnoremap <leader>b :w <CR> :!gcc % -o %< && ./%< <CR>
-
-" move vertically by visual line
-nnoremap j gj
-nnoremap k gk
-
-" edit vimrc/zshrc and load vimrc bindings
-nnoremap <leader>ev :vsp $MYVIMRC<CR>
-nnoremap <leader>ez :vsp ~/.zshrc<CR>
-nnoremap <leader>sv :source $MYVIMRC<CR>
-
-" NERDTree options
-autocmd StdinReadPre * let s:std_in=1
-autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | endif
-autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
-let NERDTreeIgnore=['\.pyc$', '\~$']
-let g:NERDTreeWinSize=40
-map <C-n> :NERDTreeToggle<CR>
-nmap <C-i> :NERDTreeFind<CR>
-
-" Pymode options
-let g:syntastic_python_checkers=['flake8']
-let g:syntastic_python_flake8_args='--ignore=E501,E225'
-let g:syntastic_python_pylint_post_args="--max-line-length=120"
-let g:pymode_options_max_line_length = 120
-let g:pymode_breakpoint_bind = '<leader>br'
-let g:pymode_virtualenv = 1
-let g:pymode_rope = 0
-
-" Jedi options
-let g:jedi#smart_auto_mappings = 0
-let g:jedi#popup_on_dot = 0
-
-" UltiSnips configuration
-let g:UltiSnipsExpandTrigger="<tab>"
-let g:UltiSnipsJumpForwardTrigger="<c-b>"
-let g:UltiSnipsJumpBackwardTrigger="<c-z>"
-
-set nocompatible
-set encoding=utf-8
 set number
-set lazyredraw
 set ruler
-set wildmenu
 set showcmd
+
+set re=1 " Old regex engine that actually works faster
+set lazyredraw
+set wildmenu
+
+" Edit another buffer without saving previous
 set hidden
+
 set autoread
-set relativenumber
 set autowrite " Automatically write before running commands
 
 " Search
@@ -117,24 +79,13 @@ set noswapfile
 " Split settings
 set splitbelow
 set splitright
-
-" Split navigations
-nnoremap <C-J> <C-W><C-J>
-nnoremap <C-K> <C-W><C-K>
-nnoremap <C-L> <C-W><C-L>
-nnoremap <C-H> <C-W><C-H>
+set diffopt+=vertical
 
 " Enable folding
 set foldmethod=indent
 set foldlevel=99
 
-" Map folding to the spacebar
-nnoremap <space> za
-
-" SimpylFold options
-let g:SimpylFold_docstring_preview=1
-
-" Nice indentation
+" Indentation settings
 au BufNewFile,BufRead *.py:
     \ set tabstop=4
     \ set softtabstop=4
@@ -160,7 +111,78 @@ autocmd Filetype html setlocal ts=2 sts=2 sw=2
 autocmd Filetype jinja setlocal ts=2 sts=2 sw=2
 autocmd Filetype css setlocal ts=2 sts=2 sw=2
 
-syntax on
-set background=dark
-colorscheme solarized
+" ========= KEY MAPPINGS ========= 
+
+noremap <leader>c :bd<CR>
+noremap <leader>s :write<CR>
+noremap <leader>f :Ack ""<Left>
+noremap <leader>F :Ack "<C-r>""<Space>
+
+" Move vertically by visual line
+nnoremap j gj
+nnoremap k gk
+
+" Easy buffer navigation
+nnoremap <C-J> <C-W><C-J>
+nnoremap <C-K> <C-W><C-K>
+nnoremap <C-L> <C-W><C-L>
+nnoremap <C-H> <C-W><C-H>
+
+" Map folding to the spacebar
+nnoremap <space> za
+
+" Edit vimrc/zshrc and load vimrc bindings
+nnoremap <leader>ev :vsp $MYVIMRC<CR>
+nnoremap <leader>ez :vsp ~/.zshrc<CR>
+nnoremap <leader>erc :source $MYVIMRC<CR>
+
+" Open BufExplorer
+nnoremap <leader>b :BufExplorer<CR>
+
+" Open NERDTree buffer
+map <C-n> :NERDTreeToggle<CR>
+
+" Write compile and run C program
+nnoremap <leader>b :w <CR> :!gcc % -o %< && ./%< <CR>
+
+" ========= PLUGINS CONFIGURATION ========= 
+
+" NERDTree options
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | endif
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+let NERDTreeIgnore=['\.pyc$', '\~$']
+let g:NERDTreeWinSize=40
+
+" Syntastic
+let g:syntastic_python_checkers=['flake8']
+let g:syntastic_python_flake8_args='--ignore=E501,E225'
+let g:syntastic_python_pylint_post_args="--max-line-length=120"
+
+" Pymode
+let g:pymode_options_max_line_length = 120
+let g:pymode_breakpoint_bind = '<leader>br'
+let g:pymode_virtualenv = 1
+let g:pymode_rope = 0
+
+" Jedi
+let g:jedi#smart_auto_mappings = 0
+let g:jedi#popup_on_dot = 0
+
+" UltiSnips
+let g:UltiSnipsExpandTrigger="<tab>"
+let g:UltiSnipsJumpForwardTrigger="<c-b>"
+let g:UltiSnipsJumpBackwardTrigger="<c-z>"
+
+" CtrlP
+let g:ctrlp_user_command = ['.git/', 'git --git-dir=%s/.git ls-files -oc --exclude-standard']
+
+" BufExplorer
+let g:bufExplorerDisableDefaultKeyMapping=1
+let g:bufExplorerShowRelativePath=1
+
+" SimpylFold
+let g:SimpylFold_docstring_preview=1
+
+" Airline
 let g:airline_theme='solarized'
