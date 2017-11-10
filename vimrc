@@ -11,8 +11,9 @@ Plug 'othree/html5.vim'
 Plug 'othree/xml.vim'
 Plug 'airblade/vim-gitgutter'
 Plug 'python-mode/python-mode'
+Plug 'fisadev/vim-isort'
 Plug 'davidhalter/jedi-vim'
-Plug 'scrooloose/syntastic'
+Plug 'w0rp/ale'
 Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 Plug 'jlanzarotta/bufexplorer'
 Plug 'bling/vim-airline'
@@ -20,12 +21,27 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'kien/ctrlp.vim'
 Plug 'mattn/emmet-vim'
 Plug 'altercation/vim-colors-solarized'
+Plug 'nanotech/jellybeans.vim'
 Plug 'glench/vim-jinja2-syntax'
 Plug 'pearofducks/ansible-vim'
 Plug 'janko-m/vim-test'
 Plug 'vim-scripts/c.vim'
 
 call plug#end()
+
+" Add the virtualenv's site-packages to vim path
+if has('python')
+py << EOF
+import os.path
+import sys
+import vim
+if 'VIRTUAL_ENV' in os.environ:
+    project_base_dir = os.environ['VIRTUAL_ENV']
+    sys.path.insert(0, project_base_dir)
+    activate_this = os.path.join(project_base_dir, 'bin/activate_this.py')
+    execfile(activate_this, dict(__file__=activate_this))
+EOF
+endif
 
 filetype plugin indent on
 
@@ -155,13 +171,22 @@ let NERDTreeIgnore=['\.pyc$', '\~$']
 let g:NERDTreeWinSize=40
 
 " Syntastic
-let g:syntastic_python_checkers=['flake8']
-let g:syntastic_python_flake8_args='--ignore=E501,E225'
-let g:syntastic_python_pylint_post_args="--max-line-length=120"
+" let g:syntastic_python_checkers=['pylint']
+" let g:syntastic_python_flake8_args='--ignore=E501,E225'
+" let g:syntastic_python_pylint_post_args="--max-line-length=120"
+
+" Ale
+let g:ale_echo_msg_error_str = 'E'
+let g:ale_echo_msg_warning_str = 'W'
+let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+let g:ale_linters = {'python': ['flake8'],}
+let g:ale_python_flake8_options = '--max-line-length=120'
+let g:ale_python_pylint_options = '--ignore=C0301'
 
 " Pymode
 let g:pymode_options_max_line_length = 120
 " let g:pymode_breakpoint_bind = '<leader>br'
+let g:pymode_lint = 0
 let g:pymode_breakpoint = 0
 let g:pymode_virtualenv = 1
 let g:pymode_rope = 0
