@@ -12,7 +12,6 @@ Plug 'othree/xml.vim'
 Plug 'airblade/vim-gitgutter'
 Plug 'python-mode/python-mode'
 Plug 'davidhalter/jedi-vim'
-Plug 'tmhedberg/SimpylFold'
 Plug 'scrooloose/syntastic'
 Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 Plug 'jlanzarotta/bufexplorer'
@@ -82,9 +81,8 @@ set splitbelow
 set splitright
 set diffopt+=vertical
 
-" Enable folding
-set foldmethod=indent
-set foldlevel=99
+" Disable folding
+set nofoldenable
 
 " Indentation settings
 au BufNewFile,BufRead *.py:
