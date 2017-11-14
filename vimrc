@@ -26,6 +26,7 @@ Plug 'glench/vim-jinja2-syntax'
 Plug 'pearofducks/ansible-vim'
 Plug 'janko-m/vim-test'
 Plug 'vim-scripts/c.vim'
+Plug 'ntpeters/vim-better-whitespace'
 
 call plug#end()
 
@@ -127,7 +128,7 @@ autocmd Filetype html setlocal ts=2 sts=2 sw=2
 autocmd Filetype jinja setlocal ts=2 sts=2 sw=2
 autocmd Filetype css setlocal ts=2 sts=2 sw=2
 
-" ========= KEY MAPPINGS ========= 
+" ========= KEY MAPPINGS =========
 
 noremap <leader>q :q<CR>
 noremap <leader>c :bd<CR>
@@ -165,7 +166,7 @@ nmap <C-t> :TagbarToggle<CR>
 " Write compile and run C program
 nnoremap <leader>r :w <CR> :!gcc % -o %< && ./%< <CR>
 
-" ========= PLUGINS CONFIGURATION ========= 
+" ========= PLUGINS CONFIGURATION =========
 
 " NERDTree options
 autocmd StdinReadPre * let s:std_in=1
