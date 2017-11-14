@@ -10,7 +10,7 @@ Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
 Plug 'othree/html5.vim'
 Plug 'othree/xml.vim'
 Plug 'airblade/vim-gitgutter'
-Plug 'python-mode/python-mode'
+Plug 'majutsushi/tagbar'
 Plug 'fisadev/vim-isort'
 Plug 'davidhalter/jedi-vim'
 Plug 'w0rp/ale'
@@ -47,6 +47,7 @@ filetype plugin indent on
 
 syntax on
 colorscheme solarized
+let python_highlight_all = 1
 
 " Map leader key to ,
 let mapleader = ","
@@ -157,6 +158,9 @@ nnoremap <leader>b :BufExplorer<CR>
 
 " Open NERDTree buffer
 map <C-n> :NERDTreeToggle<CR>
+
+" Open Tagbar buffer
+nmap <C-t> :TagbarToggle<CR>
 
 " Write compile and run C program
 nnoremap <leader>r :w <CR> :!gcc % -o %< && ./%< <CR>
