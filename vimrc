@@ -13,6 +13,7 @@ Plug 'airblade/vim-gitgutter'
 Plug 'majutsushi/tagbar'
 Plug 'fisadev/vim-isort'
 Plug 'davidhalter/jedi-vim'
+Plug 'ervandew/supertab'
 Plug 'w0rp/ale'
 Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 Plug 'jlanzarotta/bufexplorer'
@@ -188,13 +189,16 @@ let g:ale_linters = {'python': ['flake8'],}
 let g:ale_python_flake8_options = '--max-line-length=120'
 let g:ale_python_pylint_options = '--ignore=C0301'
 
+" Supertab
+let g:SuperTabDefaultCompletionType = "context"
+
 " Pymode
-let g:pymode_options_max_line_length = 120
+" let g:pymode_options_max_line_length = 120
 " let g:pymode_breakpoint_bind = '<leader>br'
-let g:pymode_lint = 0
-let g:pymode_breakpoint = 0
-let g:pymode_virtualenv = 1
-let g:pymode_rope = 0
+" let g:pymode_lint = 0
+" let g:pymode_breakpoint = 0
+" let g:pymode_virtualenv = 1
+" let g:pymode_rope = 0
 
 " Jedi
 let g:jedi#smart_auto_mappings = 0
