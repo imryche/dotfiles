@@ -13,6 +13,7 @@ Plug 'airblade/vim-gitgutter'
 Plug 'majutsushi/tagbar'
 Plug 'fisadev/vim-isort'
 Plug 'davidhalter/jedi-vim'
+Plug 'Vimjas/vim-python-pep8-indent'
 Plug 'ervandew/supertab'
 Plug 'w0rp/ale'
 Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
@@ -160,6 +161,7 @@ nnoremap <leader>b :BufExplorer<CR>
 
 " Open NERDTree buffer
 map <C-n> :NERDTreeToggle<CR>
+map <C-i> :NERDTreeFind<CR>
 
 " Open Tagbar buffer
 nmap <C-t> :TagbarToggle<CR>
