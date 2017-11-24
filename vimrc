@@ -230,3 +230,6 @@ let g:SimpylFold_docstring_preview=1
 " Airline
 let g:airline_theme='deus'
 let g:airline#extensions#ale#enabled = 1
+
+" Ack
+let g:ack_qhandler = "copen 15"
