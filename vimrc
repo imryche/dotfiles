@@ -29,6 +29,10 @@ Plug 'pearofducks/ansible-vim'
 Plug 'janko-m/vim-test'
 Plug 'vim-scripts/c.vim'
 Plug 'ntpeters/vim-better-whitespace'
+Plug 'pangloss/vim-javascript'
+Plug 'wesQ3/vim-windowswap'
+Plug 'chriskempson/base16-vim'
+Plug 'nanotech/jellybeans.vim'
 
 call plug#end()
 
@@ -49,7 +53,8 @@ endif
 filetype plugin indent on
 
 syntax on
-colorscheme solarized
+set termguicolors
+colorscheme jellybeans
 let python_highlight_all = 1
 
 " Map leader key to ,
@@ -114,7 +119,7 @@ au BufNewFile,BufRead *.py:
     \ set autoindent
     \ set fileformat=unix
 
-au BufNewFile,BufRead *.js, *.html, *.css:
+au BufNewFile,BufRead *.js,*.html,*.css:
     \ set tabstop=2
     \ set softtabstop=2
     \ set shiftwidth=2
@@ -190,6 +195,7 @@ let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
 let g:ale_linters = {'python': ['flake8'],}
 let g:ale_python_flake8_options = '--max-line-length=120'
 let g:ale_python_pylint_options = '--ignore=C0301'
+let g:ale_set_highlights = 0
 
 " Supertab
 let g:SuperTabDefaultCompletionType = "context"
@@ -222,4 +228,5 @@ let g:bufExplorerShowRelativePath=1
 let g:SimpylFold_docstring_preview=1
 
 " Airline
-let g:airline_theme='solarized'
+let g:airline_theme='deus'
+let g:airline#extensions#ale#enabled = 1
