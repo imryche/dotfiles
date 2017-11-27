@@ -33,6 +33,7 @@ Plug 'pangloss/vim-javascript'
 Plug 'wesQ3/vim-windowswap'
 Plug 'chriskempson/base16-vim'
 Plug 'nanotech/jellybeans.vim'
+Plug 'nathanaelkane/vim-indent-guides'
 
 call plug#end()
 
@@ -172,7 +173,8 @@ map <C-i> :NERDTreeFind<CR>
 nmap <C-t> :TagbarToggle<CR>
 
 " Write compile and run C program
-nnoremap <leader>r :w <CR> :!gcc % -o %< && ./%< <CR>
+autocmd FileType c nnoremap <leader>l :w <CR> :!gcc % -o %< && ./%< <CR>
+autocmd FileType python noremap <leader>l :w <CR> :!python % <CR>
 
 " ========= PLUGINS CONFIGURATION =========
 
