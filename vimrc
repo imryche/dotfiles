@@ -138,6 +138,7 @@ autocmd Filetype css setlocal ts=2 sts=2 sw=2
 
 " ========= KEY MAPPINGS =========
 
+nnoremap <leader><leader> <C-^>
 noremap <leader>q :q<CR>
 noremap <leader>c :bd<CR>
 noremap <leader>s :write<CR>
