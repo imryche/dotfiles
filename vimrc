@@ -111,18 +111,18 @@ set diffopt+=vertical
 set nofoldenable
 
 " Indentation settings
-au BufNewFile,BufRead *.py:
-    \ set tabstop=4
-    \ set softtabstop=4
-    \ set shiftwidth=4
-    \ set textwidth=79
-    \ set expandtab
-    \ set autoindent
+au BufNewFile,BufRead *.py
+    \ set tabstop=4 |
+    \ set softtabstop=4 |
+    \ set shiftwidth=4 |
+    \ set textwidth=79 |
+    \ set expandtab |
+    \ set autoindent |
     \ set fileformat=unix
 
 au BufNewFile,BufRead *.js,*.html,*.css:
-    \ set tabstop=2
-    \ set softtabstop=2
+    \ set tabstop=2 |
+    \ set softtabstop=2 |
     \ set shiftwidth=2
 
 au BufNewFile,BufRead *.c,*.h:
@@ -130,10 +130,16 @@ au BufNewFile,BufRead *.c,*.h:
     \ set softtabstop=4 |
     \ set shiftwidth=4
 
+au BufNewFile,BufRead *.json
+    \ set ts=4 |
+    \ set sts=4 |
+    \ set sw=4 |
+    \ set expandtab |
+    \ set autoindent
+
 au BufRead,BufNewFile *.yml set filetype=ansible
 
 autocmd Filetype html setlocal ts=2 sts=2 sw=2
-autocmd Filetype jinja setlocal ts=2 sts=2 sw=2
 autocmd Filetype css setlocal ts=2 sts=2 sw=2
 
 " ========= KEY MAPPINGS =========
