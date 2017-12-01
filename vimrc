@@ -161,6 +161,9 @@ nnoremap <C-K> <C-W><C-K>
 nnoremap <C-L> <C-W><C-L>
 nnoremap <C-H> <C-W><C-H>
 
+nnoremap <leader>vs :vs<CR>
+nnoremap <leader>hs :sp<CR>
+
 " Map folding to the spacebar
 nnoremap <space> za
 
