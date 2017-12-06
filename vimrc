@@ -182,6 +182,9 @@ map <C-i> :NERDTreeFind<CR>
 " Open Tagbar buffer
 nmap <C-t> :TagbarToggle<CR>
 
+nnoremap <leader>ib oimport ipdb; ipdb.set_trace()<ESC>
+nnoremap <leader>ic ofrom celery.contrib import rdb; rdb.set_trace()<ESC>
+
 " Write compile and run C program
 autocmd FileType c nnoremap <leader>l :w <CR> :!gcc % -o %< && ./%< <CR>
 autocmd FileType python noremap <leader>l :w <CR> :!python % <CR>
