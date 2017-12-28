@@ -123,7 +123,9 @@ au BufNewFile,BufRead *.py
 au BufNewFile,BufRead *.js,*.html,*.css:
     \ set tabstop=2 |
     \ set softtabstop=2 |
-    \ set shiftwidth=2
+    \ set shiftwidth=2 |
+    \ set autoindent |
+    \ set expandtab
 
 au BufNewFile,BufRead *.c,*.h:
     \ set tabstop=4 |
@@ -245,6 +247,3 @@ let g:SimpylFold_docstring_preview=1
 " Airline
 let g:airline_theme='deus'
 let g:airline#extensions#ale#enabled = 1
-
-" Ack
-let g:ack_qhandler = "copen 15"
