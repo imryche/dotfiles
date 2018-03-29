@@ -5,7 +5,6 @@ Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-unimpaired'
 Plug 'tpope/vim-surround'
-Plug 'AndrewRadev/splitjoin.vim'
 Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
 Plug 'othree/html5.vim'
 Plug 'othree/xml.vim'
@@ -23,15 +22,12 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'kien/ctrlp.vim'
 Plug 'mattn/emmet-vim'
 Plug 'altercation/vim-colors-solarized'
-Plug 'nanotech/jellybeans.vim'
 Plug 'glench/vim-jinja2-syntax'
 Plug 'pearofducks/ansible-vim'
 Plug 'janko-m/vim-test'
 Plug 'vim-scripts/c.vim'
 Plug 'ntpeters/vim-better-whitespace'
 Plug 'pangloss/vim-javascript'
-Plug 'wesQ3/vim-windowswap'
-Plug 'chriskempson/base16-vim'
 Plug 'nanotech/jellybeans.vim'
 Plug 'nathanaelkane/vim-indent-guides'
 
@@ -65,17 +61,20 @@ set nocompatible
 set encoding=utf-8
 set background=dark
 
+" Wrapping
+set nowrap
+" set textwidth=0
+
 " Reduce <ESC> timeout
 set ttimeout
 set ttimeoutlen=20
 set notimeout
 
 set number
-set numberwidth=6
+set numberwidth=4
 set ruler
 set showcmd
 
-set re=1 " Old regex engine that actually works faster
 set lazyredraw
 set wildmenu
 
@@ -106,6 +105,9 @@ set noswapfile
 set splitbelow
 set splitright
 set diffopt+=vertical
+
+" Always show tab bar at the top
+set showtabline=2
 
 " Disable folding
 set nofoldenable
@@ -150,8 +152,8 @@ nnoremap <leader><leader> <C-^>
 noremap <leader>q :q<CR>
 noremap <leader>c :bd<CR>
 noremap <leader>s :write<CR>
-noremap <leader>f :Ack ""<Left>
-noremap <leader>F :Ack "<C-r>""<Space>
+" noremap <leader>f :Ack ""<Left>
+" noremap <leader>F :Ack "<C-r>""<Space>
 
 " Move vertically by visual line
 nnoremap j gj
@@ -170,9 +172,13 @@ nnoremap <leader>hs :sp<CR>
 nnoremap <space> za
 
 " Edit vimrc/zshrc and load vimrc bindings
-nnoremap <leader>ev :vsp $MYVIMRC<CR>
+nnoremap <leader>ev :vsp ~/.vimrc<CR>
 nnoremap <leader>ez :vsp ~/.zshrc<CR>
-nnoremap <leader>erc :source $MYVIMRC<CR>
+nnoremap <leader>erc :source ~/.vimrc<CR>
+
+" CtrlP mappings
+let g:ctrlp_map = '<leader>f'
+let g:ctrlp_cmd = 'CtrlP'
 
 " Open BufExplorer
 nnoremap <leader>b :BufExplorer<CR>
@@ -190,6 +196,7 @@ nnoremap <leader>ic ofrom celery.contrib import rdb; rdb.set_trace()<ESC>
 " Write compile and run C program
 autocmd FileType c nnoremap <leader>l :w <CR> :!gcc % -o %< && ./%< <CR>
 autocmd FileType python noremap <leader>l :w <CR> :!python % <CR>
+autocmd FileType javascript noremap <leader>l :w <CR> :!node % <CR>
 
 " ========= PLUGINS CONFIGURATION =========
 
@@ -197,13 +204,8 @@ autocmd FileType python noremap <leader>l :w <CR> :!python % <CR>
 autocmd StdinReadPre * let s:std_in=1
 autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | endif
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
-let NERDTreeIgnore=['\.pyc$', '\~$']
+let NERDTreeIgnore=['\.pyc$', '\~$', '__pycache__']
 let g:NERDTreeWinSize=40
-
-" Syntastic
-" let g:syntastic_python_checkers=['pylint']
-" let g:syntastic_python_flake8_args='--ignore=E501,E225'
-" let g:syntastic_python_pylint_post_args="--max-line-length=120"
 
 " Ale
 let g:ale_echo_msg_error_str = 'E'
@@ -216,14 +218,6 @@ let g:ale_set_highlights = 0
 
 " Supertab
 let g:SuperTabDefaultCompletionType = "context"
-
-" Pymode
-" let g:pymode_options_max_line_length = 120
-" let g:pymode_breakpoint_bind = '<leader>br'
-" let g:pymode_lint = 0
-" let g:pymode_breakpoint = 0
-" let g:pymode_virtualenv = 1
-" let g:pymode_rope = 0
 
 " Jedi
 let g:jedi#smart_auto_mappings = 0
@@ -240,9 +234,6 @@ let g:ctrlp_user_command = ['.git/', 'git --git-dir=%s/.git ls-files -oc --exclu
 " BufExplorer
 let g:bufExplorerDisableDefaultKeyMapping=1
 let g:bufExplorerShowRelativePath=1
-
-" SimpylFold
-let g:SimpylFold_docstring_preview=1
 
 " Airline
 let g:airline_theme='deus'
