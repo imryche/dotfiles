@@ -103,4 +103,16 @@ source /usr/local/opt/autoenv/activate.sh
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
+# Enable vi mode
+set -o vi
+bindkey "^R" history-incremental-search-backward
+
+alias vim="nvim"
+alias vi="nvim"
 alias cls="clear"
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/Users/dmitrychernyshov/Downloads/google-cloud-sdk/path.zsh.inc' ]; then source '/Users/dmitrychernyshov/Downloads/google-cloud-sdk/path.zsh.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/Users/dmitrychernyshov/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then source '/Users/dmitrychernyshov/Downloads/google-cloud-sdk/completion.zsh.inc'; fi
