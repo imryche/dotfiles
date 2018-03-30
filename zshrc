@@ -99,7 +99,6 @@ export LANG=en_US.UTF-8
 export PATH=$PATH:/Applications/Postgres.app/Contents/Versions/latest/bin
 
 export PATH=$PATH:/usr/local/go/bin
-source /usr/local/opt/autoenv/activate.sh
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
