@@ -63,6 +63,8 @@ This function should only modify configuration layer settings."
      treemacs
      org
      spacemacs-org
+     ibuffer
+     themes-megapack
      )
 
    dotspacemacs-additional-packages '(doom-themes exec-path-from-shell)
