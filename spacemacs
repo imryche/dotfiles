@@ -454,6 +454,7 @@ configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
   ;; (setq scroll-margin 5)
+  (setq flycheck-python-flake8-executable "flake8")
   (require 'auto-virtualenv)
   (add-hook 'python-mode-hook 'auto-virtualenv-set-virtualenv)
   (defun ediff-copy-both-to-C ()
