@@ -437,6 +437,7 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
    ranger-show-literal nil
    split-height-threshold nil
    split-width-threshold 0
+   treemacs-no-png-images t
    )
   )
 
