@@ -74,7 +74,7 @@ This function should only modify configuration layer settings."
 
    dotspacemacs-additional-packages '(doom-themes exec-path-from-shell auto-virtualenv)
    dotspacemacs-frozen-packages '()
-   dotspacemacs-excluded-packages '()
+   dotspacemacs-excluded-packages '(importmagic)
    dotspacemacs-install-packages 'used-only))
 
 (defun dotspacemacs/init ()
