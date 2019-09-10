@@ -35,15 +35,10 @@ This function should only modify configuration layer settings."
    dotspacemacs-configuration-layers
    '(go
      gtags
-     lsp
-     dap
      csv
      sql
      html
-     (python :variables
-             python-backend 'lsp
-             python-lsp-server 'mspyls
-             python-lsp-git-root "~/dev/python/python-language-server")
+     python
      django
      ruby
      ruby-on-rails
@@ -443,8 +438,6 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
    split-height-threshold nil
    split-width-threshold 0
    treemacs-no-png-images t
-   lsp-ui-sideline-enable nil
-   lsp-ui-doc-enable nil
    )
   )
 
