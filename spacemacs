@@ -15,7 +15,8 @@ This function should only modify configuration layer settings."
      csv
      sql
      html
-     python
+     lsp
+     (python :variables python-backend 'lsp)
      django
      ruby
      ruby-on-rails
@@ -175,6 +176,7 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
    treemacs-no-png-images t
    web-mode-markup-indent-offset 2
    scroll-margin 5
+   lsp-ui-doc-enable nil
    )
   )
 
