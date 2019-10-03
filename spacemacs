@@ -17,7 +17,9 @@ This function should only modify configuration layer settings."
      sql
      html
      lsp
-     (python :variables python-backend 'lsp)
+     (python :variables
+             python-backend 'lsp
+             python-test-runner 'pytest)
      django
      ruby
      ruby-on-rails
