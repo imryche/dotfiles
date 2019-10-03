@@ -196,7 +196,7 @@ configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
   (load-file "~/.emacs.d/private/local/iterm/iterm.el")
-  (spacemacs/set-leader-keys "ot" 'iterm-pytest)
+  (spacemacs/set-leader-keys "of" 'iterm-pytest-file)
 
   (setq flycheck-python-flake8-executable "flake8")
   (require 'auto-virtualenv)
