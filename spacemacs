@@ -28,6 +28,7 @@ This function should only modify configuration layer settings."
      helm
      (auto-completion :variables
                       auto-completion-tab-key-behavior 'complete
+                      auto-completion-complete-with-key-sequence "jk"
                       auto-completion-enable-help-tooltip t)
      emacs-lisp
      git
@@ -196,6 +197,10 @@ This function is called at the very end of Spacemacs startup, after layer
 configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
+  (load-file "~/.emacs.d/private/local/iterm/iterm.el")
+  (spacemacs/set-leader-keys "of" 'iterm-pytest-file)
+  (spacemacs/set-leader-keys "od" 'iterm-pytest-dir)
+
   (setq flycheck-python-flake8-executable "flake8")
   (require 'auto-virtualenv)
   (add-hook 'python-mode-hook 'auto-virtualenv-set-virtualenv)
