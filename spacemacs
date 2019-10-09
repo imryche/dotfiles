@@ -60,6 +60,7 @@ This function is called at the very beginning of Spacemacs startup,
 before layer configuration.
 It should only modify the values of Spacemacs settings."
   (setq-default
+   company-lsp-enable-snippet nil
    dotspacemacs-enable-emacs-pdumper nil
    dotspacemacs-emacs-pdumper-executable-file "emacs-27.0.50"
    dotspacemacs-emacs-dumper-dump-file "spacemacs.pdmp"
