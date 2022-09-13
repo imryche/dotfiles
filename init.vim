@@ -3,6 +3,8 @@ call plug#begin()
 Plug 'chriskempson/base16-vim'
 Plug 'arcticicestudio/nord-vim'
 Plug 'huyvohcmc/atlas.vim'
+Plug 'jonathanfilip/vim-lucius'
+Plug 'sonph/onehalf', { 'rtp': 'vim' }
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() }}
 Plug 'junegunn/fzf.vim'
 Plug 'dense-analysis/ale'
@@ -23,8 +25,9 @@ set nowritebackup
 set signcolumn=no
 
 set termguicolors
-colorscheme atlas
-
+syntax on
+set t_Co=256
+colorscheme onehalfdark
 set completeopt=menu,preview
 
 filetype plugin indent on
