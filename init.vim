@@ -1,10 +1,7 @@
 call plug#begin()
 
-Plug 'chriskempson/base16-vim'
 Plug 'arcticicestudio/nord-vim'
-Plug 'huyvohcmc/atlas.vim'
-Plug 'jonathanfilip/vim-lucius'
-Plug 'sonph/onehalf', { 'rtp': 'vim' }
+Plug 'itchyny/lightline.vim'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() }}
 Plug 'junegunn/fzf.vim'
 Plug 'dense-analysis/ale'
@@ -12,6 +9,9 @@ Plug 'pechorin/any-jump.vim'
 Plug 'ervandew/supertab'
 Plug 'vim-scripts/AutoComplPop'
 Plug 'preservim/nerdcommenter'
+Plug 'airblade/vim-gitgutter'
+Plug 'godlygeek/tabular'
+Plug 'preservim/vim-markdown'
 
 call plug#end()
 
@@ -22,12 +22,13 @@ set scrolloff=3
 set wildmenu
 set nobackup
 set nowritebackup
-set signcolumn=no
 
-set termguicolors
 syntax on
-set t_Co=256
-colorscheme onehalfdark
+set termguicolors
+colorscheme nord
+let g:nord_bold=0
+let g:lightline = { 'colorscheme': 'nord' }
+
 set completeopt=menu,preview
 
 filetype plugin indent on
@@ -38,6 +39,9 @@ nnoremap <c-j> <c-w>j
 nnoremap <c-k> <c-w>k
 nnoremap <c-h> <c-w>h
 nnoremap <c-l> <c-w>l
+
+nnoremap <leader>v :vsp<cr>
+nnoremap <leader>h :sp<cr>
 
 nnoremap <leader>s :w<cr>
 nnoremap <leader><tab> <c-^>
