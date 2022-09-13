@@ -12,6 +12,9 @@ Plug 'preservim/nerdcommenter'
 Plug 'airblade/vim-gitgutter'
 Plug 'godlygeek/tabular'
 Plug 'preservim/vim-markdown'
+Plug 'tpope/vim-unimpaired'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-fugitive'
 
 call plug#end()
 
