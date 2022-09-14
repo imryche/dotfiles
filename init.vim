@@ -48,22 +48,8 @@ nnoremap <leader><tab> <c-^>
 nnoremap <leader>o :only<cr>
 nnoremap <leader>k :q<cr>
 
-nnoremap <leader>d :Lexplore<cr>
-
-function! NetrwMapping()
-  nmap <buffer> H u
-  nmap <buffer> h -^
-  nmap <buffer> l <CR>
-  nmap <buffer> . gh
-  nmap <buffer> P <C-w>z
-  "nmap <buffer> L <CR>:Lexplore<CR>
-  "nmap <buffer> <Leader>dd :Lexplore<CR>
-endfunction
-
-augroup netrw_mapping
-  autocmd!
-  autocmd filetype netrw call NetrwMapping()
-augroup END
+nnoremap <leader>d :Explore<cr>
+nnoremap <leader>D :Lexplore<cr>
 
 nnoremap <leader>/ :Rg<cr>
 nnoremap <leader>; :Buffers<cr>
