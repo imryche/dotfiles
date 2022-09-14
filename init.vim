@@ -34,8 +34,6 @@ let g:lightline = { 'colorscheme': 'nord' }
 
 set completeopt=menu,preview
 
-filetype plugin indent on
-
 let mapleader=" "
 
 nnoremap <c-j> <c-w>j
