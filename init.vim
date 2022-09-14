@@ -5,7 +5,6 @@ Plug 'itchyny/lightline.vim'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() }}
 Plug 'junegunn/fzf.vim'
 Plug 'dense-analysis/ale'
-Plug 'pechorin/any-jump.vim'
 Plug 'ervandew/supertab'
 Plug 'vim-scripts/AutoComplPop'
 Plug 'preservim/nerdcommenter'
@@ -74,11 +73,6 @@ nnoremap <leader>p :Files<cr>
 nnoremap gj :ALENextWrap<cr>
 nnoremap gk :ALEPreviousWrap<cr>
 nnoremap g1 :ALEFirst<cr>
-
-let g:any_jump_disable_default_keybindings = 1
-nnoremap <leader>. :AnyJump<cr>
-xnoremap <leader>. :AnyJumpVisual<cr>
-nnoremap <leader>, :AnyJumpBack<cr>
 
 let g:SuperTabDefaultCompletionType = "<c-n>"
 
