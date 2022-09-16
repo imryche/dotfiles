@@ -24,14 +24,29 @@ Plug 'preservim/vim-markdown'
 
 call plug#end()
 
+set history=10000
+set expandtab
+set tabstop=2
+set shiftwidth=2
+set softtabstop=2
+set autoindent
+set laststatus=2
+set showmatch
+set ignorecase smartcase
 set relativenumber
 set nocompatible
 set cursorline
+set cmdheight=1
+set hidden
+set switchbuf=useopen
 set scrolloff=3
 set wildmenu
 set nobackup
 set nowritebackup
 set noswapfile
+set backspace=indent,eol,start
+
+filetype plugin indent on
 
 syntax on
 set termguicolors
