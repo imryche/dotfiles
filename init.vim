@@ -2,19 +2,25 @@ call plug#begin()
 
 Plug 'arcticicestudio/nord-vim'
 Plug 'itchyny/lightline.vim'
+
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() }}
 Plug 'junegunn/fzf.vim'
-Plug 'neovim/nvim-lspconfig'
-Plug 'dense-analysis/ale'
+
 Plug 'ervandew/supertab'
-Plug 'vim-scripts/AutoComplPop'
-Plug 'preservim/nerdcommenter'
-Plug 'airblade/vim-gitgutter'
-Plug 'godlygeek/tabular'
-Plug 'preservim/vim-markdown'
+
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+Plug 'dense-analysis/ale'
+Plug 'ludovicchabant/vim-gutentags'
+
 Plug 'tpope/vim-unimpaired'
+Plug 'airblade/vim-gitgutter'
+
+Plug 'preservim/nerdcommenter'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-fugitive'
+
+Plug 'godlygeek/tabular'
+Plug 'preservim/vim-markdown'
 
 call plug#end()
 
@@ -47,7 +53,8 @@ nnoremap <leader>h :sp<cr>
 nnoremap <leader>s :w<cr>
 nnoremap <leader><tab> <c-^>
 nnoremap <leader>o :only<cr>
-nnoremap <leader>k :q<cr>
+nnoremap <leader>q :q<cr>
+nnoremap <leader>c :nohl<cr>
 
 nnoremap <leader>d :Explore<cr>
 nnoremap <leader>D :Lexplore<cr>
@@ -61,30 +68,22 @@ nnoremap gj :ALENextWrap<cr>
 nnoremap gk :ALEPreviousWrap<cr>
 nnoremap g1 :ALEFirst<cr>
 
-let g:SuperTabDefaultCompletionType = "<c-n>"
-
 map <leader>' <plug>NERDCommenterToggle
 
+let g:SuperTabDefaultCompletionType = "<c-n>"
+let $FZF_DEFAULT_OPTS = '--bind ctrl-a:select-all,ctrl-d:deselect-all'
+
 lua <<EOF
-local opts = { noremap=true, silent=true }
+require('nvim-treesitter.configs').setup {
+  ensure_installed = { "c", "lua", "python" },
+  sync_install = false,
+  auto_install = true,
+  ignore_install = { "javascript" },
 
--- Use an on_attach function to only map the following keys
--- after the language server attaches to the current buffer
-local on_attach = function(client, bufnr)
-  -- Enable completion triggered by <c-x><c-o>
-  vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
-
-  -- Mappings.
-  -- See `:help vim.lsp.*` for documentation on any of the below functions
-  local bufopts = { noremap=true, silent=true, buffer=bufnr }
-  vim.keymap.set('n', '<space>.', vim.lsp.buf.definition, bufopts)
-  vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
-end
-
-require('lspconfig')['pyright'].setup{
-    on_attach = on_attach,
-    flags = lsp_flags,
+  highlight = {
+    enable = true,
+    disable = {},
+    additional_vim_regex_highlighting = false,
+  },
 }
-
-vim.lsp.handlers["textDocument/publishDiagnostics"] = function() end
 EOF
