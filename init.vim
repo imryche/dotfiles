@@ -50,6 +50,7 @@ filetype plugin indent on
 
 syntax on
 set termguicolors
+set signcolumn=yes
 colorscheme nord
 let g:nord_bold=0
 let g:lightline = { 'colorscheme': 'nord' }
