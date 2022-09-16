@@ -90,6 +90,12 @@ let g:SuperTabDefaultCompletionType = "<c-n>"
 let $FZF_DEFAULT_OPTS = '--bind ctrl-a:select-all,ctrl-d:deselect-all'
 
 lua <<EOF
+require('lualine').setup({
+  options = {
+    icons_enabled = false
+	}
+})
+
 require('nvim-treesitter.configs').setup {
   ensure_installed = { "c", "lua", "python" },
   sync_install = false,
