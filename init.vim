@@ -1,7 +1,7 @@
 call plug#begin()
 
 Plug 'arcticicestudio/nord-vim'
-Plug 'itchyny/lightline.vim'
+Plug 'nvim-lualine/lualine.nvim'
 
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() }}
 Plug 'junegunn/fzf.vim'
