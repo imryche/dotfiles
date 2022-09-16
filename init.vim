@@ -31,6 +31,7 @@ set scrolloff=3
 set wildmenu
 set nobackup
 set nowritebackup
+set noswapfile
 
 syntax on
 set termguicolors
