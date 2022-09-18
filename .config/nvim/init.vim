@@ -64,17 +64,15 @@ nnoremap <c-k> <c-w>k
 nnoremap <c-h> <c-w>h
 nnoremap <c-l> <c-w>l
 
-nnoremap <leader>v :vsp<cr>
-nnoremap <leader>h :sp<cr>
+nnoremap <leader>1 :only<cr>
+nnoremap <leader>3 :vsp<cr>
+nnoremap <leader>2 :sp<cr>
+nnoremap <leader>d :bd<cr>
 
 nnoremap <leader>s :w<cr>
-nnoremap <leader><tab> <c-^>
-nnoremap <leader>o :only<cr>
+nnoremap <leader>o <c-^>
 nnoremap <leader>q :q<cr>
 nnoremap <leader>c :nohl<cr>
-
-nnoremap <leader>d :Explore<cr>
-nnoremap <leader>D :Lexplore<cr>
 
 nnoremap <leader>/ :Rg<cr>
 nnoremap <leader>; :Buffers<cr>
