@@ -13,7 +13,6 @@ Plug 'dense-analysis/ale'
 Plug 'ludovicchabant/vim-gutentags'
 
 Plug 'tpope/vim-unimpaired'
-Plug 'airblade/vim-gitgutter'
 
 Plug 'preservim/nerdcommenter'
 Plug 'tpope/vim-surround'
