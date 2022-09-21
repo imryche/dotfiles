@@ -33,6 +33,7 @@ set autoindent
 set laststatus=2
 set showmatch
 set ignorecase smartcase
+set number
 set relativenumber
 set nocompatible
 set cursorline
