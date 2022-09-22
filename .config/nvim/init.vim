@@ -14,7 +14,7 @@ Plug 'ludovicchabant/vim-gutentags'
 
 Plug 'tpope/vim-unimpaired'
 
-Plug 'preservim/nerdcommenter'
+Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-fugitive'
 
@@ -78,9 +78,12 @@ nnoremap <leader>; :Buffers<cr>
 nnoremap <leader>l :BLines<cr>
 nnoremap <leader>p :Files<cr>
 
+let b:ale_fixers = {'python': ['isort', 'black']}
+let b:ale_linters = {'python': ['flake8']}
 nnoremap gj :ALENextWrap<cr>
 nnoremap gk :ALEPreviousWrap<cr>
 nnoremap g1 :ALEFirst<cr>
+nnoremap <leader>= :ALEFix<cr>
 
 map <leader>' <plug>NERDCommenterToggle
 
