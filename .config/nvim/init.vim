@@ -15,7 +15,7 @@ Plug 'ludovicchabant/vim-gutentags'
 Plug 'tpope/vim-unimpaired'
 Plug 'airblade/vim-gitgutter'
 
-Plug 'preservim/nerdcommenter'
+Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-fugitive'
 
