@@ -6,6 +6,9 @@ Plug 'nvim-lualine/lualine.nvim'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() }}
 Plug 'junegunn/fzf.vim'
 
+Plug 'francoiscabrol/ranger.vim'
+Plug 'rbgrouleff/bclose.vim'
+
 Plug 'ervandew/supertab'
 
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
@@ -78,6 +81,9 @@ nnoremap <leader>; :Buffers<cr>
 nnoremap <leader>l :BLines<cr>
 nnoremap <leader>p :Files<cr>
 
+nnoremap <leader>r :Ranger<cr>
+
+let g:ale_set_signs = 0
 let b:ale_fixers = {'python': ['isort', 'black']}
 let b:ale_linters = {'python': ['flake8']}
 nnoremap gj :ALENextWrap<cr>
@@ -90,6 +96,7 @@ map <leader>' <plug>NERDCommenterToggle
 let g:SuperTabDefaultCompletionType = "<c-n>"
 
 let $FZF_DEFAULT_OPTS = '--bind ctrl-a:select-all,ctrl-d:deselect-all'
+" let g:fzf_layout = { 'down': '20' }
 let g:fzf_colors =                                                                         
     \ { 'fg':      ['fg', 'Normal'],                                                           
       \ 'bg':      ['bg', 'Normal'],                                                           
@@ -104,6 +111,8 @@ let g:fzf_colors =
       \ 'marker':  ['fg', 'Keyword'],                                                          
       \ 'spinner': ['fg', 'Label'],                                                            
       \ 'header':  ['fg', 'Comment'] } 
+
+autocmd TermOpen * setlocal nonumber norelativenumber
 
 lua <<EOF
 require('lualine').setup({
