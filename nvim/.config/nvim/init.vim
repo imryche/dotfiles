@@ -6,11 +6,15 @@ Plug 'nvim-lualine/lualine.nvim'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() }}
 Plug 'junegunn/fzf.vim'
 
+Plug 'francoiscabrol/ranger.vim'
+Plug 'rbgrouleff/bclose.vim'
+
 Plug 'ervandew/supertab'
 
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'dense-analysis/ale'
-Plug 'ludovicchabant/vim-gutentags'
+Plug 'neovim/nvim-lspconfig'
+" Plug 'ludovicchabant/vim-gutentags'
 
 Plug 'tpope/vim-unimpaired'
 
@@ -78,8 +82,11 @@ nnoremap <leader>; :Buffers<cr>
 nnoremap <leader>l :BLines<cr>
 nnoremap <leader>p :Files<cr>
 
-let b:ale_fixers = {'python': ['isort', 'black']}
-let b:ale_linters = {'python': ['flake8']}
+nnoremap <leader>r :Ranger<cr>
+
+let g:ale_set_signs = 0
+let g:ale_fixers = {'python': ['isort', 'black']}
+let g:ale_linters = {'python': ['flake8']}
 nnoremap gj :ALENextWrap<cr>
 nnoremap gk :ALEPreviousWrap<cr>
 nnoremap g1 :ALEFirst<cr>
@@ -90,6 +97,7 @@ map <leader>' <plug>NERDCommenterToggle
 let g:SuperTabDefaultCompletionType = "<c-n>"
 
 let $FZF_DEFAULT_OPTS = '--bind ctrl-a:select-all,ctrl-d:deselect-all'
+" let g:fzf_layout = { 'down': '20' }
 let g:fzf_colors =                                                                         
     \ { 'fg':      ['fg', 'Normal'],                                                           
       \ 'bg':      ['bg', 'Normal'],                                                           
@@ -104,6 +112,8 @@ let g:fzf_colors =
       \ 'marker':  ['fg', 'Keyword'],                                                          
       \ 'spinner': ['fg', 'Label'],                                                            
       \ 'header':  ['fg', 'Comment'] } 
+
+autocmd TermOpen * setlocal nonumber norelativenumber
 
 lua <<EOF
 require('lualine').setup({
@@ -124,4 +134,26 @@ require('nvim-treesitter.configs').setup {
     additional_vim_regex_highlighting = false,
   },
 }
+
+local opts = { noremap=true, silent=true }
+
+-- Use an on_attach function to only map the following keys
+-- after the language server attaches to the current buffer
+local on_attach = function(client, bufnr)
+  -- Enable completion triggered by <c-x><c-o>
+  vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
+
+  -- Mappings.
+  -- See `:help vim.lsp.*` for documentation on any of the below functions
+  local bufopts = { noremap=true, silent=true, buffer=bufnr }
+  vim.keymap.set('n', '<space>.', vim.lsp.buf.definition, bufopts)
+  vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
+end
+
+require('lspconfig')['pyright'].setup{
+    on_attach = on_attach,
+    flags = lsp_flags,
+}
+
+vim.lsp.handlers["textDocument/publishDiagnostics"] = function() end
 EOF
