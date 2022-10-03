@@ -13,7 +13,8 @@ Plug 'ervandew/supertab'
 
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'dense-analysis/ale'
-Plug 'ludovicchabant/vim-gutentags'
+Plug 'neovim/nvim-lspconfig'
+" Plug 'ludovicchabant/vim-gutentags'
 
 Plug 'tpope/vim-unimpaired'
 
@@ -133,4 +134,26 @@ require('nvim-treesitter.configs').setup {
     additional_vim_regex_highlighting = false,
   },
 }
+
+local opts = { noremap=true, silent=true }
+
+-- Use an on_attach function to only map the following keys
+-- after the language server attaches to the current buffer
+local on_attach = function(client, bufnr)
+  -- Enable completion triggered by <c-x><c-o>
+  vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
+
+  -- Mappings.
+  -- See `:help vim.lsp.*` for documentation on any of the below functions
+  local bufopts = { noremap=true, silent=true, buffer=bufnr }
+  vim.keymap.set('n', '<space>.', vim.lsp.buf.definition, bufopts)
+  vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
+end
+
+require('lspconfig')['pyright'].setup{
+    on_attach = on_attach,
+    flags = lsp_flags,
+}
+
+vim.lsp.handlers["textDocument/publishDiagnostics"] = function() end
 EOF
