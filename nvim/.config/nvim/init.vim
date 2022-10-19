@@ -1,7 +1,6 @@
 call plug#begin()
 
 Plug 'arcticicestudio/nord-vim'
-Plug 'nvim-lualine/lualine.nvim'
 
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() }}
 Plug 'junegunn/fzf.vim'
@@ -57,7 +56,6 @@ syntax on
 set termguicolors
 colorscheme nord
 let g:nord_bold=0
-let g:lightline = { 'colorscheme': 'nord' }
 
 set completeopt=menu,preview
 
@@ -117,12 +115,6 @@ let g:fzf_colors =
 autocmd TermOpen * setlocal nonumber norelativenumber
 
 lua <<EOF
-require('lualine').setup({
-  options = {
-    icons_enabled = false
-	}
-})
-
 require('nvim-treesitter.configs').setup {
   ensure_installed = { "c", "lua", "python" },
   sync_install = false,
