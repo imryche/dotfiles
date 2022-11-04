@@ -1,6 +1,6 @@
 call plug#begin()
 
-Plug 'arcticicestudio/nord-vim'
+Plug 'cocopon/iceberg.vim'
 
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() }}
 Plug 'junegunn/fzf.vim'
@@ -13,7 +13,6 @@ Plug 'ervandew/supertab'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'dense-analysis/ale'
 Plug 'neovim/nvim-lspconfig'
-" Plug 'ludovicchabant/vim-gutentags'
 
 Plug 'tpope/vim-unimpaired'
 
@@ -54,8 +53,7 @@ filetype plugin indent on
 
 syntax on
 set termguicolors
-colorscheme nord
-let g:nord_bold=0
+colorscheme iceberg
 
 set completeopt=menu,preview
 
