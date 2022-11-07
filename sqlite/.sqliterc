@@ -1,0 +1,2 @@
+.mode table
+PRAGMA foreign_keys = ON
