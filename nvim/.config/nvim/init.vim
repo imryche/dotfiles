@@ -1,6 +1,7 @@
 call plug#begin()
 
 Plug 'cocopon/iceberg.vim'
+Plug 'nvim-lualine/lualine.nvim'
 
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() }}
 Plug 'junegunn/fzf.vim'
@@ -113,6 +114,10 @@ let g:fzf_colors =
 autocmd TermOpen * setlocal nonumber norelativenumber
 
 lua <<EOF
+require('lualine').setup {
+  options = { section_separators = '', component_separators = '', theme = 'iceberg' }
+}
+
 require('nvim-treesitter.configs').setup {
   ensure_installed = { "c", "lua", "python" },
   sync_install = false,
