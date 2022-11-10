@@ -6,9 +6,6 @@ Plug 'nvim-lualine/lualine.nvim'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() }}
 Plug 'junegunn/fzf.vim'
 
-Plug 'francoiscabrol/ranger.vim'
-Plug 'rbgrouleff/bclose.vim'
-
 Plug 'ervandew/supertab'
 
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
@@ -80,7 +77,7 @@ nnoremap <leader>; :Buffers<cr>
 nnoremap <leader>l :BLines<cr>
 nnoremap <leader>p :Files<cr>
 
-nnoremap <leader>r :Ranger<cr>
+nnoremap <leader>e :Ex<cr>
 
 let g:ale_set_signs = 0
 let g:ale_fixers = {'c': ['clang-format'], 'python': ['isort', 'black'], 'json': ['jq']}
