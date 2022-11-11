@@ -3,14 +3,18 @@ call plug#begin()
 Plug 'cocopon/iceberg.vim'
 Plug 'nvim-lualine/lualine.nvim'
 
-Plug 'junegunn/fzf', { 'do': { -> fzf#install() }}
-Plug 'junegunn/fzf.vim'
-
-Plug 'ervandew/supertab'
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.0' }
 
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'dense-analysis/ale'
+
 Plug 'neovim/nvim-lspconfig'
+Plug 'hrsh7th/cmp-nvim-lsp'
+Plug 'hrsh7th/cmp-buffer'
+Plug 'hrsh7th/cmp-path'
+Plug 'hrsh7th/cmp-cmdline'
+Plug 'hrsh7th/nvim-cmp'
 
 Plug 'tpope/vim-unimpaired'
 
@@ -53,7 +57,7 @@ syntax on
 set termguicolors
 colorscheme iceberg
 
-set completeopt=menu,preview
+set completeopt=menu,menuone,noselect
 
 let mapleader=" "
 
@@ -72,11 +76,6 @@ nnoremap <leader>o <c-^>
 nnoremap <leader>q :q<cr>
 nnoremap <leader>c :nohl<cr>
 
-nnoremap <leader>/ :Rg<cr>
-nnoremap <leader>; :Buffers<cr>
-nnoremap <leader>l :BLines<cr>
-nnoremap <leader>p :Files<cr>
-
 nnoremap <leader>e :Ex<cr>
 
 let g:ale_set_signs = 0
@@ -87,34 +86,15 @@ nnoremap gk :ALEPreviousWrap<cr>
 nnoremap g1 :ALEFirst<cr>
 nnoremap <leader>= :ALEFix<cr>
 
-map <leader>' <plug>NERDCommenterToggle
-
-let g:SuperTabDefaultCompletionType = "<c-n>"
-
-let $FZF_DEFAULT_OPTS = '--bind ctrl-a:select-all,ctrl-d:deselect-all'
-" let g:fzf_layout = { 'down': '20' }
-let g:fzf_colors =                                                                         
-    \ { 'fg':      ['fg', 'Normal'],                                                           
-      \ 'bg':      ['bg', 'Normal'],                                                           
-      \ 'hl':      ['fg', 'Comment'],                                                          
-      \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],                             
-      \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],                                       
-      \ 'hl+':     ['fg', 'Statement'],                                                        
-      \ 'info':    ['fg', 'PreProc'],                                                          
-      \ 'border':  ['fg', 'Ignore'],                                                           
-      \ 'prompt':  ['fg', 'Conditional'],                                                      
-      \ 'pointer': ['fg', 'Exception'],                                                        
-      \ 'marker':  ['fg', 'Keyword'],                                                          
-      \ 'spinner': ['fg', 'Label'],                                                            
-      \ 'header':  ['fg', 'Comment'] } 
-
 autocmd TermOpen * setlocal nonumber norelativenumber
 
 lua <<EOF
+-- Set up lualine
 require('lualine').setup {
   options = { section_separators = '', component_separators = '', theme = 'iceberg' }
 }
 
+-- Set up nvim-treesitter
 require('nvim-treesitter.configs').setup {
   ensure_installed = { "c", "lua", "python" },
   sync_install = false,
@@ -128,16 +108,42 @@ require('nvim-treesitter.configs').setup {
   },
 }
 
+-- Set up telescope
+local builtin = require('telescope.builtin')
+vim.keymap.set('n', '<C-p>', builtin.git_files, {})
+vim.keymap.set('n', '<leader>ff', builtin.find_files, {})
+vim.keymap.set('n', '<leader>fs', builtin.live_grep, {})
+vim.keymap.set('n', '<leader>fw', function() builtin.grep_string({ search = vim.fn.expand("<cword>") }) end, {})
+vim.keymap.set('n', '<leader>fb', builtin.buffers, {})
+vim.keymap.set('n', '<leader>fh', builtin.help_tags, {})
+
+-- Set up nvim-cmp
+local cmp = require'cmp'
+
+cmp.setup({
+  snippet = { },
+  window = { },
+  mapping = cmp.mapping.preset.insert({
+    ['<C-b>'] = cmp.mapping.scroll_docs(-4),
+    ['<C-f>'] = cmp.mapping.scroll_docs(4),
+    ['<C-Space>'] = cmp.mapping.complete(),
+    ['<C-e>'] = cmp.mapping.abort(),
+    ['<CR>'] = cmp.mapping.confirm({ select = true }),
+  }),
+  sources = cmp.config.sources({
+    { name = 'nvim_lsp' },
+  }, {
+    { name = 'buffer' },
+  })
+})
+
+local capabilities = require('cmp_nvim_lsp').default_capabilities()
+
+-- Set up lspconfig.
 local opts = { noremap=true, silent=true }
 
--- Use an on_attach function to only map the following keys
--- after the language server attaches to the current buffer
 local on_attach = function(client, bufnr)
-  -- Enable completion triggered by <c-x><c-o>
-  vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
-
   -- Mappings.
-  -- See `:help vim.lsp.*` for documentation on any of the below functions
   local bufopts = { noremap=true, silent=true, buffer=bufnr }
   vim.keymap.set('n', '<space>.', vim.lsp.buf.definition, bufopts)
   vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
@@ -146,6 +152,7 @@ end
 require('lspconfig')['pyright'].setup{
     on_attach = on_attach,
     flags = lsp_flags,
+    capabilities=capabilities,
 }
 
 vim.lsp.handlers["textDocument/publishDiagnostics"] = function() end
