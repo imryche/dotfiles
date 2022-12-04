@@ -185,7 +185,7 @@
     - name: Run stow
       shell:
         chdir: "{{ ansible_env.HOME }}/dotfiles"
-        cmd: "stow wezterm zsh tmux nvim sqlite --target {{ ansible_env.HOME }} --verbose=2"
+        cmd: "stow wezterm zsh tmux nvim sqlite touchegg --target {{ ansible_env.HOME }} --verbose=2"
       register: result
       changed_when: 'result.stderr is search("LINK: ")'
       tags: dotfiles
