@@ -222,6 +222,14 @@
         mode: a+x
       tags: obsidian
 
+    # Install Todoist
+    - name: Install Todoist
+      get_url:
+        url: https://todoist.com/linux_app/appimage
+        dest: "{{ ansible_env.HOME }}/Applications/Todoist"
+        mode: a+x
+      tags: todoist
+
     # Install flatpaks
     - name: Install flatpaks
       become: yes
