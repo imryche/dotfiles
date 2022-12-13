@@ -5,6 +5,7 @@ Plug 'nvim-lualine/lualine.nvim'
 
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.0' }
+Plug 'ThePrimeagen/harpoon'
 
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'dense-analysis/ale'
@@ -121,6 +122,19 @@ vim.keymap.set('n', '<leader>fs', builtin.live_grep, {})
 vim.keymap.set('n', '<leader>fw', function() builtin.grep_string({ search = vim.fn.expand("<cword>") }) end, {})
 vim.keymap.set('n', '<leader>fb', builtin.buffers, {})
 vim.keymap.set('n', '<leader>fh', builtin.help_tags, {})
+vim.keymap.set('n', '<leader>fh', builtin.help_tags, {})
+
+-- Set up harpoon
+local mark = require("harpoon.mark")
+local ui = require("harpoon.ui")
+
+vim.keymap.set("n", "<leader>a", mark.add_file)
+vim.keymap.set("n", "<leader>h", ui.toggle_quick_menu)
+
+vim.keymap.set("n", "<leader>j", function() ui.nav_file(1) end)
+vim.keymap.set("n", "<leader>k", function() ui.nav_file(2) end)
+vim.keymap.set("n", "<leader>l", function() ui.nav_file(3) end)
+vim.keymap.set("n", "<leader>;", function() ui.nav_file(4) end)
 
 -- Set up nvim-cmp
 local cmp = require'cmp'
