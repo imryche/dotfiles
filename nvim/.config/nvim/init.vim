@@ -66,6 +66,11 @@ nnoremap <c-k> <c-w>k
 nnoremap <c-h> <c-w>h
 nnoremap <c-l> <c-w>l
 
+nnoremap <C-d> <C-d>zz
+nnoremap <C-d> <C-d>zz
+nnoremap n nzzzv
+nnoremap N Nzzzv
+
 nnoremap <leader>1 :only<cr>
 nnoremap <leader>3 :vsp<cr>
 nnoremap <leader>2 :sp<cr>
