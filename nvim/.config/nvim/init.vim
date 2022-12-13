@@ -154,10 +154,28 @@ local on_attach = function(client, bufnr)
   vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
 end
 
-require('lspconfig')['pyright'].setup{
+lspconfig = require "lspconfig"
+util = require "lspconfig/util"
+
+lspconfig.pyright.setup{
     on_attach = on_attach,
     flags = lsp_flags,
     capabilities=capabilities,
+}
+
+lspconfig.gopls.setup {
+  on_attach = on_attach,
+  cmd = {"gopls", "serve"},
+  filetypes = {"go", "gomod"},
+  root_dir = util.root_pattern("go.work", "go.mod", ".git"),
+  settings = {
+    gopls = {
+      analyses = {
+        unusedparams = true,
+      },
+      staticcheck = true,
+    },
+  },
 }
 
 vim.lsp.handlers["textDocument/publishDiagnostics"] = function() end
