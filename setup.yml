@@ -2,38 +2,49 @@
 - hosts: localhost
 
   tasks:
+    - name: Upgrade apt packages
+      become: yes
+      apt:
+        upgrade: yes
+        update_cache: yes
+
     - name: Install basics
       become: yes
       apt:
         pkg:
           - software-properties-common
           - build-essential
+          - htop
           - git
           - fonts-jetbrains-mono
           - tmux
           - stow
+          - gnome-tweaks
         state: latest
         update_cache: yes
+      tags: basic
 
-    # Remove Firefox
+    # Install Chrome
     - name: Remove Firefox
       become: yes
       apt:
         name: firefox
         state: absent
+      tags: chrome
 
-    # Install Chrome
     - name: Add Chrome Apt signing key
       become: yes
       apt_key:
         url: "https://dl.google.com/linux/linux_signing_key.pub"
         state: present
+      tags: chrome
 
     - name: Add Chrome repository into sources list
       become: yes
       apt_repository:
         repo: deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main
         state: present
+      tags: chrome
 
     - name: Install google-chrome-stable
       become: yes
@@ -41,6 +52,7 @@
         name: google-chrome-stable
         state: latest
         update_cache: yes
+      tags: chrome
 
     # Install AppImageLauncher
     - name: Add AppImageLauncher repository into sources list
@@ -48,6 +60,7 @@
       apt_repository:
         repo: ppa:appimagelauncher-team/stable
         state: present
+      tags: appimagelauncher
 
     - name: Install AppImageLauncher
       become: yes
@@ -55,11 +68,13 @@
         name: appimagelauncher
         state: latest
         update_cache: yes
+      tags: appimagelauncher
 
     - name: Create ~/Applications directory
       file:
         path: "{{ ansible_env.HOME }}/Applications"
         state: directory
+      tags: appimagelauncher
 
     # Install WezTerm
     - name: Install WezTerm
@@ -67,6 +82,7 @@
         url: https://github.com/wez/wezterm/releases/download/20221119-145034-49b9839f/WezTerm-20221119-145034-49b9839f-Ubuntu18.04.AppImage
         dest: "{{ ansible_env.HOME }}/Applications/WezTerm"
         mode: a+x
+      tags: wezterm
 
     # Install and configure zsh
     - name: Install zsh
@@ -75,12 +91,45 @@
         pkg: zsh
         state: latest
         update_cache: yes
+      tags: zsh
 
     - name: Change user shell to zsh 
       become: yes
       user:
         name: "{{ ansible_user_id }}"
         shell: /bin/zsh
+      tags: zsh
+
+    - name: Check if ohmyzsh installed
+      stat:
+        path: "{{ ansible_env.HOME }}/.oh-my-zsh/oh-my-zsh.sh"
+      tags: zsh
+      register: ohmyzsh
+
+    - name: Download ohmyzsh install script
+      get_url:
+        url: https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh
+        dest: "{{ ansible_env.HOME }}/install.sh"
+        mode: a+x
+      when: not ohmyzsh.stat.exists
+      tags: zsh
+
+    - name: Install ohmyzsh
+      command:
+        cmd: "{{ ansible_env.HOME }}/install.sh"
+        creates: "{{ ansible_env.HOME }}/.oh-my-zsh/oh-my-zsh.sh"
+      when: not ohmyzsh.stat.exists
+      tags: zsh
+
+    - name: Remove ohmyzsh defaults
+      file:
+        path: "{{ ansible_env.HOME }}/{{ item }}"
+        state: absent
+      with_items:
+        # - .zshrc
+        - .zshrc.pre-oh-my-zsh
+        - install.sh
+      tags: zsh
 
     # Install and configure tmux
     - name: Install tmux
@@ -89,16 +138,19 @@
         pkg: tmux
         state: latest
         update_cache: yes
+      tags: tmux
 
     - name: Create ~/.tmux/plugins/tpm directory
       file:
         path: "{{ ansible_env.HOME }}/.tmux/plugins/tpm"
         state: directory
+      tags: tmux
 
     - name: Install Tmux Plugin Manager
       git:
         repo: https://github.com/tmux-plugins/tpm
         dest: "{{ ansible_env.HOME }}/.tmux/plugins/tpm"
+      tags: tmux
 
     # Install Neovim
     - name: Install Neovim
@@ -109,27 +161,34 @@
         owner: root
         group: root
         mode: a+x
+      tags: nvim
 
     - name: Create vim-plug directory
       file:
         path: "{{ ansible_env.HOME }}/.local/share/nvim/site/autoload"
         state: directory
+      tags: nvim
 
     - name: Install vim-plug
       get_url:
         url: https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
         dest: "{{ ansible_env.HOME }}/.local/share/nvim/site/autoload/plug.vim"
+      tags: nvim
 
     # Clone and symlink dotfiles
     - name: Clone dotfiles
       git:
         repo: https://github.com/imryche/dotfiles
         dest: "{{ ansible_env.HOME }}/dotfiles"
+      tags: dotfiles
 
-    - name: Stow dotfiles
+    - name: Run stow
       shell:
         chdir: "{{ ansible_env.HOME }}/dotfiles"
-        cmd: "stow wezterm zsh tmux nvim sqlite"
+        cmd: "stow wezterm zsh tmux nvim sqlite touchegg --target {{ ansible_env.HOME }} --verbose=2"
+      register: result
+      changed_when: 'result.stderr is search("LINK: ")'
+      tags: dotfiles
 
     # Install Python
     - name: Add deadsnakes repository into sources list
@@ -154,3 +213,31 @@
       become: yes
       pip:
         name: virtualenvwrapper
+
+    # Install Obsidian
+    - name: Install Obsidian
+      get_url:
+        url: https://github.com/obsidianmd/obsidian-releases/releases/download/v1.0.3/Obsidian-1.0.3.AppImage
+        dest: "{{ ansible_env.HOME }}/Applications/Obsidian"
+        mode: a+x
+      tags: obsidian
+
+    # Install Todoist
+    - name: Install Todoist
+      get_url:
+        url: https://todoist.com/linux_app/appimage
+        dest: "{{ ansible_env.HOME }}/Applications/Todoist"
+        mode: a+x
+      tags: todoist
+
+    # Install flatpaks
+    - name: Install flatpaks
+      become: yes
+      flatpak:
+        name: "{{ item }}" 
+        state: present
+      with_items:
+        - org.telegram.desktop
+        - com.spotify.Client
+        - com.github.joseexposito.touche
+      tags: flatpaks
