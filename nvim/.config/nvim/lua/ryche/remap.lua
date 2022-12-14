@@ -15,6 +15,6 @@ vim.keymap.set("n", "<leader>3", ":vsp<cr>")
 
 vim.keymap.set("n", "<leader>s", ":w<cr>")
 
-vim.keymap.set("n", "<leader>pe", vim.cmd.Ex)
+vim.keymap.set("n", "<leader>e", vim.cmd.Ex)
 
 vim.keymap.set("n", "<leader>q", ":bd<cr>")

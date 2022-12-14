@@ -79,7 +79,9 @@ local opts = {noremap = true, silent = true}
 local on_attach = function(client, bufnr)
     -- Mappings.
     local bufopts = {noremap = true, silent = true, buffer = bufnr}
-    vim.keymap.set('n', '<space>.', vim.lsp.buf.definition, bufopts)
+    vim.keymap.set('n', 'gd', vim.lsp.buf.definition, bufopts)
+    vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, bufopts)
+    vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, bufopts)
     vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
 end
 
@@ -100,4 +102,4 @@ lspconfig.gopls.setup {
     settings = {gopls = {analyses = {unusedparams = true}, staticcheck = true}}
 }
 
-vim.lsp.handlers["textDocument/publishDiagnostics"] = function() end
+-- vim.lsp.handlers["textDocument/publishDiagnostics"] = function() end
