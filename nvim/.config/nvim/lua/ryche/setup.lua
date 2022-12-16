@@ -68,24 +68,11 @@ cmp.setup({
 
 local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
--- Set up ale
--- vim.g.ale_fixers = {
--- 	["*"] = { "remove_trailing_lines", "trim_whitespace" },
--- 	["c"] = { "clang-format" },
--- 	["json"] = { "jq" },
--- 	["python"] = { "isort", "black" },
--- }
--- vim.g.ale_linters = { ["python"] = { "flake8" } }
--- vim.keymap.set("n", "gj", ":ALENextWrap<cr>")
--- vim.keymap.set("n", "gk", ":ALEPreviousWrap<cr>")
-
 -- Set up lspconfig.
 local opts = { noremap = true, silent = true }
 
-vim.keymap.set("n", "<leader>i", vim.diagnostic.open_float, opts)
 vim.keymap.set("n", "gj", vim.diagnostic.goto_next, opts)
 vim.keymap.set("n", "gk", vim.diagnostic.goto_prev, opts)
-vim.keymap.set("n", "<leader>o", vim.diagnostic.setloclist, opts)
 
 local on_attach = function(client, bufnr)
 	-- Mappings.
@@ -143,7 +130,7 @@ local null_ls = require("null-ls")
 null_ls.setup({
 	sources = {
 		null_ls.builtins.formatting.stylua,
-        null_ls.builtins.diagnostics.pylint,
+		null_ls.builtins.diagnostics.pylint,
 		null_ls.builtins.formatting.isort,
 		null_ls.builtins.formatting.black,
 		null_ls.builtins.formatting.prettier,
