@@ -62,27 +62,19 @@ function install_ohmyzsh() {
 	printf "\n"
 }
 
-function install_wezterm() {
-	echo "[Installing WezTerm]"
-	sudo flatpak install flathub org.wezfurlong.wezterm
-	printf "\n"
-}
-
-function install_telegram() {
-	echo "[Installing Telegram]"
-	sudo flatpak install flathub org.telegram.desktop
-	printf "\n"
-}
-
-function install_spotify() {
-	echo "[Installing Spotify]"
-	sudo flatpak install flathub com.spotify.Client
-	printf "\n"
-}
-
-function install_todoist() {
-	echo "[Installing Todoist]"
-	sudo flatpak install flathub com.todoist.Todoist
+function install_python() {
+	echo "[Installing Python]"
+	if ! grep -q "^deb .*deadsnakes/ppa" /etc/apt/sources.list /etc/apt/sources.list.d/*; then
+		sudo add-apt-repository ppa:deadsnakes/ppa
+	fi
+	sudo apt update && sudo apt install \
+		python3-pip \
+		python3-dev \
+		python3-venv \
+		python-is-python3 \
+		python3.11 \
+		python3.11-dev \
+		python3.11-venv
 	printf "\n"
 }
 
@@ -110,13 +102,61 @@ function install_lua_lsp() {
 
 }
 
+function apply_dotfiles() {
+	echo "[Applying dotfiles]"
+	if [ ! -d ~/dotfiles ]; then
+		git clone https://github.com/imryche/dotfiles
+	else
+		git pull
+	fi
+	(
+		cd ~/dotfiles
+		stow wezterm zsh tmux nvim sqlite touchegg --verbose=2
+	)
+	printf "\n"
+}
+
+function install_wezterm() {
+	echo "[Installing WezTerm]"
+	sudo flatpak install flathub org.wezfurlong.wezterm
+	printf "\n"
+}
+
+function install_telegram() {
+	echo "[Installing Telegram]"
+	sudo flatpak install flathub org.telegram.desktop
+	printf "\n"
+}
+
+function install_spotify() {
+	echo "[Installing Spotify]"
+	sudo flatpak install flathub com.spotify.Client
+	printf "\n"
+}
+
+function install_todoist() {
+	echo "[Installing Todoist]"
+	sudo flatpak install flathub com.todoist.Todoist
+	printf "\n"
+}
+
+function install_obsidian() {
+	echo "[Installing Obsidian]"
+	sudo flatpak install flathub md.obsidian.Obsidian
+	printf "\n"
+}
+
+
 # install_basics
 # remove_firefox
 # install_chrome
 # install_zsh
 # install_ohmyzsh
+# install_python
+# install_lua_lsp
+apply_dotfiles
 # install_wezterm
 # install_telegram
 # install_spotify
 # install_todoist
-install_lua_lsp
+# install_obsidian
