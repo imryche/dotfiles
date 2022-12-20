@@ -16,6 +16,9 @@ export PATH="$PATH:/usr/local/go/bin"
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOPATH/bin
 
+export DENO_INSTALL="$HOME/.deno"
+export PATH="$DENO_INSTALL/bin:$PATH"
+
 export WORKON_HOME=$HOME/.virtualenvs
 export PROJECT_HOME=$HOME/Devel
 source /usr/local/bin/virtualenvwrapper.sh
