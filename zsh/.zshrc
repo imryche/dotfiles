@@ -12,6 +12,10 @@ alias vd="deactivate"
 
 export PATH="$HOME/.config/lsp/lua-language-server/bin:$PATH"
 
+export PATH="$PATH:/usr/local/go/bin"
+export GOPATH=$HOME/go
+export PATH=$PATH:$GOPATH/bin
+
 export WORKON_HOME=$HOME/.virtualenvs
 export PROJECT_HOME=$HOME/Devel
 source /usr/local/bin/virtualenvwrapper.sh
