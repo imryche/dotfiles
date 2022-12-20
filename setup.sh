@@ -10,6 +10,7 @@ function install_basics() {
 		git \
 		fonts-jetbrains-mono \
 		tmux \
+		fzf \
 		stow \
 		gnome-tweaks \
 		xclip
@@ -85,12 +86,37 @@ function install_todoist() {
 	printf "\n"
 }
 
-install_basics
-remove_firefox
-install_chrome
-install_zsh
-install_ohmyzsh
-install_wezterm
-install_telegram
-install_spotify
-install_todoist
+function install_lua_lsp() {
+	echo "[Installing Lua LSP]"
+	lsp_path=~/.config/nvim/lua-language-server/bin/lua-language-server
+	if [ ! -f $lsp_path ]; then
+		sudo apt update && sudo apt install ninja-build
+		(
+			mkdir ~/.config/lsp
+			cd ~/.config/lsp
+			git clone https://github.com/sumneko/lua-language-server
+			cd lua-language-server
+			git submodule update --depth 1 --init --recursive
+
+			cd 3rd/luamake
+			./compile/install.sh
+			cd ../..
+			./3rd/luamake/luamake rebuild
+		)
+	else
+		echo "Skipping: $lsp_path is already installed"
+	fi
+	printf "\n"
+
+}
+
+# install_basics
+# remove_firefox
+# install_chrome
+# install_zsh
+# install_ohmyzsh
+# install_wezterm
+# install_telegram
+# install_spotify
+# install_todoist
+install_lua_lsp
