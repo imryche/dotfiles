@@ -33,9 +33,6 @@ function install_zsh() {
 	echo "[Installing Zsh]"
 	if ! installed zsh; then
 		sudo apt update && sudo apt install -y zsh
-		chsh -s $(which zsh)
-		echo "Shell was changed to zsh. Please logout and login to see changes"
-		exit
 	else
 		skipping zsh
 	fi
@@ -51,6 +48,7 @@ function install_ohmyzsh() {
 			cd ~/dotfiles
 			stow wezterm zsh tmux nvim sqlite touchegg --verbose=2
 		)
+		chsh -s $(which zsh)
 		echo "Restart the shell to apply changes"
 		exit
 	else
