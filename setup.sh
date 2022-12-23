@@ -56,15 +56,16 @@ function apply_dotfiles() {
 	echo "[Applying dotfiles]"
 	if [ ! -d ~/dotfiles ]; then
 		git clone https://github.com/imryche/dotfiles
+		rm ~/.zshrc
+		(
+			cd ~/dotfiles
+			stow wezterm zsh tmux nvim sqlite touchegg --verbose=2
+		)
+		echo "Restart the shell to apply changes"
+		exit
 	else
 		git pull
 	fi
-	rm ~/.zshrc
-	(
-		cd ~/dotfiles
-		stow wezterm zsh tmux nvim sqlite touchegg --verbose=2
-	)
-	source ~/.zshrc
 	printf "\n"
 }
 
