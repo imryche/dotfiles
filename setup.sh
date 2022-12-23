@@ -57,6 +57,22 @@ function configure_shell() {
 	printf "\n"
 }
 
+function install_neovim() {
+	echo "[Installing Neovim]"
+	if ! installed nvim; then
+		(
+			cd ~
+			curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim.appimage
+			chmod +x nvim.appimage
+			sudo chown root:root nvim.appimage
+			sudo mv nvim.appimage /usr/bin/nvim
+		)
+	else
+		skipping nvim
+	fi
+	printf "\n"
+}
+
 function install_tpm() {
 	echo "[Installing tpm]"
 	if [ ! -d ~/.tmux/plugins/tpm ]; then
@@ -329,6 +345,7 @@ function install_dejadup() {
 install_basics
 install_zsh
 configure_shell
+install_neovim
 install_tpm
 install_python
 install_pyright
