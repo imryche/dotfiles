@@ -283,7 +283,7 @@ function install_1password() {
 function add_flatpak_remote() {
 	echo "[Adding flathub as flatpak remote]"
 	if ! flatpak remotes | grep -q "flathub"; then
-		flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+		sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 	else
 		echo "Skipping: flathub is already added to remotes"
 	fi
