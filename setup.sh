@@ -23,6 +23,7 @@ function install_basics() {
 		fonts-jetbrains-mono \
 		tmux \
 		fzf \
+		ripgrep \
 		stow \
 		gnome-tweaks \
 		xclip
