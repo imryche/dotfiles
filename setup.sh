@@ -241,7 +241,7 @@ function install_chrome() {
 function remove_firefox() {
 	echo "[Removing Firefox]"
 	if installed firefox; then
-		sudo apt remove firefox
+		sudo apt remove firefox -y
 	else
 		echo "Skipping: firefox is already removed"
 	fi
