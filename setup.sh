@@ -46,16 +46,6 @@ function install_ohmyzsh() {
 	echo "[Installing Oh My Zsh]"
 	if [ ! -d ~/.oh-my-zsh ]; then
 		sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-	else
-		echo "Skipping: ~/.oh-my-zsh is already installed"
-	fi
-	printf "\n"
-}
-
-function apply_dotfiles() {
-	echo "[Applying dotfiles]"
-	if [ ! -d ~/dotfiles ]; then
-		git clone https://github.com/imryche/dotfiles
 		rm ~/.zshrc
 		(
 			cd ~/dotfiles
@@ -64,11 +54,10 @@ function apply_dotfiles() {
 		echo "Restart the shell to apply changes"
 		exit
 	else
-		git pull
+		echo "Skipping: ~/.oh-my-zsh is already installed"
 	fi
 	printf "\n"
 }
-
 
 function install_tpm() {
 	echo "[Installing tpm]"
@@ -322,7 +311,6 @@ function install_dejadup() {
 install_basics
 install_zsh
 install_ohmyzsh
-apply_dotfiles
 install_tpm
 install_python
 install_pyright
