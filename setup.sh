@@ -307,6 +307,16 @@ function install_1password() {
 	printf "\n"
 }
 
+function add_flatpak_remote() {
+	echo "[Adding flathub as flatpak remote]"
+	if ! flatpak remotes | grep -q "flathub"; then
+		flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+	else
+		echo "Skipping: flathub is already added to remotes"
+	fi
+	printf "\n"
+}
+
 function install_wezterm() {
 	echo "[Installing WezTerm]"
 	sudo flatpak install flathub org.wezfurlong.wezterm
