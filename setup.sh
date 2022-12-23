@@ -1,4 +1,6 @@
-#!/bin/zsh
+#!/bin/bash
+
+set -m
 
 function installed() {
 	command -v $1 &>/dev/null
