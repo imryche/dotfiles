@@ -344,10 +344,10 @@ function install_dejadup() {
 }
 
 install_basics
+apply_dotfiles
 install_zsh
 install_ohmyzsh
 install_tpm
-apply_dotfiles
 install_python
 install_pyright
 install_black
