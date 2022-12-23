@@ -239,33 +239,6 @@ function install_docker() {
 	printf "\n"
 }
 
-function install_virtualbox() {
-	if ! installed virtualbox; then
-		(
-			cd ~
-			curl https://www.virtualbox.org/download/oracle_vbox_2016.asc | gpg --dearmor >oracle_vbox_2016.gpg
-			curl https://www.virtualbox.org/download/oracle_vbox.asc | gpg --dearmor >oracle_vbox.gpg
-			sudo install -o root -g root -m 644 oracle_vbox_2016.gpg /etc/apt/trusted.gpg.d/
-			sudo install -o root -g root -m 644 oracle_vbox.gpg /etc/apt/trusted.gpg.d/
-
-			echo "deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian $(lsb_release -sc) contrib" | sudo tee /etc/apt/sources.list.d/virtualbox.list
-			sudo apt update
-			sudo apt install -y linux-headers-$(uname -r) dkms
-			sudo apt install virtualbox-7.0 -y
-
-			wget https://download.virtualbox.org/virtualbox/7.0.4/Oracle_VM_VirtualBox_Extension_Pack-7.0.4.vbox-extpack
-			sudo VBoxManage extpack install Oracle_VM_VirtualBox_Extension_Pack-7.0.4.vbox-extpack
-
-			rm oracle_vbox_2016.gpg oracle_vbox.gpg Oracle_VM_VirtualBox_Extension_Pack-7.0.4.vbox-extpack
-
-			sudo usermod -aG vboxusers $USER
-		)
-	else
-		skipping virtualbox
-	fi
-	printf "\n"
-}
-
 function install_chrome() {
 	echo "[Installing Chrome]"
 	if ! installed google-chrome-stable; then
@@ -370,7 +343,6 @@ install_rust
 install_stylua
 install_lua_lsp
 install_docker
-install_virtualbox
 install_chrome
 remove_firefox
 install_1password
