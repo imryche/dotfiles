@@ -29,6 +29,20 @@ function install_basics() {
 	printf "\n"
 }
 
+function apply_dotfiles() {
+	echo "[Applying dotfiles]"
+	if [ ! -d ~/dotfiles ]; then
+		git clone https://github.com/imryche/dotfiles
+	else
+		git pull
+	fi
+	(
+		cd ~/dotfiles
+		stow wezterm zsh tmux nvim sqlite touchegg --verbose=2
+	)
+	printf "\n"
+}
+
 function install_zsh() {
 	echo "[Installing Zsh]"
 	if ! installed zsh; then
@@ -59,21 +73,6 @@ function install_tpm() {
 	else
 		echo "Skipping: ~/.tmux/plugins/tpm is already installed"
 	fi
-	printf "\n"
-}
-
-function apply_dotfiles() {
-	echo "[Applying dotfiles]"
-	if [ ! -d ~/dotfiles ]; then
-		git clone https://github.com/imryche/dotfiles
-	else
-		git pull
-	fi
-	(
-		cd ~/dotfiles
-		stow wezterm zsh tmux nvim sqlite touchegg --verbose=2
-	)
-	source ~/.zshrc
 	printf "\n"
 }
 
