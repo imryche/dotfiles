@@ -374,6 +374,7 @@ install_virtualbox
 install_chrome
 remove_firefox
 install_1password
+add_flatpak_remote
 install_wezterm
 install_telegram
 install_spotify
