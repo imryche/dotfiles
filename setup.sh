@@ -1,15 +1,24 @@
-#!/bin/bash
+#!/bin/zsh
+
+function installed() {
+	command -v $1 &>/dev/null
+}
+
+function skipping() {
+	echo "Skipping: $(which $1) is already installed"
+}
 
 function install_basics() {
 	echo "[Installing basic system packages]"
 	sudo apt update
-	sudo apt install \
+	sudo apt install -y \
 		software-properties-common \
 		build-essential \
 		gcc \
 		g++ \
 		make \
 		htop \
+		tmux \
 		git \
 		fonts-jetbrains-mono \
 		tmux \
@@ -20,39 +29,15 @@ function install_basics() {
 	printf "\n"
 }
 
-function install_chrome() {
-	echo "[Installing Chrome]"
-	if command -v google-chrome-stable &>/dev/null; then
-		echo "Skipping: $(which google-chrome-stable) is already installed"
-	else
-		(
-			cd ~
-			wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-			sudo dpkg -i google-chrome-stable_current_amd64.deb
-			rm google-chrome-stable_current_amd64.deb
-		)
-	fi
-	printf "\n"
-}
-
-function remove_firefox() {
-	echo "[Removing Firefox]"
-	if command -v firefox; then
-		sudo apt remove firefox
-	else
-		echo "Skipping: firefox is already removed"
-	fi
-	printf "\n"
-}
-
 function install_zsh() {
 	echo "[Installing Zsh]"
-	if command -v zsh &>/dev/null; then
-		echo "Skipping: $(which zsh) is already installed"
-	else
-		sudo apt update
-		sudo apt install zsh
+	if ! installed zsh; then
+		sudo apt update && sudo apt install -y zsh
 		chsh -s $(which zsh)
+		echo "Shell was changed to zsh. Please logout and login to see changes"
+		exit
+	else
+		skipping zsh
 	fi
 	printf "\n"
 }
@@ -67,12 +52,37 @@ function install_ohmyzsh() {
 	printf "\n"
 }
 
+function install_tpm() {
+	echo "[Installing tpm]"
+	if [ ! -d ~/.tmux/plugins/tpm ]; then
+		git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+	else
+		echo "Skipping: ~/.tmux/plugins/tpm is already installed"
+	fi
+	printf "\n"
+}
+
+function apply_dotfiles() {
+	echo "[Applying dotfiles]"
+	if [ ! -d ~/dotfiles ]; then
+		git clone https://github.com/imryche/dotfiles
+	else
+		git pull
+	fi
+	(
+		cd ~/dotfiles
+		stow wezterm zsh tmux nvim sqlite touchegg --verbose=2
+	)
+	source ~/.zshrc
+	printf "\n"
+}
+
 function install_python() {
 	echo "[Installing Python]"
 	if ! grep -q "^deb .*deadsnakes/ppa" /etc/apt/sources.list /etc/apt/sources.list.d/*; then
 		sudo add-apt-repository ppa:deadsnakes/ppa
 	fi
-	sudo apt update && sudo apt install \
+	sudo apt update && sudo apt install -y \
 		python3-pip \
 		python3-dev \
 		python3-venv \
@@ -83,9 +93,39 @@ function install_python() {
 	printf "\n"
 }
 
+function install_pyright() {
+	echo "[Installing pyright]"
+	if ! installed pyright; then
+		sudo pip install pyright
+	else
+		skipping pyright
+	fi
+	printf "\n"
+}
+
+function install_black() {
+	echo "[Installing black]"
+	if ! installed black; then
+		pip install black
+	else
+		skipping black
+	fi
+	printf "\n"
+}
+
+function install_isort() {
+	echo "[Installing isort]"
+	if ! installed isort; then
+		pip install isort
+	else
+		skipping isort
+	fi
+	printf "\n"
+}
+
 function install_go() {
 	echo "[Installing Go]"
-	if ! command -v go &>/dev/null; then
+	if ! installed go; then
 		(
 			cd ~
 			wget https://go.dev/dl/go1.19.4.linux-amd64.tar.gz
@@ -93,99 +133,71 @@ function install_go() {
 			rm go1.19.4.linux-amd64.tar.gz
 		)
 	else
-		echo "Skipping: $(which go) is already installed"
+		skipping go
 	fi
 	printf "\n"
 }
 
 function install_gopls() {
 	echo "[Installing gopls]"
-	if ! command -v gopls &>/dev/null; then
+	if ! installed gopls; then
 		go install golang.org/x/tools/gopls@latest
 	else
-		echo "Skipping: $(which gopls) is already installed"
+		skipping gopls
 	fi
 	printf "\n"
 }
 
 function install_nodejs() {
 	echo "[Installing NodeJS]"
-	if ! command -v node &>/dev/null; then
+	if ! installed node; then
 		(
 			curl -sL https://deb.nodesource.com/setup_18.x -o nodesource_setup.sh
 			sudo bash nodesource_setup.sh
-			sudo apt install nodejs
+			sudo apt install -y nodejs
 			rm nodesource_setup.sh
 		)
 	else
-		echo "Skipping: $(which node) is already installed"
+		skipping node
 	fi
 	printf "\n"
 }
 
 function install_deno() {
 	echo "[Installing Deno]"
-	if ! command -v deno &>/dev/null; then
+	if ! installed deno; then
 		curl -fsSL https://deno.land/x/install/install.sh | sh
 	else
-		echo "Skipping: $(which deno) is already installed"
+		skipping deno
 	fi
 	printf "\n"
 }
 
 function install_rust() {
 	echo "[Installing Rust]"
-	if ! command -v rustc &>/dev/null; then
+	if ! installed rustc; then
 		curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 	else
-		echo "Skipping: $(which rustc) is already installed"
+		skipping rustc
 	fi
 	printf "\n"
 }
 
-function install_docker() {
-	echo "[Installing Docker]"
-	if ! command -v docker &>/dev/null; then
-		sudo apt update && sudo apt install \
-			ca-certificates \
-			curl \
-			gnupg \
-			lsb-release
-		sudo mkdir -p /etc/apt/keyrings
-		curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-		echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-		$(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
-
-		echo "------------------------------------------------------------------"
-		sudo apt update && sudo apt install docker-ce docker-ce-cli containerd.io docker-compose-plugin
-		sudo groupadd docker
-		sudo usermod -aG docker $USER
+function install_stylua() {
+	echo "[Installing stylua]"
+	if ! installed stylua; then
+		cargo install stylua
 	else
-		echo "Skipping: $(which docker) is already installed"
-	fi
-}
-
-function install_1password() {
-	echo "[Installing 1password]"
-	if ! command -v 1password &>/dev/null; then
-		curl -sS https://downloads.1password.com/linux/keys/1password.asc | sudo gpg --dearmor --output /usr/share/keyrings/1password-archive-keyring.gpg
-		echo 'deb [arch=amd64 signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/amd64 stable main' | sudo tee /etc/apt/sources.list.d/1password.list
-		sudo mkdir -p /etc/debsig/policies/AC2D62742012EA22/
-		curl -sS https://downloads.1password.com/linux/debian/debsig/1password.pol | sudo tee /etc/debsig/policies/AC2D62742012EA22/1password.pol
-		sudo mkdir -p /usr/share/debsig/keyrings/AC2D62742012EA22
-		curl -sS https://downloads.1password.com/linux/keys/1password.asc | sudo gpg --dearmor --output /usr/share/debsig/keyrings/AC2D62742012EA22/debsig.gpg
-		sudo apt update && sudo apt install 1password
-	else
-		echo "Skipping: $(which 1password) is already installed"
+		skipping stylua
 	fi
 	printf "\n"
 }
 
 function install_lua_lsp() {
 	echo "[Installing Lua LSP]"
-	lsp_path=~/.config/nvim/lua-language-server/bin/lua-language-server
+	lsp_path=~/.config/lsp/lua-language-server/bin/lua-language-server
 	if [ ! -f $lsp_path ]; then
-		sudo apt update && sudo apt install ninja-build
+		sudo apt update && sudo apt install -y ninja-build
 		(
 			mkdir ~/.config/lsp
 			cd ~/.config/lsp
@@ -205,17 +217,94 @@ function install_lua_lsp() {
 
 }
 
-function apply_dotfiles() {
-	echo "[Applying dotfiles]"
-	if [ ! -d ~/dotfiles ]; then
-		git clone https://github.com/imryche/dotfiles
+function install_docker() {
+	echo "[Installing Docker]"
+	if ! installed docker; then
+		sudo apt update && sudo apt install -y \
+			ca-certificates \
+			curl \
+			gnupg \
+			lsb-release
+		sudo mkdir -p /etc/apt/keyrings
+		curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+		echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+		$(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
+
+		echo "------------------------------------------------------------------"
+		sudo apt update && sudo apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+		sudo groupadd docker
+		sudo usermod -aG docker $USER
 	else
-		git pull
+		skipping docker
 	fi
-	(
-		cd ~/dotfiles
-		stow wezterm zsh tmux nvim sqlite touchegg --verbose=2
-	)
+	printf "\n"
+}
+
+function install_virtualbox() {
+	if ! installed virtualbox; then
+		(
+			cd ~
+			curl https://www.virtualbox.org/download/oracle_vbox_2016.asc | gpg --dearmor >oracle_vbox_2016.gpg
+			curl https://www.virtualbox.org/download/oracle_vbox.asc | gpg --dearmor >oracle_vbox.gpg
+			sudo install -o root -g root -m 644 oracle_vbox_2016.gpg /etc/apt/trusted.gpg.d/
+			sudo install -o root -g root -m 644 oracle_vbox.gpg /etc/apt/trusted.gpg.d/
+
+			echo "deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian $(lsb_release -sc) contrib" | sudo tee /etc/apt/sources.list.d/virtualbox.list
+			sudo apt update
+			sudo apt install -y linux-headers-$(uname -r) dkms
+			sudo apt install virtualbox-7.0 -y
+
+			wget https://download.virtualbox.org/virtualbox/7.0.4/Oracle_VM_VirtualBox_Extension_Pack-7.0.4.vbox-extpack
+			sudo VBoxManage extpack install Oracle_VM_VirtualBox_Extension_Pack-7.0.4.vbox-extpack
+
+			rm oracle_vbox_2016.gpg oracle_vbox.gpg Oracle_VM_VirtualBox_Extension_Pack-7.0.4.vbox-extpack
+
+			sudo usermod -aG vboxusers $USER
+		)
+	else
+		skipping virtualbox
+	fi
+	printf "\n"
+}
+
+function install_chrome() {
+	echo "[Installing Chrome]"
+	if ! installed google-chrome-stable; then
+		(
+			cd ~
+			wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+			sudo dpkg -i google-chrome-stable_current_amd64.deb
+			rm google-chrome-stable_current_amd64.deb
+		)
+	else
+		skipping google-chrome-stable
+	fi
+	printf "\n"
+}
+
+function remove_firefox() {
+	echo "[Removing Firefox]"
+	if installed firefox; then
+		sudo apt remove firefox
+	else
+		echo "Skipping: firefox is already removed"
+	fi
+	printf "\n"
+}
+
+function install_1password() {
+	echo "[Installing 1password]"
+	if ! installed 1password; then
+		curl -sS https://downloads.1password.com/linux/keys/1password.asc | sudo gpg --dearmor --output /usr/share/keyrings/1password-archive-keyring.gpg
+		echo 'deb [arch=amd64 signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/amd64 stable main' | sudo tee /etc/apt/sources.list.d/1password.list
+		sudo mkdir -p /etc/debsig/policies/AC2D62742012EA22/
+		curl -sS https://downloads.1password.com/linux/debian/debsig/1password.pol | sudo tee /etc/debsig/policies/AC2D62742012EA22/1password.pol
+		sudo mkdir -p /usr/share/debsig/keyrings/AC2D62742012EA22
+		curl -sS https://downloads.1password.com/linux/keys/1password.asc | sudo gpg --dearmor --output /usr/share/debsig/keyrings/AC2D62742012EA22/debsig.gpg
+		sudo apt update && sudo apt install -y 1password
+	else
+		skipping 1password
+	fi
 	printf "\n"
 }
 
@@ -249,23 +338,36 @@ function install_obsidian() {
 	printf "\n"
 }
 
-# install_basics
-# remove_firefox
-# install_chrome
-# install_zsh
-# install_ohmyzsh
-# install_python
-# install_go
-# install_gopls
-# install_nodejs
-# install_deno
-# install_rust
-# install_docker
-# install_1password
-# install_lua_lsp
-# apply_dotfiles
-# install_wezterm
-# install_telegram
-# install_spotify
-# install_todoist
-# install_obsidian
+function install_dejadup() {
+	echo "[Installing DejaDup]"
+	sudo flatpak install flathub org.gnome.DejaDup
+	printf "\n"
+}
+
+install_basics
+install_zsh
+install_ohmyzsh
+install_tpm
+apply_dotfiles
+install_python
+install_pyright
+install_black
+install_isort
+install_go
+install_gopls
+install_nodejs
+install_deno
+install_rust
+install_stylua
+install_lua_lsp
+install_docker
+install_virtualbox
+install_chrome
+remove_firefox
+install_1password
+install_wezterm
+install_telegram
+install_spotify
+install_todoist
+install_obsidian
+install_dejadup
