@@ -39,8 +39,8 @@ function install_zsh() {
 	printf "\n"
 }
 
-function install_ohmyzsh() {
-	echo "[Installing Oh My Zsh]"
+function configure_shell() {
+	echo "[Configuring zsh]"
 	if [ ! -d ~/.oh-my-zsh ]; then
 		sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 		rm ~/.zshrc
@@ -49,7 +49,7 @@ function install_ohmyzsh() {
 			stow wezterm zsh tmux nvim sqlite touchegg --verbose=2
 		)
 		chsh -s $(which zsh)
-		echo "Restart the shell to apply changes"
+		echo "Logout and login to apply changes."
 		exit
 	else
 		echo "Skipping: ~/.oh-my-zsh is already installed"
@@ -138,6 +138,16 @@ function install_gopls() {
 	printf "\n"
 }
 
+function install_shfmt() {
+	echo "[Installing shfmt]"
+	if ! installed shfmt; then
+		go install mvdan.cc/sh/v3/cmd/shfmt@latest
+	else
+		skipping shfmt
+	fi
+	printf "\n"
+}
+
 function install_nodejs() {
 	echo "[Installing NodeJS]"
 	if ! installed node; then
@@ -149,6 +159,16 @@ function install_nodejs() {
 		)
 	else
 		skipping node
+	fi
+	printf "\n"
+}
+
+function install_prettier() {
+	echo "[Installing prettier]"
+	if ! installed prettier; then
+		npm install -g prettier
+	else
+		skipping prettier
 	fi
 	printf "\n"
 }
@@ -308,7 +328,7 @@ function install_dejadup() {
 
 install_basics
 install_zsh
-install_ohmyzsh
+configure_shell
 install_tpm
 install_python
 install_pyright
@@ -316,7 +336,10 @@ install_black
 install_isort
 install_go
 install_gopls
+install_shfmt
 install_nodejs
+install_prettier
+install_prettier
 install_deno
 install_rust
 install_stylua
