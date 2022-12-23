@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -m
-
 function installed() {
 	command -v $1 &>/dev/null
 }
@@ -31,20 +29,6 @@ function install_basics() {
 	printf "\n"
 }
 
-function apply_dotfiles() {
-	echo "[Applying dotfiles]"
-	if [ ! -d ~/dotfiles ]; then
-		git clone https://github.com/imryche/dotfiles
-	else
-		git pull
-	fi
-	(
-		cd ~/dotfiles
-		stow wezterm zsh tmux nvim sqlite touchegg --verbose=2
-	)
-	printf "\n"
-}
-
 function install_zsh() {
 	echo "[Installing Zsh]"
 	if ! installed zsh; then
@@ -67,6 +51,22 @@ function install_ohmyzsh() {
 	fi
 	printf "\n"
 }
+
+function apply_dotfiles() {
+	echo "[Applying dotfiles]"
+	if [ ! -d ~/dotfiles ]; then
+		git clone https://github.com/imryche/dotfiles
+	else
+		git pull
+	fi
+	rm ~/.zshrc
+	(
+		cd ~/dotfiles
+		stow wezterm zsh tmux nvim sqlite touchegg --verbose=2
+	)
+	printf "\n"
+}
+
 
 function install_tpm() {
 	echo "[Installing tpm]"
@@ -196,23 +196,16 @@ function install_stylua() {
 
 function install_lua_lsp() {
 	echo "[Installing Lua LSP]"
-	lsp_path=~/.config/lsp/lua-language-server/bin/lua-language-server
-	if [ ! -f $lsp_path ]; then
-		sudo apt update && sudo apt install -y ninja-build
+	if ! installed lua-language-server; then
+		mkdir -p ~/.config/lsp/lua-language-server
 		(
-			mkdir ~/.config/lsp
-			cd ~/.config/lsp
-			git clone https://github.com/sumneko/lua-language-server
-			cd lua-language-server
-			git submodule update --depth 1 --init --recursive
-
-			cd 3rd/luamake
-			./compile/install.sh
-			cd ../..
-			./3rd/luamake/luamake rebuild
+			cd ~/.config/lsp/lua-language-server
+			wget https://github.com/sumneko/lua-language-server/releases/download/3.6.4/lua-language-server-3.6.4-linux-x64.tar.gz
+			tar -xvf lua-language-server-3.6.4-linux-x64.tar.gz
+			rm lua-language-server-3.6.4-linux-x64.tar.gz
 		)
 	else
-		echo "Skipping: $lsp_path is already installed"
+		skipping lua-language-server
 	fi
 	printf "\n"
 
@@ -325,9 +318,9 @@ function install_dejadup() {
 }
 
 install_basics
-apply_dotfiles
 install_zsh
 install_ohmyzsh
+apply_dotfiles
 install_tpm
 install_python
 install_pyright
