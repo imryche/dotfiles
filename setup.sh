@@ -166,7 +166,7 @@ function install_nodejs() {
 function install_prettier() {
 	echo "[Installing prettier]"
 	if ! installed prettier; then
-		npm install -g prettier
+		sudo npm install -g prettier
 	else
 		skipping prettier
 	fi
