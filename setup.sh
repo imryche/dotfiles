@@ -45,7 +45,7 @@ function install_zsh() {
 function install_ohmyzsh() {
 	echo "[Installing Oh My Zsh]"
 	if [ ! -d ~/.oh-my-zsh ]; then
-		sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+		sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 		rm ~/.zshrc
 		(
 			cd ~/dotfiles
