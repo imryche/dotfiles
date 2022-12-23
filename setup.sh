@@ -64,6 +64,7 @@ function apply_dotfiles() {
 		cd ~/dotfiles
 		stow wezterm zsh tmux nvim sqlite touchegg --verbose=2
 	)
+	source ~/.zshrc
 	printf "\n"
 }
 
