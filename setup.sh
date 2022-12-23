@@ -288,37 +288,37 @@ function add_flatpak_remote() {
 
 function install_wezterm() {
 	echo "[Installing WezTerm]"
-	sudo flatpak install flathub org.wezfurlong.wezterm
+	sudo flatpak install -y flathub org.wezfurlong.wezterm
 	printf "\n"
 }
 
 function install_telegram() {
 	echo "[Installing Telegram]"
-	sudo flatpak install flathub org.telegram.desktop
+	sudo flatpak install -y flathub org.telegram.desktop
 	printf "\n"
 }
 
 function install_spotify() {
 	echo "[Installing Spotify]"
-	sudo flatpak install flathub com.spotify.Client
+	sudo flatpak install -y flathub com.spotify.Client
 	printf "\n"
 }
 
 function install_todoist() {
 	echo "[Installing Todoist]"
-	sudo flatpak install flathub com.todoist.Todoist
+	sudo flatpak install -y flathub com.todoist.Todoist
 	printf "\n"
 }
 
 function install_obsidian() {
 	echo "[Installing Obsidian]"
-	sudo flatpak install flathub md.obsidian.Obsidian
+	sudo flatpak install -y flathub md.obsidian.Obsidian
 	printf "\n"
 }
 
 function install_dejadup() {
 	echo "[Installing DejaDup]"
-	sudo flatpak install flathub org.gnome.DejaDup
+	sudo flatpak install -y flathub org.gnome.DejaDup
 	printf "\n"
 }
 
