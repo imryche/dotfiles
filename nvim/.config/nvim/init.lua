@@ -321,7 +321,14 @@ lspconfig.sumneko_lua.setup {
 lspconfig.pyright.setup {
   on_attach = on_attach,
   capabilities = capabilities,
-  settings = { python = { analysis = { typeCheckingMode = 'off' } } },
+  settings = {
+    python = {
+      analysis = { typeCheckingMode = 'off' },
+    },
+  },
+  handlers = {
+    ['textDocument/publishDiagnostics'] = function() end,
+  },
 }
 
 -- Golang
@@ -338,6 +345,7 @@ lspconfig.gopls.setup {
 
 local null_ls = require 'null-ls'
 local augroup = vim.api.nvim_create_augroup('LspFormatting', {})
+local ruff_extra_args = { '--extend-select=I', '--extend-select=UP' }
 
 null_ls.setup {
   on_attach = function(client, bufnr)
@@ -354,8 +362,15 @@ null_ls.setup {
   end,
   sources = {
     null_ls.builtins.formatting.stylua,
-    null_ls.builtins.formatting.isort,
-    null_ls.builtins.formatting.black,
+    null_ls.builtins.diagnostics.ruff.with {
+      extra_args = ruff_extra_args,
+    },
+    null_ls.builtins.formatting.ruff.with {
+      extra_args = ruff_extra_args,
+    },
+    null_ls.builtins.formatting.black.with {
+      extra_args = { '--fast' },
+    },
     null_ls.builtins.formatting.goimports,
     null_ls.builtins.formatting.prettier,
     null_ls.builtins.formatting.clang_format,
