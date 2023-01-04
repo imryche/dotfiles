@@ -130,6 +130,16 @@ function install_isort() {
 	printf "\n"
 }
 
+function install_ruff() {
+	echo "[Installing ruff]"
+	if ! installed ruff; then
+		pip install ruff
+	else
+		skipping ruff
+	fi
+	printf "\n"
+}
+
 function install_go() {
 	echo "[Installing Go]"
 	if ! installed go; then
@@ -352,6 +362,7 @@ install_python
 install_pyright
 install_black
 install_isort
+install_ruff
 install_go
 install_gopls
 install_shfmt
