@@ -44,11 +44,13 @@ require('packer').startup(function(use)
   }
 
   use 'tpope/vim-fugitive'
+  use 'stevearc/oil.nvim'
 
   use 'cocopon/iceberg.vim'
   use 'nvim-lualine/lualine.nvim'
   use 'numToStr/Comment.nvim'
-  use 'tpope/vim-sleuth'
+  -- use 'tpope/vim-sleuth'
+  use 'sheerun/vim-polyglot'
   use 'ethanholz/nvim-lastplace'
 
   use { 'nvim-telescope/telescope.nvim', branch = '0.1.x', requires = { 'nvim-lua/plenary.nvim' } }
@@ -154,7 +156,7 @@ vim.keymap.set('n', '<leader>3', ':vsp<cr>')
 vim.keymap.set('n', '<leader>1', ':only<cr>')
 
 -- Open netrw
-vim.keymap.set('n', '<leader>e', vim.cmd.Ex)
+vim.keymap.set('n', '<leader>e', ':Oil<cr>')
 
 -- Buffer actions
 vim.keymap.set('n', '<leader>q', ':bd<cr>')
@@ -204,6 +206,9 @@ end)
 vim.keymap.set('n', '<leader>gP', function()
   vim.cmd.Git 'pull --rebase'
 end)
+
+-- [[ oil.nvim ]]
+require('oil').setup()
 
 -- [[ Telescope.nvim ]]
 
