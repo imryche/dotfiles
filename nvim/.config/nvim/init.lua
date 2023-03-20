@@ -383,7 +383,9 @@ null_ls.setup {
       extra_args = { '--fast' },
     },
     null_ls.builtins.formatting.goimports,
-    null_ls.builtins.formatting.prettier,
+    null_ls.builtins.formatting.prettier.with {
+      extra_filetypes = { 'htmldjango' },
+    },
     null_ls.builtins.formatting.clang_format,
     null_ls.builtins.formatting.shfmt,
     null_ls.builtins.formatting.trim_newlines,
