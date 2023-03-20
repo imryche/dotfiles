@@ -9,6 +9,8 @@ alias vim=nvim
 alias vi=nvim
 alias va="source venv/bin/activate"
 alias vd="deactivate"
+alias ear="bluetoothctl connect 2C:BE:EB:09:13:42"
+alias near="bluetoothctl disconnect 2C:BE:EB:09:13:42"
 
 export PATH="$HOME/.config/lsp/lua-language-server/bin:$PATH"
 
