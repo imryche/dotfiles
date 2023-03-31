@@ -27,6 +27,7 @@ require('packer').startup(function(use)
       'hrsh7th/cmp-cmdline',
       'hrsh7th/nvim-cmp',
       'L3MON4D3/LuaSnip',
+      'rafamadriz/friendly-snippets',
       'saadparwaiz1/cmp_luasnip',
     },
   }
@@ -44,12 +45,13 @@ require('packer').startup(function(use)
   }
 
   use 'tpope/vim-fugitive'
+  use 'akinsho/git-conflict.nvim'
+
   use 'stevearc/oil.nvim'
 
   use 'cocopon/iceberg.vim'
   use 'nvim-lualine/lualine.nvim'
   use 'numToStr/Comment.nvim'
-  -- use 'tpope/vim-sleuth'
   use 'sheerun/vim-polyglot'
   use 'ethanholz/nvim-lastplace'
 
@@ -207,6 +209,9 @@ vim.keymap.set('n', '<leader>gP', function()
   vim.cmd.Git 'pull --rebase'
 end)
 
+-- [[ git-conflict ]]
+require('git-conflict').setup()
+
 -- [[ oil.nvim ]]
 require('oil').setup()
 
@@ -300,7 +305,7 @@ local runtime_path = vim.split(package.path, ';')
 table.insert(runtime_path, 'lua/?.lua')
 table.insert(runtime_path, 'lua/?/init.lua')
 
-lspconfig.sumneko_lua.setup {
+lspconfig.lua_ls.setup {
   on_attach = on_attach,
   capabilities = capabilities,
   settings = {
@@ -397,6 +402,7 @@ null_ls.setup {
 
 local cmp = require 'cmp'
 local luasnip = require 'luasnip'
+require('luasnip.loaders.from_vscode').lazy_load()
 
 cmp.setup {
   snippet = {
