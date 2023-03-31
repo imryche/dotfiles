@@ -1,7 +1,7 @@
 export ZSH="$HOME/.oh-my-zsh"
 
 ZSH_THEME="robbyrussell"
-plugins=(git)
+plugins=(git fzf)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -22,3 +22,5 @@ export DENO_INSTALL="$HOME/.deno"
 export PATH="$DENO_INSTALL/bin:$PATH"
 
 export PATH="$HOME/.cargo/bin:$PATH"
+
+export PYTHONBREAKPOINT=ipdb.set_trace
