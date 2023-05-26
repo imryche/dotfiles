@@ -38,6 +38,7 @@ require('packer').startup(function(use)
       pcall(require('nvim-treesitter.install').update { with_sync = true })
     end,
   }
+  use 'nvim-treesitter/nvim-treesitter-context'
 
   use {
     'nvim-treesitter/nvim-treesitter-textobjects',
@@ -185,6 +186,13 @@ require('lualine').setup {
     component_separators = '|',
     section_separators = '',
   },
+  sections = {
+    lualine_c = { {
+      'filename',
+      file_status = true,
+      path = 1,
+    } },
+  },
 }
 
 -- [[ Comment.nvim ]]
@@ -264,9 +272,10 @@ vim.keymap.set('n', '<leader>;', function()
 end)
 
 -- [[ nvim-treesitter ]]
+vim.cmd [[highlight link TreesitterContext SignColumn]]
 
 require('nvim-treesitter.configs').setup {
-  ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'typescript', 'help' },
+  ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'typescript', 'vimdoc' },
 
   highlight = { enable = true },
   indent = { enable = true },
@@ -287,6 +296,7 @@ local on_attach = function(_, bufnr)
   vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts)
   vim.keymap.set('n', 'gI', vim.lsp.buf.implementation, bufopts)
   vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
+  vim.keymap.set({ 'n', 'v' }, '<leader>ca', vim.lsp.buf.code_action, bufopts)
 end
 
 vim.keymap.set('n', '<leader>=', function()
@@ -361,7 +371,7 @@ lspconfig.denols.setup {
 
 local null_ls = require 'null-ls'
 local augroup = vim.api.nvim_create_augroup('LspFormatting', {})
-local ruff_extra_args = { '--extend-select=I', '--extend-select=UP' }
+local ruff_extra_args = { '--extend-select=I,UP', '--extend-ignore=UP007' }
 
 null_ls.setup {
   on_attach = function(client, bufnr)
@@ -399,12 +409,20 @@ null_ls.setup {
 }
 
 -- [[ nvim-cmp ]]
+local has_words_before = function()
+  unpack = unpack
+  local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+  return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match '%s' == nil
+end
 
 local cmp = require 'cmp'
 local luasnip = require 'luasnip'
 require('luasnip.loaders.from_vscode').lazy_load()
 
 cmp.setup {
+  completion = {
+    autocomplete = false,
+  },
   snippet = {
     expand = function(args)
       luasnip.lsp_expand(args.body)
@@ -413,7 +431,6 @@ cmp.setup {
   mapping = cmp.mapping.preset.insert {
     ['<C-d>'] = cmp.mapping.scroll_docs(-4),
     ['<C-f>'] = cmp.mapping.scroll_docs(4),
-    ['<C-Space>'] = cmp.mapping.complete(),
     ['<CR>'] = cmp.mapping.confirm {
       behavior = cmp.ConfirmBehavior.Replace,
       select = true,
@@ -423,6 +440,8 @@ cmp.setup {
         cmp.select_next_item()
       elseif luasnip.expand_or_jumpable() then
         luasnip.expand_or_jump()
+      elseif has_words_before() then
+        cmp.complete()
       else
         fallback()
       end
