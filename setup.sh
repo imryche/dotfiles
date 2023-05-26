@@ -103,7 +103,7 @@ function install_python() {
 function install_pyright() {
 	echo "[Installing pyright]"
 	if ! installed pyright; then
-		sudo pip install pyright
+		pip install pyright
 	else
 		skipping pyright
 	fi
@@ -145,9 +145,9 @@ function install_go() {
 	if ! installed go; then
 		(
 			cd ~
-			wget https://go.dev/dl/go1.19.4.linux-amd64.tar.gz
-			sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.19.4.linux-amd64.tar.gz
-			rm go1.19.4.linux-amd64.tar.gz
+			wget https://go.dev/dl/go1.20.3.linux-amd64.tar.gz
+			sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.20.3.linux-amd64.tar.gz
+			rm go1.20.3.linux-amd64.tar.gz
 		)
 	else
 		skipping go
@@ -193,7 +193,7 @@ function install_nodejs() {
 function install_prettier() {
 	echo "[Installing prettier]"
 	if ! installed prettier; then
-		sudo npm install -g prettier
+		npm install -g prettier
 	else
 		skipping prettier
 	fi
@@ -353,34 +353,33 @@ function install_dejadup() {
 	printf "\n"
 }
 
-install_basics
-install_zsh
-configure_shell
-install_neovim
-install_tpm
-install_python
-install_pyright
-install_black
-install_isort
-install_ruff
-install_go
-install_gopls
-install_shfmt
-install_nodejs
-install_prettier
-install_prettier
-install_deno
-install_rust
-install_stylua
-install_lua_lsp
-install_docker
-install_chrome
-remove_firefox
-install_1password
-add_flatpak_remote
-install_wezterm
-install_telegram
-install_spotify
-install_todoist
-install_obsidian
-install_dejadup
+#install_basics
+#install_zsh
+#configure_shell
+#install_neovim
+#install_tpm
+#install_python
+# install_pyright
+# install_black
+# install_isort
+# install_ruff
+# install_go
+# install_gopls
+# install_shfmt
+#install_nodejs
+# install_prettier
+# install_deno
+# install_rust
+# install_stylua
+# install_lua_lsp
+# install_docker
+#install_chrome
+#remove_firefox
+#install_1password
+#add_flatpak_remote
+#install_wezterm
+#install_telegram
+#install_spotify
+#install_todoist
+#install_obsidian
+#install_dejadup
