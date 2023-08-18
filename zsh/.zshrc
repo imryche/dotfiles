@@ -26,6 +26,7 @@ export PATH="$DENO_INSTALL/bin:$PATH"
 
 export PATH="$HOME/.cargo/bin:$PATH"
 
+export PATH="$HOME/.local/bin:$PATH"
 export PYTHONBREAKPOINT=ipdb.set_trace
 
 export PATH="$HOME/.tmuxifier/bin:$PATH"

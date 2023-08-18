@@ -306,8 +306,9 @@ end)
 local lspconfig = require 'lspconfig'
 local util = require 'lspconfig/util'
 
--- nvim-cmp supports additional completion capabilities
 local capabilities = vim.lsp.protocol.make_client_capabilities()
+capabilities.textDocument.completion.completionItem.snippetSupport = true
+-- nvim-cmp supports additional completion capabilities
 capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
 
 -- Lua server
@@ -334,6 +335,13 @@ lspconfig.lua_ls.setup {
       telemetry = { enable = false },
     },
   },
+}
+
+-- html
+lspconfig.html.setup {
+  on_attach = on_attach,
+  capabilities = capabilities,
+  filetypes = { 'html', 'htmldjango' },
 }
 
 -- Python
@@ -371,7 +379,8 @@ lspconfig.denols.setup {
 
 local null_ls = require 'null-ls'
 local augroup = vim.api.nvim_create_augroup('LspFormatting', {})
-local ruff_extra_args = { '--extend-select=I,UP', '--extend-ignore=UP007' }
+local ruff_extra_diagnostics_args = { '--extend-select=I,UP', '--extend-ignore=UP007' }
+local ruff_extra_formatting_args = { '--extend-select=I,UP', '--extend-ignore=UP006,UP007,F841' }
 
 null_ls.setup {
   on_attach = function(client, bufnr)
@@ -389,10 +398,10 @@ null_ls.setup {
   sources = {
     null_ls.builtins.formatting.stylua,
     null_ls.builtins.diagnostics.ruff.with {
-      extra_args = ruff_extra_args,
+      extra_args = ruff_extra_diagnostics_args,
     },
     null_ls.builtins.formatting.ruff.with {
-      extra_args = ruff_extra_args,
+      extra_args = ruff_extra_formatting_args,
     },
     null_ls.builtins.formatting.black.with {
       extra_args = { '--fast' },
@@ -417,6 +426,7 @@ end
 
 local cmp = require 'cmp'
 local luasnip = require 'luasnip'
+luasnip.filetype_extend('htmldjango', { 'html' })
 require('luasnip.loaders.from_vscode').lazy_load()
 
 cmp.setup {
