@@ -55,6 +55,7 @@ require('packer').startup(function(use)
   use 'numToStr/Comment.nvim'
   use 'sheerun/vim-polyglot'
   use 'ethanholz/nvim-lastplace'
+  use 'famiu/bufdelete.nvim'
 
   use { 'nvim-telescope/telescope.nvim', branch = '0.1.x', requires = { 'nvim-lua/plenary.nvim' } }
   use { 'nvim-telescope/telescope-fzf-native.nvim', run = 'make', cond = vim.fn.executable 'make' == 1 }
@@ -162,7 +163,8 @@ vim.keymap.set('n', '<leader>1', ':only<cr>')
 vim.keymap.set('n', '<leader>e', ':Oil<cr>')
 
 -- Buffer actions
-vim.keymap.set('n', '<leader>q', ':bd<cr>')
+vim.keymap.set('n', '<leader>q', ':Bdelete<cr>')
+vim.keymap.set('n', '<leader>Q', ':q<cr>')
 vim.keymap.set('n', '<leader>w', ':w<cr>')
 vim.keymap.set('n', '<leader>o', '<C-^>')
 
