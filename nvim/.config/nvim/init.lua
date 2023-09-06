@@ -163,10 +163,10 @@ vim.keymap.set('n', '<leader>1', ':only<cr>')
 vim.keymap.set('n', '<leader>e', ':Oil<cr>')
 
 -- Buffer actions
-vim.keymap.set('n', '<leader>q', ':Bdelete<cr>')
-vim.keymap.set('n', '<leader>Q', ':q<cr>')
+vim.keymap.set('n', '<leader>d', ':bd<cr>')
+vim.keymap.set('n', '<leader>q', ':q<cr>')
 vim.keymap.set('n', '<leader>w', ':w<cr>')
-vim.keymap.set('n', '<leader>o', '<C-^>')
+vim.keymap.set('n', '<leader><Tab>', '<C-^>')
 
 -- [[ Highlight on yank ]]
 
@@ -211,13 +211,7 @@ require('nvim-lastplace').setup {
 
 -- [[ Fugitive ]]
 
-vim.keymap.set('n', '<leader>gs', vim.cmd.Git)
-vim.keymap.set('n', '<leader>gp', function()
-  vim.cmd.Git 'push'
-end)
-vim.keymap.set('n', '<leader>gP', function()
-  vim.cmd.Git 'pull --rebase'
-end)
+vim.keymap.set('n', '<leader>g', ':G ')
 
 -- [[ git-conflict ]]
 require('git-conflict').setup()
