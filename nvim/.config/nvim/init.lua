@@ -19,6 +19,14 @@ require('packer').startup(function(use)
   }
 
   use {
+    'kristijanhusak/vim-dadbod-ui',
+    requires = {
+      'tpope/vim-dadbod',
+      'kristijanhusak/vim-dadbod-completion',
+    },
+  }
+
+  use {
     'hrsh7th/nvim-cmp',
     requires = {
       'hrsh7th/cmp-nvim-lsp',
@@ -168,6 +176,9 @@ vim.keymap.set('n', '<leader>q', ':q<cr>')
 vim.keymap.set('n', '<leader>w', ':w<cr>')
 vim.keymap.set('n', '<leader><Tab>', '<C-^>')
 
+-- Dadbod
+vim.keymap.set('n', '<leader>c', ':DBUIToggle<cr>')
+
 -- [[ Highlight on yank ]]
 
 local highlight_group = vim.api.nvim_create_augroup('YankHighlight', { clear = true })
@@ -211,10 +222,10 @@ require('nvim-lastplace').setup {
 
 -- [[ Fugitive ]]
 
-vim.keymap.set('n', '<leader>g', ':G ')
+vim.keymap.set('n', '<leader>g', ':Git ')
 
 -- [[ git-conflict ]]
-require('git-conflict').setup()
+require('git-conflict').setup {}
 
 -- [[ oil.nvim ]]
 require('oil').setup()
@@ -340,6 +351,13 @@ lspconfig.html.setup {
   filetypes = { 'html', 'htmldjango' },
 }
 
+-- tailwind
+lspconfig.tailwindcss.setup {
+  on_attach = on_attach,
+  capabilities = capabilities,
+  filetypes = { 'html', 'htmldjango' },
+}
+
 -- Python
 lspconfig.pyright.setup {
   on_attach = on_attach,
@@ -435,8 +453,11 @@ cmp.setup {
     end,
   },
   mapping = cmp.mapping.preset.insert {
+    ['<C-n>'] = cmp.mapping.select_next_item(),
+    ['<C-p>'] = cmp.mapping.select_prev_item(),
     ['<C-d>'] = cmp.mapping.scroll_docs(-4),
     ['<C-f>'] = cmp.mapping.scroll_docs(4),
+    ['<C-Space>'] = cmp.mapping.complete {},
     ['<CR>'] = cmp.mapping.confirm {
       behavior = cmp.ConfirmBehavior.Replace,
       select = true,
@@ -444,10 +465,8 @@ cmp.setup {
     ['<Tab>'] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_next_item()
-      elseif luasnip.expand_or_jumpable() then
+      elseif luasnip.expand_or_locally_jumpable() then
         luasnip.expand_or_jump()
-      elseif has_words_before() then
-        cmp.complete()
       else
         fallback()
       end
@@ -455,7 +474,7 @@ cmp.setup {
     ['<S-Tab>'] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_prev_item()
-      elseif luasnip.jumpable(-1) then
+      elseif luasnip.locally_jumpable(-1) then
         luasnip.jump(-1)
       else
         fallback()
@@ -466,5 +485,6 @@ cmp.setup {
     { name = 'nvim_lsp' },
     { name = 'luasnip' },
     { name = 'buffer' },
+    { name = 'vim-dadbod-completion' },
   },
 }
