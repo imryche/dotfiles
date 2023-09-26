@@ -1,6 +1,7 @@
 local wezterm = require("wezterm")
+
 return {
-  enable_wayland = false,
+  front_end = "WebGpu",
   enable_tab_bar = false,
   font = wezterm.font("JetBrains Mono", { weight = "Medium" }),
   harfbuzz_features = { "calt=0", "clig=0", "liga=0" },
