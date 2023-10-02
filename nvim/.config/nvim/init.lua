@@ -309,10 +309,6 @@ local on_attach = function(client, bufnr)
   require('lsp-format').on_attach(client, bufnr)
 end
 
-vim.keymap.set('n', '<leader>=', function()
-  vim.lsp.buf.format { timeout_ms = 2000 }
-end)
-
 local lspconfig = require 'lspconfig'
 local util = require 'lspconfig/util'
 
@@ -415,6 +411,7 @@ require('conform').setup {
     lua = { 'stylua' },
     python = { 'ruff_fix', 'black' },
     javascript = { { 'prettierd', 'prettier' } },
+    html = { { 'prettierd', 'prettier' } },
     htmldjango = { { 'prettierd', 'prettier' } },
     ['_'] = { 'trim_whitespace', 'trim_newlines' },
   },
