@@ -11,12 +11,9 @@ end
 require('packer').startup(function(use)
   use 'wbthomason/packer.nvim'
 
-  use {
-    'neovim/nvim-lspconfig',
-    requires = {
-      'jose-elias-alvarez/null-ls.nvim',
-    },
-  }
+  use 'neovim/nvim-lspconfig'
+  use 'mfussenegger/nvim-lint'
+  use 'stevearc/conform.nvim'
 
   use {
     'kristijanhusak/vim-dadbod-ui',
@@ -46,12 +43,11 @@ require('packer').startup(function(use)
       pcall(require('nvim-treesitter.install').update { with_sync = true })
     end,
   }
-  use 'nvim-treesitter/nvim-treesitter-context'
-
   use {
     'nvim-treesitter/nvim-treesitter-textobjects',
     after = 'nvim-treesitter',
   }
+  use 'nvim-treesitter/nvim-treesitter-context'
 
   use 'tpope/vim-fugitive'
   use 'akinsho/git-conflict.nvim'
@@ -64,6 +60,8 @@ require('packer').startup(function(use)
   use 'sheerun/vim-polyglot'
   use 'ethanholz/nvim-lastplace'
   use 'famiu/bufdelete.nvim'
+  use 'windwp/nvim-autopairs'
+  use 'windwp/nvim-ts-autotag'
 
   use { 'nvim-telescope/telescope.nvim', branch = '0.1.x', requires = { 'nvim-lua/plenary.nvim' } }
   use { 'nvim-telescope/telescope-fzf-native.nvim', run = 'make', cond = vim.fn.executable 'make' == 1 }
@@ -220,6 +218,9 @@ require('nvim-lastplace').setup {
   lastplace_open_folds = true,
 }
 
+-- [[  nvim-autopairs ]]
+require('nvim-autopairs').setup {}
+
 -- [[ Fugitive ]]
 
 vim.keymap.set('n', '<leader>g', ':Git ')
@@ -283,7 +284,7 @@ vim.cmd [[highlight link TreesitterContext SignColumn]]
 
 require('nvim-treesitter.configs').setup {
   ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'typescript', 'vimdoc' },
-
+  autotag = { enable = true },
   highlight = { enable = true },
   indent = { enable = true },
 }
@@ -295,7 +296,7 @@ vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
 
 -- LSP settings.
-local on_attach = function(_, bufnr)
+local on_attach = function(client, bufnr)
   local bufopts = { noremap = true, silent = true, buffer = bufnr }
 
   vim.keymap.set('n', '<leader>r', vim.lsp.buf.rename, bufopts)
@@ -304,6 +305,8 @@ local on_attach = function(_, bufnr)
   vim.keymap.set('n', 'gI', vim.lsp.buf.implementation, bufopts)
   vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
   vim.keymap.set({ 'n', 'v' }, '<leader>ca', vim.lsp.buf.code_action, bufopts)
+
+  require('lsp-format').on_attach(client, bufnr)
 end
 
 vim.keymap.set('n', '<leader>=', function()
@@ -358,6 +361,13 @@ lspconfig.tailwindcss.setup {
   filetypes = { 'html', 'htmldjango' },
 }
 
+-- emmet
+lspconfig.emmet_ls.setup {
+  on_attach = on_attach,
+  capabilities = capabilities,
+  filetypes = { 'html', 'htmldjango' },
+}
+
 -- Python
 lspconfig.pyright.setup {
   on_attach = on_attach,
@@ -389,55 +399,32 @@ lspconfig.denols.setup {
   root_dir = lspconfig.util.root_pattern('deno.json', 'deno.jsonc'),
 }
 
--- [[ null-ls.nvim ]]
-
-local null_ls = require 'null-ls'
-local augroup = vim.api.nvim_create_augroup('LspFormatting', {})
-local ruff_extra_diagnostics_args = { '--extend-select=I,UP', '--extend-ignore=UP007' }
-local ruff_extra_formatting_args = { '--extend-select=I,UP', '--extend-ignore=UP006,UP007,F841' }
-
-null_ls.setup {
-  on_attach = function(client, bufnr)
-    if client.supports_method 'textDocument/formatting' then
-      vim.api.nvim_clear_autocmds { group = augroup, buffer = bufnr }
-      vim.api.nvim_create_autocmd('BufWritePre', {
-        group = augroup,
-        buffer = bufnr,
-        callback = function()
-          vim.lsp.buf.format { bufnr = bufnr }
-        end,
-      })
-    end
+-- lint
+require('lint').linters_by_ft = {
+  python = { 'ruff' },
+}
+vim.api.nvim_create_autocmd({ 'BufEnter', 'BufWritePost', 'InsertLeave', 'TextChanged' }, {
+  callback = function()
+    require('lint').try_lint()
   end,
-  sources = {
-    null_ls.builtins.formatting.stylua,
-    null_ls.builtins.diagnostics.ruff.with {
-      extra_args = ruff_extra_diagnostics_args,
-    },
-    null_ls.builtins.formatting.ruff.with {
-      extra_args = ruff_extra_formatting_args,
-    },
-    null_ls.builtins.formatting.black.with {
-      extra_args = { '--fast' },
-    },
-    null_ls.builtins.formatting.goimports,
-    null_ls.builtins.formatting.prettier.with {
-      extra_filetypes = { 'htmldjango' },
-    },
-    null_ls.builtins.formatting.clang_format,
-    null_ls.builtins.formatting.shfmt,
-    null_ls.builtins.formatting.trim_newlines,
-    null_ls.builtins.formatting.trim_whitespace,
+})
+
+-- autoformat
+require('conform').setup {
+  formatters_by_ft = {
+    lua = { 'stylua' },
+    python = { 'ruff_fix', 'black' },
+    javascript = { { 'prettierd', 'prettier' } },
+    htmldjango = { { 'prettierd', 'prettier' } },
+    ['_'] = { 'trim_whitespace', 'trim_newlines' },
+  },
+  format_on_save = {
+    timeout_ms = 500,
+    lsp_fallback = true,
   },
 }
 
 -- [[ nvim-cmp ]]
-local has_words_before = function()
-  unpack = unpack
-  local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-  return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match '%s' == nil
-end
-
 local cmp = require 'cmp'
 local luasnip = require 'luasnip'
 luasnip.filetype_extend('htmldjango', { 'html' })
