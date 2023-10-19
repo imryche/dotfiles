@@ -62,6 +62,7 @@ require('packer').startup(function(use)
   use 'famiu/bufdelete.nvim'
   use 'windwp/nvim-autopairs'
   use 'windwp/nvim-ts-autotag'
+  use 'mg979/vim-visual-multi'
 
   use { 'nvim-telescope/telescope.nvim', branch = '0.1.x', requires = { 'nvim-lua/plenary.nvim' } }
   use { 'nvim-telescope/telescope-fzf-native.nvim', run = 'make', cond = vim.fn.executable 'make' == 1 }
@@ -161,15 +162,15 @@ vim.keymap.set('n', 'n', 'nzzzv')
 vim.keymap.set('n', 'N', 'Nzzzv')
 
 -- Emacs like window splits
-vim.keymap.set('n', '<leader>2', ':sp<cr>')
-vim.keymap.set('n', '<leader>3', ':vsp<cr>')
-vim.keymap.set('n', '<leader>1', ':only<cr>')
+vim.keymap.set('n', '<leader>S', ':sp<cr>')
+vim.keymap.set('n', '<leader>s', ':vsp<cr>')
+vim.keymap.set('n', '<leader>o', ':only<cr>')
 
--- Open netrw
-vim.keymap.set('n', '<leader>e', ':Oil<cr>')
+-- Open file directory
+vim.keymap.set('n', '<leader>d', ':Oil<cr>')
 
 -- Buffer actions
-vim.keymap.set('n', '<leader>d', ':bd<cr>')
+vim.keymap.set('n', '<leader>x', ':bd<cr>')
 vim.keymap.set('n', '<leader>q', ':q<cr>')
 vim.keymap.set('n', '<leader>w', ':w<cr>')
 vim.keymap.set('n', '<leader><Tab>', '<C-^>')
@@ -233,6 +234,7 @@ require('oil').setup()
 
 -- [[ Telescope.nvim ]]
 
+local telescope_theme = 'ivy'
 require('telescope').setup {
   defaults = {
     mappings = {
@@ -242,21 +244,26 @@ require('telescope').setup {
       },
     },
   },
+  pickers = {
+    buffers = { theme = telescope_theme },
+    git_files = { theme = telescope_theme },
+    find_files = { theme = telescope_theme },
+    grep_string = { theme = telescope_theme },
+    live_grep = { theme = telescope_theme },
+  },
 }
 
 -- Enable telescope fzf native, if installed
 pcall(require('telescope').load_extension, 'fzf')
 
 local builtin = require 'telescope.builtin'
+local themes = require 'telescope.themes'
 
-vim.keymap.set('n', '<leader>?', builtin.oldfiles)
 vim.keymap.set('n', '<leader><space>', builtin.buffers)
-vim.keymap.set('n', '<leader>p', builtin.git_files)
-vim.keymap.set('n', '<leader>P', builtin.find_files)
-vim.keymap.set('n', '<leader>fh', builtin.help_tags)
-vim.keymap.set('n', '<leader>fw', builtin.grep_string)
-vim.keymap.set('n', '<leader>fs', builtin.live_grep)
-vim.keymap.set('n', '<leader>fd', builtin.diagnostics)
+vim.keymap.set('n', '<C-p>', builtin.git_files)
+vim.keymap.set('n', '<C-M-p>', builtin.find_files)
+vim.keymap.set('n', '<leader>?', builtin.grep_string)
+vim.keymap.set('n', '<leader>/', builtin.live_grep)
 
 -- [[ Harpoon ]]
 
@@ -388,6 +395,18 @@ lspconfig.gopls.setup {
   settings = { gopls = { analyses = { unusedparams = true }, staticcheck = true } },
 }
 
+-- JavaScript
+lspconfig.eslint.setup {
+  on_attach = on_attach,
+  capabilities = capabilities,
+  filetypes = { 'javascript' },
+}
+lspconfig.tsserver.setup {
+  on_attach = on_attach,
+  capabilities = capabilities,
+  filetypes = { 'javascript' },
+}
+
 -- Deno
 lspconfig.denols.setup {
   on_attach = on_attach,
@@ -398,10 +417,18 @@ lspconfig.denols.setup {
 -- lint
 require('lint').linters_by_ft = {
   python = { 'ruff' },
+  -- sql = { 'sqlfluff' },
 }
 vim.api.nvim_create_autocmd({ 'BufEnter', 'BufWritePost', 'InsertLeave', 'TextChanged' }, {
   callback = function()
     require('lint').try_lint()
+  end,
+})
+
+vim.api.nvim_create_autocmd({ 'BufNewFile', 'BufRead' }, {
+  pattern = '*.html',
+  callback = function()
+    vim.bo.filetype = 'html'
   end,
 })
 
@@ -410,6 +437,7 @@ require('conform').setup {
   formatters_by_ft = {
     lua = { 'stylua' },
     python = { 'ruff_fix', 'black' },
+    sql = { 'sql_formatter' },
     javascript = { { 'prettierd', 'prettier' } },
     html = { { 'prettierd', 'prettier' } },
     htmldjango = { { 'prettierd', 'prettier' } },
