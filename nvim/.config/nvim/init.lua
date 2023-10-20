@@ -439,6 +439,7 @@ require('conform').setup {
     python = { 'ruff_fix', 'black' },
     sql = { 'sql_formatter' },
     javascript = { { 'prettierd', 'prettier' } },
+    json = { { 'prettierd', 'prettier' } },
     html = { { 'prettierd', 'prettier' } },
     htmldjango = { { 'prettierd', 'prettier' } },
     ['_'] = { 'trim_whitespace', 'trim_newlines' },
