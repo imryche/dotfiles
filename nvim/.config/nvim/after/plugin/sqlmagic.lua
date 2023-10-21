@@ -2,9 +2,10 @@ local embedded_sql = vim.treesitter.query.parse(
   'python',
   [[
 (assignment
-  right: (string) @query_var (#contains? @query_var "--sql"))
+  left: (identifier) @var
+  right: (string) @sql_var (#contains? @sql_var "--sql"))
 (call
-  arguments: (argument_list (string) @query_arg (#contains? @query_arg "--sql")))
+  arguments: (argument_list (string) @sql_arg (#contains? @sql_arg "--sql")))
   ]]
 )
 
@@ -45,14 +46,17 @@ local format_sql = function(bufnr)
   local root = get_root(bufnr)
 
   local changes = {}
+  local indent = 0
   for id, node in embedded_sql:iter_captures(root, bufnr, 0, -1) do
     local name = embedded_sql.captures[id]
-    if name == 'query_var' or name == 'query_arg' then
-      local range = { node:range() }
-      local indents = { query_var = range[1], query_arg = range[2] }
-      local formatted = run_formatter(vim.treesitter.get_node_text(node, bufnr), indents[name])
+    local range = { node:range() }
+    if name == 'var' or name == 'sql_arg' then
+      indent = range[2]
+    end
+    if name == 'sql_var' or name == 'sql_arg' then
+      local formatted = run_formatter(vim.treesitter.get_node_text(node, bufnr), indent)
 
-      local indentation = string.rep(' ', indents[name])
+      local indentation = string.rep(' ', indent)
       for idx, line in ipairs(formatted) do
         formatted[idx] = indentation .. line
       end
@@ -73,4 +77,5 @@ end
 vim.api.nvim_create_user_command('SqlMagic', function()
   format_sql()
 end, {})
+
 vim.keymap.set('n', '<leader>=', ':SqlMagic<cr>')
