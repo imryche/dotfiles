@@ -1,5 +1,3 @@
--- [[ Options ]]
-
 -- Set highlight on search
 vim.o.hlsearch = false
 
