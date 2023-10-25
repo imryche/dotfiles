@@ -1,7 +1,7 @@
 require('conform').setup {
   formatters_by_ft = {
     lua = { 'stylua' },
-    python = { 'ruff_fix', 'black' },
+    python = { 'ruff_fix', 'ruff_format' },
     sql = { 'sql_formatter' },
     javascript = { { 'prettierd', 'prettier' } },
     json = { { 'prettierd', 'prettier' } },
