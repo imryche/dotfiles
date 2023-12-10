@@ -22,7 +22,7 @@ local run_formatter = function(text, indent)
   local wrap_after = 88 - indent
   local j = require('plenary.job'):new {
     command = 'pg_format',
-    args = { '-w', tostring(wrap_after), '-s', '4', '-f', '2', '-' },
+    args = { '-w', tostring(wrap_after), '-s', '4', '-u', '1', '-f', '1', '-' },
     writer = { result },
   }
   local formatted_text = j:sync()

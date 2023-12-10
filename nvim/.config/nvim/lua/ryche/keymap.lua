@@ -29,7 +29,7 @@ vim.keymap.set('n', '<leader>d', ':Oil<cr>')
 vim.keymap.set('n', '<leader>x', ':bd<cr>')
 vim.keymap.set('n', '<leader>q', ':q<cr>')
 vim.keymap.set('n', '<leader>w', ':w<cr>')
-vim.keymap.set('n', '<leader><Tab>', '<C-^>')
+vim.keymap.set('n', "<leader>'", '<C-^>')
 
 -- Dadbod
 vim.keymap.set('n', '<leader>c', ':DBUIToggle<cr>')
