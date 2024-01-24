@@ -61,6 +61,7 @@ require('packer').startup(function(use)
   use 'windwp/nvim-autopairs'
   use 'windwp/nvim-ts-autotag'
   use 'mg979/vim-visual-multi'
+  use { 'folke/todo-comments.nvim', requires = { 'nvim-lua/plenary.nvim' } }
 
   use { 'nvim-telescope/telescope.nvim', branch = '0.1.x', requires = { 'nvim-lua/plenary.nvim' } }
   use { 'nvim-telescope/telescope-fzf-native.nvim', run = 'make', cond = vim.fn.executable 'make' == 1 }
