@@ -8,10 +8,12 @@ source $HOME/.nvm/nvm.sh
 
 alias vim=nvim
 alias vi=nvim
-alias va="source venv/bin/activate"
+alias va="source .venv/bin/activate"
 alias vd="deactivate"
 alias ear="bluetoothctl connect 2C:BE:EB:09:13:42"
 alias near="bluetoothctl disconnect 2C:BE:EB:09:13:42"
+alias ta="tmux attach"
+alias tn="tmux new -s"
 
 export EDITOR=nvim
 
@@ -28,6 +30,18 @@ export PATH="$HOME/.cargo/bin:$PATH"
 
 export PATH="$HOME/.local/bin:$PATH"
 export PYTHONBREAKPOINT=ipdb.set_trace
+export PYTHONDONTWRITEBYTECODE=1
 
 export PATH="$HOME/.tmuxifier/bin:$PATH"
 eval "$(tmuxifier init -)"
+
+# bun completions
+[ -s "/home/ryche/.bun/_bun" ] && source "/home/ryche/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+. "$HOME/.cargo/env"
+
+# uv
+export PATH="$HOME/.cargo/bin:$PATH"
