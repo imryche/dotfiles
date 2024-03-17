@@ -6,7 +6,7 @@ require('lualine').setup {
     section_separators = '',
   },
   sections = {
-    lualine_c = { {
+    lualine_c = { 'tabs', {
       'filename',
       file_status = true,
       path = 1,
