@@ -47,8 +47,14 @@ require('packer').startup(function(use)
   }
   use 'nvim-treesitter/nvim-treesitter-context'
 
-  use 'tpope/vim-fugitive'
-  use 'akinsho/git-conflict.nvim'
+  use {
+    'NeogitOrg/neogit',
+    requires = {
+      'nvim-lua/plenary.nvim',
+      'sindrets/diffview.nvim',
+      'nvim-telescope/telescope.nvim',
+    },
+  }
 
   use 'stevearc/oil.nvim'
 
