@@ -8,7 +8,7 @@ local on_attach = function(client, bufnr)
   vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
   vim.keymap.set({ 'n', 'v' }, '<leader>ca', vim.lsp.buf.code_action, bufopts)
 
-  require('lsp-format').on_attach(client, bufnr)
+  -- require('lsp-format').on_attach(client, bufnr)
 end
 
 local lspconfig = require 'lspconfig'

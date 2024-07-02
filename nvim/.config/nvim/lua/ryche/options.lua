@@ -6,9 +6,6 @@ vim.opt.number = true
 vim.opt.relativenumber = true
 vim.opt.cursorline = true
 
--- Tabline
-vim.o.showtabline = false
-
 -- Basic indentation
 vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
@@ -31,7 +28,6 @@ vim.opt.signcolumn = 'no'
 vim.opt.scrolloff = 8
 
 -- Set colorscheme
-vim.opt.termguicolors = true
 vim.cmd [[colorscheme iceberg]]
 
 -- Set completeopt to have a better completion experience

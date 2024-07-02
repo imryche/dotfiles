@@ -20,13 +20,13 @@ vim.keymap.set('n', 'N', 'Nzzzv')
 -- Splits
 vim.keymap.set('n', '<leader>S', ':sp<cr>')
 vim.keymap.set('n', '<leader>s', ':vsp<cr>')
-vim.keymap.set('n', '<leader>o', ':only<cr>')
+vim.keymap.set('n', '<leader>0', ':only<cr>')
 
 -- Open file directory
-vim.keymap.set('n', '<leader>d', ':Oil<cr>')
+vim.keymap.set('n', '<leader>o', ':Oil<cr>')
 
 -- Buffer actions
-vim.keymap.set('n', '<leader>x', ':bd<cr>')
+vim.keymap.set('n', '<leader>d', ':Bdelete<cr>')
 vim.keymap.set('n', '<leader>q', ':q<cr>')
 vim.keymap.set('n', '<leader>w', ':w<cr>')
 vim.keymap.set('n', "<leader>'", '<C-^>')

@@ -5,4 +5,4 @@ require('nvim-treesitter.configs').setup {
   indent = { enable = true },
 }
 
-vim.cmd [[highlight link TreesitterContext SignColumn]]
+vim.cmd [[highlight! link TreesitterContext SignColumn]]
