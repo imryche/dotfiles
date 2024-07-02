@@ -1,9 +1,7 @@
 export ZSH="$HOME/.oh-my-zsh"
-
-ZSH_THEME="robbyrussell"
 plugins=(git fzf)
-
 source $ZSH/oh-my-zsh.sh
+
 source $HOME/.nvm/nvm.sh
 
 alias vim=nvim
@@ -45,3 +43,7 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 
 # uv
 export PATH="$HOME/.cargo/bin:$PATH"
+
+eval "$(zellij setup --generate-auto-start zsh)"
+eval "$(starship init zsh)"
+eval "$(zoxide init zsh)"
