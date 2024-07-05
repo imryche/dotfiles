@@ -7,6 +7,7 @@ require('conform').setup {
     json = { { 'prettierd', 'prettier' } },
     html = { { 'prettierd', 'prettier' } },
     htmldjango = { { 'prettierd', 'prettier' } },
+    markdown = { 'prettier' },
     yaml = { { 'prettierd', 'prettier' } },
     sh = { 'shfmt' },
     ['_'] = { 'trim_whitespace', 'trim_newlines' },
@@ -14,6 +15,9 @@ require('conform').setup {
   formatters = {
     pg_format = {
       prepend_args = { '-s', '4', '-u', '1', '-f', '1' },
+    },
+    prettier = {
+      prepend_args = { '--prose-wrap', 'always' },
     },
   },
   format_on_save = function(bufnr)
