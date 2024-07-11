@@ -14,7 +14,7 @@ require('conform').setup {
   },
   formatters = {
     pg_format = {
-      prepend_args = { '-s', '4', '-u', '1', '-f', '1' },
+      prepend_args = { '-g', '-s', '4', '-u', '1', '-f', '1' },
     },
     prettier = {
       prepend_args = { '--prose-wrap', 'always' },
