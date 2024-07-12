@@ -14,14 +14,6 @@ require('packer').startup(function(use)
   use 'stevearc/conform.nvim'
 
   use {
-    'kristijanhusak/vim-dadbod-ui',
-    requires = {
-      'tpope/vim-dadbod',
-      'kristijanhusak/vim-dadbod-completion',
-    },
-  }
-
-  use {
     'hrsh7th/nvim-cmp',
     requires = {
       'hrsh7th/cmp-nvim-lsp',
