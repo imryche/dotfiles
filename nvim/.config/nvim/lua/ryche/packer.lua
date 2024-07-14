@@ -12,6 +12,7 @@ require('packer').startup(function(use)
   use 'neovim/nvim-lspconfig'
   use 'mfussenegger/nvim-lint'
   use 'stevearc/conform.nvim'
+  use 'stevearc/aerial.nvim'
 
   use {
     'hrsh7th/nvim-cmp',
