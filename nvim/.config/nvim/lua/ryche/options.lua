@@ -1,5 +1,5 @@
 -- Set highlight on search
-vim.o.hlsearch = false
+-- vim.o.hlsearch = false
 
 -- Line numbers
 vim.opt.number = true
