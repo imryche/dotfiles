@@ -1,5 +1,5 @@
 require('nvim-treesitter.configs').setup {
-  ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'typescript', 'vimdoc' },
+  ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'sql', 'typescript', 'vimdoc' },
   autotag = { enable = true },
   highlight = { enable = true },
   indent = { enable = true },
