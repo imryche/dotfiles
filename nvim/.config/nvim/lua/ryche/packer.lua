@@ -48,6 +48,7 @@ require('packer').startup(function(use)
       'nvim-telescope/telescope.nvim',
     },
   }
+  use 'lewis6991/gitsigns.nvim'
 
   use 'stevearc/oil.nvim'
 
