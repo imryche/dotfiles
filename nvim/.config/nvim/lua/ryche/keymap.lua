@@ -30,6 +30,3 @@ vim.keymap.set('n', '<leader>d', ':Bdelete<cr>')
 vim.keymap.set('n', '<leader>q', ':q<cr>')
 vim.keymap.set('n', '<leader>w', ':w<cr>')
 vim.keymap.set('n', "<leader>'", '<C-^>')
-
--- Search
-vim.keymap.set('n', '?', ':nohl<cr>')
