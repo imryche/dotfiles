@@ -37,7 +37,7 @@ vim.opt.signcolumn = 'yes'
 vim.opt.scrolloff = 10
 
 -- Set colorscheme
-vim.cmd [[colorscheme iceberg]]
+vim.cmd 'colorscheme iceberg'
 
 -- Set completeopt to have a better completion experience
 vim.opt.completeopt = 'menuone,noselect'
