@@ -54,7 +54,6 @@ require('packer').startup(function(use)
   use 'stevearc/oil.nvim'
 
   use 'cocopon/iceberg.vim'
-  -- use 'EdenEast/nightfox.nvim'
   use 'nvim-lualine/lualine.nvim'
   use 'numToStr/Comment.nvim'
   use 'sheerun/vim-polyglot'
@@ -70,7 +69,14 @@ require('packer').startup(function(use)
 
   use 'ThePrimeagen/harpoon'
   use 'tpope/vim-unimpaired'
-  use 'tpope/vim-surround'
+  use {
+    'kylechui/nvim-surround',
+    tag = '*',
+    config = function()
+      require('nvim-surround').setup {}
+    end,
+  }
+  use 'ggandor/leap.nvim'
 
   -- Add custom plugins to packer from ~/.config/nvim/lua/custom/plugins.lua
   local has_plugins, plugins = pcall(require, 'custom.plugins')
