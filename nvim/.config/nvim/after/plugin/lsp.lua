@@ -52,6 +52,13 @@ lspconfig.html.setup {
   filetypes = { 'html', 'htmldjango' },
 }
 
+-- css
+require('lspconfig').cssls.setup {
+  on_attach = on_attach,
+  capabilities = capabilities,
+  filetypes = { 'css' },
+}
+
 -- tailwind
 lspconfig.tailwindcss.setup {
   on_attach = on_attach,
