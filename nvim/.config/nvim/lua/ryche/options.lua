@@ -17,8 +17,6 @@ vim.o.undofile = true
 
 -- Search
 vim.opt.hlsearch = true
-vim.keymap.set('n', '<C-]>', '<cmd>nohl<CR>')
-vim.keymap.set('n', '<Esc>', '<cmd>nohl<CR>')
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 
