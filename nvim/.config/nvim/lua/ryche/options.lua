@@ -24,7 +24,7 @@ vim.opt.smartcase = true
 vim.opt.inccommand = 'split'
 
 -- Decrease update time
-vim.opt.updatetime = 50
+vim.opt.updatetime = 250
 
 -- Decrease mapped sequence wait time
 vim.opt.timeoutlen = 300
