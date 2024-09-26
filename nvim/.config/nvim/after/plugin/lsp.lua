@@ -103,7 +103,7 @@ lspconfig.eslint.setup {
   capabilities = capabilities,
   filetypes = { 'javascript' },
 }
-lspconfig.tsserver.setup {
+lspconfig.ts_ls.setup {
   on_attach = on_attach,
   capabilities = capabilities,
   filetypes = { 'javascript' },
