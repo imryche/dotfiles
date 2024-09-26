@@ -47,3 +47,5 @@ export PATH="$HOME/.cargo/bin:$PATH"
 eval "$(zellij setup --generate-auto-start zsh)"
 eval "$(starship init zsh)"
 eval "$(zoxide init zsh)"
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
