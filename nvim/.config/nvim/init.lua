@@ -134,6 +134,16 @@ require('lazy').setup {
       },
     },
   },
+  -- Indent guides
+  {
+    'lukas-reineke/indent-blankline.nvim',
+    main = 'ibl',
+    config = function()
+      require('ibl').setup { indent = { char = '▏' }, scope = { enabled = false } }
+      local hooks = require 'ibl.hooks'
+      hooks.register(hooks.type.WHITESPACE, hooks.builtin.hide_first_space_indent_level)
+    end,
+  },
   -- Highlight comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
   -- Fuzzy finder
