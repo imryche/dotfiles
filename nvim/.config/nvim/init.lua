@@ -666,6 +666,8 @@ require('lazy').setup {
   { 'mg979/vim-visual-multi' },
   -- Bracket mappings
   { 'tpope/vim-unimpaired' },
+  -- Autodetect indent
+  { 'tpope/vim-sleuth' },
   -- Jump in visible area quickly
   {
     'ggandor/leap.nvim',
