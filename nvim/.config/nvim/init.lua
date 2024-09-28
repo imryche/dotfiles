@@ -75,7 +75,6 @@ vim.keymap.set('n', '<leader>0', ':only<cr>')
 vim.keymap.set('n', '<leader>o', ':Oil<cr>')
 
 -- Buffer actions
-vim.keymap.set('n', '<leader>d', ':Bdelete<cr>')
 vim.keymap.set('n', '<leader>q', ':q<cr>')
 vim.keymap.set('n', '<leader>w', ':w<cr>')
 vim.keymap.set('n', "<leader>'", '<C-^>')
@@ -619,8 +618,6 @@ require('lazy').setup {
       vim.keymap.set('n', '<leader>-', ':Oil<CR>', { silent = true, noremap = true })
     end,
   },
-  -- Keep windows after deleting a buffer
-  { 'famiu/bufdelete.nvim' },
   -- Remember position in buffer
   {
     'ethanholz/nvim-lastplace',
@@ -630,28 +627,46 @@ require('lazy').setup {
       lastplace_open_folds = true,
     },
   },
-  -- Autopairs
+  -- Mini
   {
-    'windwp/nvim-autopairs',
-    event = 'InsertEnter',
-    dependencies = { 'hrsh7th/nvim-cmp' },
+    'echasnovski/mini.nvim',
     config = function()
-      require('nvim-autopairs').setup {}
-      local cmp_autopairs = require 'nvim-autopairs.completion.cmp'
-      local cmp = require 'cmp'
-      cmp.event:on('confirm_done', cmp_autopairs.on_confirm_done())
+      require('mini.sessions').setup {
+        autoread = true,
+      }
+      require('mini.surround').setup {
+        mappings = {
+          add = 'yz',
+          delete = 'dz',
+          find = '',
+          find_left = '',
+          highlight = '',
+          replace = 'cz',
+          update_n_lines = '',
+          suffix_last = '',
+          suffix_next = '',
+        },
+        search_method = 'cover_or_next',
+      }
+      require('mini.pairs').setup {}
+      require('mini.comment').setup {}
+      local bufremove = require 'mini.bufremove'
+      bufremove.setup {}
+      vim.keymap.set('n', '<leader>d', function()
+        bufremove.delete(0, false)
+      end, { noremap = true, silent = true })
+      vim.keymap.set('n', '<leader>D', function()
+        bufremove.delete(0, true)
+      end, { noremap = true, silent = true })
     end,
   },
   -- Autotags
   { 'windwp/nvim-ts-autotag', event = 'InsertEnter', config = true },
-  -- Comments
-  { 'numToStr/Comment.nvim' },
   -- Multicursor
   { 'mg979/vim-visual-multi' },
   -- Bracket mappings
   { 'tpope/vim-unimpaired' },
   -- Jump in visible area quickly
-
   {
     'ggandor/leap.nvim',
     config = function()
