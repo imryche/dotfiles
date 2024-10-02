@@ -546,11 +546,10 @@ require('lazy').setup {
       'sindrets/diffview.nvim',
       'nvim-telescope/telescope.nvim',
     },
-    opts = {
-      console_timeout = 10000,
-    },
     config = function()
-      require('neogit').setup {}
+      require('neogit').setup {
+        console_timeout = 10000,
+      }
       vim.keymap.set('n', '<leader>gs', ':Neogit<CR>', { silent = true, noremap = true })
     end,
   },
