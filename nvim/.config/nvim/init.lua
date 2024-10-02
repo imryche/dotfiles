@@ -682,3 +682,23 @@ require('lazy').setup {
     end,
   },
 }
+
+function ask_llm()
+  local start_line = vim.fn.line "'<"
+  local end_line = vim.fn.line "'>"
+  local lines = vim.api.nvim_buf_get_lines(0, start_line - 1, end_line, false)
+  local text = table.concat(lines, '\n')
+
+  local prompt = vim.fn.input 'Ask something: '
+  local command = string.format("llm -m claude-3.5-sonnet '%s'", prompt)
+  local output = vim.fn.system(command, text)
+
+  local buf = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, vim.split(output, '\n'))
+  vim.api.nvim_buf_set_option(buf, 'filetype', 'markdown')
+
+  vim.api.nvim_command 'botright vnew'
+  vim.api.nvim_win_set_buf(0, buf)
+end
+
+vim.api.nvim_create_user_command('Ask', ask_llm, { range = true })
