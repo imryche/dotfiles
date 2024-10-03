@@ -47,6 +47,9 @@ vim.opt.completeopt = 'menuone,noselect'
 -- System clipboard (requires xclip system package)
 vim.opt.clipboard = 'unnamedplus'
 
+-- Disable swapfiles
+vim.opt.swapfile = false
+
 -- Keymaps for better default experience
 vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
 
