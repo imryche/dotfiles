@@ -562,6 +562,7 @@ require('lazy').setup {
         console_timeout = 10000,
       }
       vim.keymap.set('n', '<leader>gs', ':Neogit<CR>', { silent = true, noremap = true })
+      vim.keymap.set('n', '<leader>gc', ':Neogit commit<CR>', { silent = true, noremap = true })
     end,
   },
   -- Visual diff
