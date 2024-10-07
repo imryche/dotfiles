@@ -709,7 +709,7 @@ require('lazy').setup {
   },
 }
 
-function ask_llm()
+local function ask_llm()
   local start_line = vim.fn.line "'<"
   local end_line = vim.fn.line "'>"
   local lines = vim.api.nvim_buf_get_lines(0, start_line - 1, end_line, false)
@@ -717,14 +717,49 @@ function ask_llm()
 
   local prompt = vim.fn.input 'Ask something: '
   local command = string.format("llm -m claude-3.5-sonnet '%s'", prompt)
-  local output = vim.fn.system(command, text)
 
-  local buf = vim.api.nvim_create_buf(false, true)
-  vim.api.nvim_buf_set_lines(buf, 0, -1, false, vim.split(output, '\n'))
-  vim.api.nvim_buf_set_option(buf, 'filetype', 'markdown')
+  local output_data = ''
 
-  vim.api.nvim_command 'botright vnew'
-  vim.api.nvim_win_set_buf(0, buf)
+  local function on_output(_, data, _)
+    if data then
+      output_data = output_data .. table.concat(data, '\n') .. '\n'
+    end
+  end
+
+  local function on_exit(_, exit_code)
+    vim.schedule(function()
+      if exit_code ~= 0 then
+        vim.notify('Error: LLM command failed', vim.log.levels.ERROR)
+        return
+      end
+
+      local current_win = vim.api.nvim_get_current_win()
+
+      local buf = vim.api.nvim_create_buf(false, true)
+      vim.api.nvim_buf_set_option(buf, 'filetype', 'markdown')
+
+      vim.api.nvim_command 'botright vsplit'
+      local new_win = vim.api.nvim_get_current_win()
+      vim.api.nvim_win_set_buf(new_win, buf)
+
+      local output_lines = vim.split(output_data, '\n')
+      vim.api.nvim_buf_set_lines(buf, 0, -1, false, output_lines)
+
+      vim.api.nvim_set_current_win(current_win)
+    end)
+  end
+
+  local chan = vim.fn.jobstart(command, {
+    on_stdout = on_output,
+    on_stderr = on_output,
+    on_exit = on_exit,
+    stdout_buffered = true,
+    stderr_buffered = true,
+  })
+
+  vim.fn.chansend(chan, text)
+  vim.fn.chanclose(chan, 'stdin')
 end
 
 vim.api.nvim_create_user_command('Ask', ask_llm, { range = true })
+vim.api.nvim_set_keymap('v', '<leader>a', ':Ask<CR>', { noremap = true, silent = true })
