@@ -745,6 +745,10 @@ local function ask_llm()
       local output_lines = vim.split(output_data, '\n')
       vim.api.nvim_buf_set_lines(buf, 0, -1, false, output_lines)
 
+      vim.schedule(function()
+        vim.notify('Done.', vim.log.levels.INFO)
+      end)
+
       vim.api.nvim_set_current_win(current_win)
     end)
   end
@@ -759,6 +763,10 @@ local function ask_llm()
 
   vim.fn.chansend(chan, text)
   vim.fn.chanclose(chan, 'stdin')
+
+  vim.schedule(function()
+    vim.notify('Thinking...', vim.log.levels.INFO)
+  end)
 end
 
 vim.api.nvim_create_user_command('Ask', ask_llm, { range = true })
