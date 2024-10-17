@@ -396,7 +396,7 @@ require('lazy').setup {
           ['<C-p>'] = cmp.mapping.select_prev_item(),
           ['<C-d>'] = cmp.mapping.scroll_docs(-4),
           ['<C-f>'] = cmp.mapping.scroll_docs(4),
-          ['<C-Space>'] = cmp.mapping.complete {},
+          ['<C-Space>'] = cmp.mapping.complete(),
           ['<CR>'] = cmp.mapping.confirm {
             behavior = cmp.ConfirmBehavior.Replace,
             select = true,
@@ -427,6 +427,13 @@ require('lazy').setup {
           { name = 'path' },
         },
       }
+
+      cmp.setup.filetype({ 'sql' }, {
+        sources = {
+          { name = 'vim-dadbod-completion' },
+          { name = 'buffer' },
+        },
+      })
     end,
   },
   -- Linting
@@ -626,6 +633,14 @@ require('lazy').setup {
       require('oil').setup {}
       vim.keymap.set('n', '<leader>-', ':Oil<CR>', { silent = true, noremap = true })
     end,
+  },
+  -- Databases
+  {
+    'tpope/vim-dadbod',
+    dependencies = {
+      'kristijanhusak/vim-dadbod-ui',
+      'kristijanhusak/vim-dadbod-completion',
+    },
   },
   -- Remember position in buffer
   {
