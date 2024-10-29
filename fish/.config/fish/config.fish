@@ -3,6 +3,7 @@ alias va="source .venv/bin/activate.fish"
 alias vd="deactivate.fish"
 
 set -x PATH $HOME/.local/bin $PATH
+set -x PATH $PATH /opt/nvim
 
 # default editor
 set -x EDITOR nvim

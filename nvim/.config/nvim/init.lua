@@ -42,7 +42,8 @@ vim.opt.signcolumn = 'yes'
 vim.opt.scrolloff = 10
 
 -- Set completeopt to have a better completion experience
-vim.opt.completeopt = 'menuone,noselect'
+vim.opt.completeopt = { 'menu', 'menuone', 'noselect' }
+vim.opt.shortmess:append 'c'
 
 -- System clipboard (requires xclip system package)
 vim.opt.clipboard = 'unnamedplus'
@@ -364,7 +365,8 @@ require('lazy').setup {
   -- Autocompletion
   {
     'hrsh7th/nvim-cmp',
-    event = 'InsertEnter',
+    lazy = false,
+    priority = 100,
     dependencies = {
       {
         'L3MON4D3/LuaSnip',
@@ -393,11 +395,10 @@ require('lazy').setup {
 
       cmp.setup {
         completion = {
-          autocomplete = false,
+          keyword_length = 3,
         },
         sources = {
           { name = 'nvim_lsp' },
-          { name = 'luasnip' },
           { name = 'buffer' },
           { name = 'path' },
         },
@@ -413,13 +414,6 @@ require('lazy').setup {
           ['<C-Space>'] = cmp.mapping.complete(),
         },
       }
-
-      cmp.setup.filetype({ 'sql' }, {
-        sources = {
-          { name = 'vim-dadbod-completion' },
-          { name = 'buffer' },
-        },
-      })
     end,
   },
   -- Linting
@@ -533,14 +527,14 @@ require('lazy').setup {
         'go',
       },
       auto_install = true,
-      highlight = {
-        enable = true,
-      },
+      -- highlight = {
+      --   enable = true,
+      -- },
       indent = { enable = true },
     },
-    config = function()
-      vim.cmd [[highlight! link TreesitterContext SignColumn]]
-    end,
+    -- config = function()
+    --   vim.cmd [[highlight! link TreesitterContext SignColumn]]
+    -- end,
   },
   -- Git
   {
@@ -622,11 +616,26 @@ require('lazy').setup {
   },
   -- Databases
   {
-    'tpope/vim-dadbod',
+    'kndndrj/nvim-dbee',
     dependencies = {
-      'kristijanhusak/vim-dadbod-ui',
-      'kristijanhusak/vim-dadbod-completion',
+      'MunifTanjim/nui.nvim',
     },
+    build = function()
+      require('dbee').install()
+    end,
+    config = function()
+      require('dbee').setup {
+        sources = {
+          require('dbee.sources').MemorySource:new {
+            {
+              name = 'reacto',
+              type = 'sqlite',
+              url = '~/proj/reacto/reacto.db',
+            },
+          },
+        },
+      }
+    end,
   },
   -- Remember position in buffer
   {
