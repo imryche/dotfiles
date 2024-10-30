@@ -107,15 +107,6 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
--- Switch to the first tab automatically
-vim.api.nvim_create_autocmd('TabClosed', {
-  callback = function()
-    if vim.fn.tabpagenr '$' > 1 then
-      vim.cmd 'tabfirst'
-    end
-  end,
-})
-
 -- [[ Install `lazy.nvim` plugin manager ]]
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
