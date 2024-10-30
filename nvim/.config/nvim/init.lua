@@ -127,6 +127,7 @@ require('lazy').setup {
       vim.cmd.colorscheme 'iceberg'
     end,
   },
+  { 'ellisonleao/glow.nvim', config = true, cmd = 'Glow' },
   -- Statusline
   {
     'nvim-lualine/lualine.nvim',
@@ -739,7 +740,14 @@ local function ask_llm()
       local buf = vim.api.nvim_create_buf(false, true)
       vim.api.nvim_buf_set_option(buf, 'filetype', 'markdown')
 
-      vim.api.nvim_command 'botright vsplit'
+      local window_count = #vim.api.nvim_tabpage_list_wins(0)
+
+      if window_count == 1 then
+        vim.api.nvim_command 'botright vsplit'
+      else
+        vim.api.nvim_command 'belowright split'
+      end
+
       local new_win = vim.api.nvim_get_current_win()
       vim.api.nvim_win_set_buf(new_win, buf)
 
