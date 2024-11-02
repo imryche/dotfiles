@@ -73,15 +73,12 @@ vim.keymap.set('n', 'N', 'Nzzzv')
 -- Splits
 vim.keymap.set('n', '<leader>S', ':sp<cr>')
 vim.keymap.set('n', '<leader>s', ':vsp<cr>')
-vim.keymap.set('n', '<leader>0', ':only<cr>')
-
--- Open file directory
-vim.keymap.set('n', '<leader>o', ':Oil<cr>')
+vim.keymap.set('n', '<leader>o', ':only<cr>')
 
 -- Buffer actions
 vim.keymap.set('n', '<leader>q', ':q<cr>')
 vim.keymap.set('n', '<leader>w', ':w<cr>')
-vim.keymap.set('n', "<leader>'", '<C-^>')
+vim.keymap.set('n', '<leader><Tab>', '<C-^>')
 
 -- Diagnostic keymaps
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
