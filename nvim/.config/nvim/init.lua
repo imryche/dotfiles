@@ -708,11 +708,80 @@ require('lazy').setup {
   },
 }
 
+local function get_current_context()
+  local cursor_pos = vim.api.nvim_win_get_cursor(0)
+  local current_line = vim.api.nvim_get_current_line()
+
+  -- get the current buffer
+  local bufnr = vim.api.nvim_get_current_buf()
+
+  -- get the parser
+  local parser = vim.treesitter.get_parser(bufnr)
+  local tree = parser:parse()[1]
+  local root = tree:root()
+
+  -- get the node at current position
+  local node = root:named_descendant_for_range(cursor_pos[1] - 1, cursor_pos[2], cursor_pos[1] - 1, cursor_pos[2])
+
+  -- get the text of the node under the cursor
+  local node_text = vim.treesitter.get_node_text(node, bufnr)
+
+  -- find the closes function node
+  local current_node = node
+  while current_node do
+    if current_node:type() == 'function_declaration' or current_node:type() == 'function_definition' or current_node:type() == 'local_function' then
+      break
+    end
+    current_node = current_node:parent()
+  end
+
+  if not current_node then
+    return nil
+  end
+
+  -- get the range of the function
+  local start_row, _, end_row, _ = current_node:range()
+
+  -- get the function text
+  local lines = vim.api.nvim_buf_get_lines(bufnr, start_row, end_row + 1, false)
+  local function_text = table.concat(lines, '\n')
+
+  return {
+    node_text = node_text,
+    current_line = current_line,
+    function_text = function_text,
+  }
+end
+
 local function ask_llm()
   local start_line = vim.fn.line "'<"
   local end_line = vim.fn.line "'>"
+  local start_col = vim.fn.col "'<"
+  local end_col = vim.fn.col "'>"
+
   local lines = vim.api.nvim_buf_get_lines(0, start_line - 1, end_line, false)
-  local text = table.concat(lines, '\n')
+
+  local selected_text = ''
+  if #lines == 1 then
+    selected_text = string.sub(lines[1], start_col, end_col)
+  else
+    selected_text = string.sub(lines[1], start_col)
+    for i = 2, #lines - 1 do
+      selected_text = selected_text .. '\n' .. lines[i]
+    end
+    selected_text = selected_text .. '\n' .. string.sub(lines[#lines], 1, end_col)
+  end
+
+  print(selected_text)
+
+  -- get context using treesitter
+  local context = get_current_context()
+  local context_text = selected_text
+  if context then
+    context_text =
+      string.format('Current line:\n%s\n\nSelected text:\n%s\n\nEnclosing function:\n%s\n', context.current_line, context.node_text, context.function_text)
+  end
+  print(context_text)
 
   local prompt = vim.fn.input 'Ask something: '
   local command = string.format("llm -m claude-3.5-sonnet '%s'", prompt)
@@ -767,7 +836,7 @@ local function ask_llm()
     stderr_buffered = true,
   })
 
-  vim.fn.chansend(chan, text)
+  vim.fn.chansend(chan, context_text)
   vim.fn.chanclose(chan, 'stdin')
 
   vim.schedule(function()
@@ -777,3 +846,4 @@ end
 
 vim.api.nvim_create_user_command('Ask', ask_llm, { range = true })
 vim.api.nvim_set_keymap('v', '<leader>a', ':Ask<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<leader>a', ':Ask<CR>', { noremap = true, silent = true })
