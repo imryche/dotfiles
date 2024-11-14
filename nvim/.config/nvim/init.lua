@@ -202,9 +202,9 @@ require('lazy').setup {
       vim.keymap.set('n', '<leader><leader>', builtin.buffers)
       vim.keymap.set('n', '<leader>f', builtin.git_files)
       vim.keymap.set('n', '<leader>F', builtin.find_files)
-      vim.keymap.set('n', '<leader>?', builtin.grep_string)
-      vim.keymap.set('n', '<leader>/', builtin.live_grep)
+      vim.keymap.set('n', '<leader>,', builtin.grep_string)
       vim.keymap.set('n', '<leader>.', builtin.resume)
+      vim.keymap.set('n', '<leader>/', builtin.live_grep)
     end,
   },
   -- LSP
