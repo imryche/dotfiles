@@ -229,31 +229,10 @@ pane_frames true
 //
 // scrollback_lines_to_serialize 10000
 
-// Define color themes for Zellij
-// For more examples, see: https://github.com/zellij-org/zellij/tree/main/example/themes
-// Once these themes are defined, one of them should to be selected in the "theme" section of this file
-//
-themes {
-    iceberg {
-        fg "#c6c8d1"         // Normal foreground
-        bg "#161821"         // Normal background
-        black "#1e2132"      // Term black
-        red "#e27878"        // Term red
-        //green "#b4be82"      // Term green
-        green "#84a0c6"      // Term green
-        yellow "#e2a478"     // Term yellow
-        blue "#84a0c6"       // Term blue
-        magenta "#a093c7"    // Term magenta
-        cyan "#89b8c2"       // Term cyan
-        white "#c6c8d1"      // Term white
-        orange "#e27878"     // Additional color, mapped to red
-    }
-}
-
 // Choose the theme that is specified in the themes section.
 // Default: default
 //
-theme "nord"
+theme "ansi"
 
 // The name of the default layout to load on startup
 // Default: "default"
