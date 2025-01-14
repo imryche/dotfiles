@@ -1,0 +1,13 @@
+fullscreen = true
+window-decoration = false
+
+font-family = JetBrains Mono
+font-size = 11
+font-thicken = true
+
+cursor-style = block
+cursor-style-blink = false
+
+theme = zenbones_dark
+
+keybind = global:super+w=toggle_window_decorations
