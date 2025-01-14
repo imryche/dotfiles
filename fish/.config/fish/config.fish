@@ -18,3 +18,5 @@ set -gx PATH $PATH $GOPATH/bin
 
 # zellij
 eval (zellij setup --generate-auto-start fish | string collect)
+
+mise activate fish | source
