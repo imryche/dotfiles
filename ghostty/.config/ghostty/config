@@ -1,8 +1,10 @@
-fullscreen = true
 window-decoration = false
+window-padding-x = 4
+window-padding-y = 4
+window-padding-balance = true
 
 font-family = JetBrains Mono
-font-size = 11
+font-size = 10
 font-thicken = true
 
 cursor-style = block
