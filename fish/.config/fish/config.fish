@@ -16,6 +16,9 @@ set -gx PATH $PATH /usr/local/go/bin
 set -gx GOPATH $HOME/go
 set -gx PATH $PATH $GOPATH/bin
 
+# fzf
+fzf --fish | source
+
 # zoxide
 zoxide init fish | source
 
