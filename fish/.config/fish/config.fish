@@ -16,6 +16,9 @@ set -gx PATH $PATH /usr/local/go/bin
 set -gx GOPATH $HOME/go
 set -gx PATH $PATH $GOPATH/bin
 
+# zoxide
+zoxide init fish | source
+
 # zellij
 eval (zellij setup --generate-auto-start fish | string collect)
 
