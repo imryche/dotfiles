@@ -144,7 +144,7 @@ keybinds clear-defaults=true {
         bind "Alt s" { SwitchToMode "Scroll"; }
     }
     shared_except "session" "locked" {
-        bind "Alt o" { SwitchToMode "Session"; }
+        bind "Alt w" { SwitchToMode "Session"; }
     }
     shared_except "tab" "locked" {
         bind "Alt t" { SwitchToMode "Tab"; }
