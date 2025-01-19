@@ -176,6 +176,8 @@ ui {
 
 on_force_close "quit"
 
+session_serialization false
+
 theme "ansi"
 
 default_layout "compact"
