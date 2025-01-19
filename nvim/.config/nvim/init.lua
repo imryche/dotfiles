@@ -435,7 +435,7 @@ require('lazy').setup {
       formatters_by_ft = {
         lua = { 'stylua' },
         python = { 'ruff_fix', 'ruff_format' },
-        sql = { 'pg_format' },
+        sql = { 'sql_formatter' },
         javascript = { 'prettierd', 'prettier', stop_after_first = true },
         json = { 'prettierd', 'prettier', stop_after_first = true },
         css = { 'prettierd', 'prettier', stop_after_first = true },
@@ -447,9 +447,6 @@ require('lazy').setup {
         ['_'] = { 'trim_whitespace', 'trim_newlines' },
       },
       formatters = {
-        pg_format = {
-          prepend_args = { '-g', '-s', '4', '-u', '1', '-f', '1' },
-        },
         prettier = {
           prepend_args = { '--prose-wrap', 'always' },
         },
