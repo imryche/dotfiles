@@ -602,6 +602,12 @@ require('lazy').setup {
       vim.keymap.set('n', '<leader>-', ':Oil<CR>', { silent = true, noremap = true })
     end,
   },
+  -- Quickfix
+  {
+    'stevearc/quicker.nvim',
+    event = 'FileType qf',
+    opts = {},
+  },
   -- Databases
   {
     'kndndrj/nvim-dbee',
