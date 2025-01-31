@@ -147,6 +147,14 @@ require('lazy').setup {
       },
     },
   },
+  {
+    'shortcuts/no-neck-pain.nvim',
+    opts = {
+      width = 120,
+      autocmds = { enableOnVimEnter = true },
+      mappings = { enabled = true },
+    },
+  },
   -- Indent guides
   {
     'lukas-reineke/indent-blankline.nvim',
