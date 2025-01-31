@@ -9,6 +9,7 @@ vim.g.maplocalleader = ' '
 vim.opt.number = false
 vim.opt.relativenumber = false
 vim.opt.cursorline = true
+vim.opt.fillchars = { eob = ' ' }
 
 -- Basic indentation
 vim.opt.tabstop = 4
