@@ -443,7 +443,6 @@ require('lazy').setup {
         html = { 'prettierd', 'prettier', stop_after_first = true },
         htmldjango = { 'prettierd', 'prettier', stop_after_first = true },
         markdown = { 'prettier' },
-        yaml = { 'prettierd', 'prettier', stop_after_first = true },
         sh = { 'shfmt' },
         ['_'] = { 'trim_whitespace', 'trim_newlines' },
       },
