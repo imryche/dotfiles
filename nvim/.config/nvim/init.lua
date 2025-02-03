@@ -394,6 +394,7 @@ require('lazy').setup {
 
       cmp.setup {
         completion = {
+          autocomplete = false,
           keyword_length = 3,
         },
         sources = {
@@ -409,8 +410,13 @@ require('lazy').setup {
         mapping = cmp.mapping.preset.insert {
           ['<C-n>'] = cmp.mapping.select_next_item { behaviour = cmp.SelectBehavior.Insert },
           ['<C-p>'] = cmp.mapping.select_prev_item { behaviour = cmp.SelectBehavior.Insert },
-          ['<C-y>'] = cmp.mapping(cmp.mapping.confirm { behavior = cmp.ConfirmBehavior.Insert, select = true }, { 'i', 'c' }),
-          ['<C-Space>'] = cmp.mapping.complete(),
+          ['<C-y>'] = cmp.mapping(function()
+            if cmp.visible() then
+              cmp.confirm { select = true }
+            else
+              cmp.complete()
+            end
+          end, { 'i', 'c' }),
         },
       }
     end,
