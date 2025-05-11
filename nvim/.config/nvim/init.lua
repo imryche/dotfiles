@@ -124,10 +124,10 @@ require('lazy').setup {
     lazy = false,
     priority = 1000,
     config = function()
+      vim.opt.background = 'light'
       vim.cmd.colorscheme 'zenbones'
     end,
   },
-  { 'ellisonleao/glow.nvim', config = true, cmd = 'Glow' },
   -- Statusline
   {
     'nvim-lualine/lualine.nvim',
@@ -168,7 +168,7 @@ require('lazy').setup {
   -- Fuzzy finder
   {
     'nvim-telescope/telescope.nvim',
-    branch = '0.1.x',
+    branch = 'master',
     dependencies = {
       'nvim-lua/plenary.nvim',
       {
@@ -221,205 +221,87 @@ require('lazy').setup {
   -- LSP
   {
     'neovim/nvim-lspconfig',
-    dependencies = {
-      { 'williamboman/mason.nvim', config = true },
-      'williamboman/mason-lspconfig.nvim',
-      'WhoIsSethDaniel/mason-tool-installer.nvim',
-      'hrsh7th/cmp-nvim-lsp',
-    },
     config = function()
       vim.api.nvim_create_autocmd('LspAttach', {
-        group = vim.api.nvim_create_augroup('kickstart-lsp-attach', { clear = true }),
-        callback = function(event)
-          local map = function(keys, func, desc, mode)
-            mode = mode or 'n'
-            vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc })
-          end
+        callback = function()
+          local builtin = require 'telescope.builtin'
 
-          map('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
-          map('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
-          map('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
-          map('K', vim.lsp.buf.hover, 'Symbol info')
-          map('<C-s>', vim.lsp.buf.signature_help, 'Signature help', 'i')
-          map('<leader>D', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
-          map('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
-          map('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
-          map('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
-          map('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction', { 'n', 'x' })
-          map('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
-
-          -- The following two autocommands are used to highlight references of the
-          -- word under your cursor when your cursor rests there for a little while.
-          local client = vim.lsp.get_client_by_id(event.data.client_id)
-          -- if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
-          --   local highlight_augroup = vim.api.nvim_create_augroup('kickstart-lsp-highlight', { clear = false })
-          --   vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
-          --     buffer = event.buf,
-          --     group = highlight_augroup,
-          --     callback = vim.lsp.buf.document_highlight,
-          --   })
-          --
-          --   vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
-          --     buffer = event.buf,
-          --     group = highlight_augroup,
-          --     callback = vim.lsp.buf.clear_references,
-          --   })
-          --
-          --   vim.api.nvim_create_autocmd('LspDetach', {
-          --     group = vim.api.nvim_create_augroup('kickstart-lsp-detach', { clear = true }),
-          --     callback = function(event2)
-          --       vim.lsp.buf.clear_references()
-          --       vim.api.nvim_clear_autocmds { group = 'kickstart-lsp-highlight', buffer = event2.buf }
-          --     end,
-          --   })
-          -- end
-
-          if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
-            map('<leader>th', function()
-              vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf })
-            end, '[T]oggle Inlay [H]ints')
-          end
+          vim.keymap.set('n', 'gd', builtin.lsp_definitions, { buffer = 0 })
+          vim.keymap.set('n', 'gr', builtin.lsp_references, { buffer = 0 })
+          vim.keymap.set('n', 'ds', builtin.lsp_document_symbols, { buffer = 0 })
         end,
       })
 
-      local capabilities = vim.lsp.protocol.make_client_capabilities()
-      capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
-      capabilities.textDocument.completion.completionItem.snippetSupport = true
-
-      local util = require 'lspconfig/util'
-
-      local runtime_path = vim.split(package.path, ';')
-      table.insert(runtime_path, 'lua/?.lua')
-      table.insert(runtime_path, 'lua/?/init.lua')
-
-      local servers = {
-        lua_ls = {
-          settings = {
-            Lua = {
-              completion = {
-                callSnippet = 'Replace',
-              },
-              -- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
-              diagnostics = { globals = { 'vim', 'require' }, disable = { 'missing-fields' } },
+      vim.lsp.config('lua_ls', {
+        settings = {
+          Lua = {
+            completion = {
+              callSnippet = 'Replace',
             },
+            diagnostics = { globals = { 'vim', 'require' }, disable = { 'missing-fields' } },
           },
         },
-        html = {
-          filetypes = { 'html', 'htmldjango' },
-        },
-        cssls = {
-          filetypes = { 'css' },
-        },
-        tailwindcss = {
-          filetypes = { 'html', 'htmldjango' },
-        },
-        emmet_ls = {
-          filetypes = { 'html', 'htmldjango' },
-        },
-        pyright = {
-          settings = {
-            python = {
-              analysis = { typeCheckingMode = 'off' },
-            },
-          },
-          handlers = {
-            ['textDocument/publishDiagnostics'] = function() end,
-          },
-        },
-        -- gopls = {
-        --   cmd = { 'gopls', 'serve' },
-        --   filetypes = { 'go', 'gomod' },
-        --   root_dir = util.root_pattern('go.work', 'go.mod', '.git'),
-        --   settings = { gopls = { analyses = { unusedparams = true }, staticcheck = true } },
-        -- },
-        eslint = {
-          filetypes = { 'javascript' },
-        },
-        ts_ls = {
-          filetypes = { 'javascript' },
-        },
-        denols = {
-          root_dir = util.root_pattern('deno.json', 'deno.jsonc'),
-        },
-      }
-
-      require('mason').setup()
-      local ensure_installed = vim.tbl_keys(servers or {})
-      vim.list_extend(ensure_installed, {
-        'stylua',
       })
-      require('mason-tool-installer').setup { ensure_installed = ensure_installed }
+      vim.lsp.enable 'lua_ls'
 
-      require('mason-lspconfig').setup {
-        handlers = {
-          function(server_name)
-            local server = servers[server_name] or {}
-            server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-            require('lspconfig')[server_name].setup(server)
-          end,
+      vim.lsp.config('pyright', {
+        settings = {
+          python = {
+            analysis = { typeCheckingMode = 'off' },
+          },
         },
-      }
+        handlers = {
+          ['textDocument/publishDiagnostics'] = function() end,
+        },
+      })
+      vim.lsp.enable 'pyright'
+
+      vim.lsp.config('html', {
+        filetypes = { 'html', 'htmldjango' },
+      })
+      vim.lsp.enable 'html'
+
+      vim.lsp.config('cssls', {
+        filetypes = { 'css' },
+      })
+      vim.lsp.enable 'cssls'
+
+      vim.lsp.config('tailwindcss', {
+        filetypes = { 'html', 'htmldjango' },
+      })
+      vim.lsp.enable 'tailwindcss'
+
+      vim.lsp.config('emmet_language_server', {
+        filetypes = { 'html', 'htmldjango' },
+      })
+      vim.lsp.enable 'emmet_language_server'
+
+      vim.lsp.config('ts_ls', {
+        filetypes = { 'javascript' },
+      })
+      vim.lsp.enable 'ts_ls'
     end,
   },
   -- Autocompletion
   {
-    'hrsh7th/nvim-cmp',
-    lazy = false,
-    priority = 100,
-    dependencies = {
-      {
-        'L3MON4D3/LuaSnip',
-        build = (function()
-          return 'make install_jsregexp'
-        end)(),
-        dependencies = {
-          {
-            'rafamadriz/friendly-snippets',
-            config = function()
-              require('luasnip.loaders.from_vscode').lazy_load()
-            end,
-          },
-        },
+    'saghen/blink.cmp',
+    dependencies = { 'rafamadriz/friendly-snippets' },
+    version = '1.*',
+    opts = {
+      keymap = {
+        preset = 'default',
+        ['<C-;>'] = { 'show_and_insert', 'select_and_accept' },
       },
-      'saadparwaiz1/cmp_luasnip',
-      'hrsh7th/cmp-nvim-lsp',
-      'hrsh7th/cmp-buffer',
-      'hrsh7th/cmp-path',
-      'hrsh7th/cmp-cmdline',
+      appearance = {
+        nerd_font_variant = 'mono',
+      },
+      completion = { menu = { auto_show = false }, documentation = { auto_show = false } },
+      sources = {
+        default = { 'lsp', 'path', 'snippets', 'buffer' },
+      },
+      fuzzy = { implementation = 'prefer_rust_with_warning' },
     },
-    config = function()
-      local cmp = require 'cmp'
-      local luasnip = require 'luasnip'
-      luasnip.filetype_extend('htmldjango', { 'html' })
-
-      cmp.setup {
-        completion = {
-          autocomplete = false,
-          keyword_length = 3,
-        },
-        sources = {
-          { name = 'nvim_lsp' },
-          { name = 'buffer' },
-          { name = 'path' },
-        },
-        snippet = {
-          expand = function(args)
-            luasnip.lsp_expand(args.body)
-          end,
-        },
-        mapping = cmp.mapping.preset.insert {
-          ['<C-n>'] = cmp.mapping.select_next_item { behaviour = cmp.SelectBehavior.Insert },
-          ['<C-p>'] = cmp.mapping.select_prev_item { behaviour = cmp.SelectBehavior.Insert },
-          ['<C-y>'] = cmp.mapping(function()
-            if cmp.visible() then
-              cmp.confirm { select = true }
-            else
-              cmp.complete()
-            end
-          end, { 'i', 'c' }),
-        },
-      }
-    end,
+    opts_extend = { 'sources.default' },
   },
   -- Linting
   {
@@ -428,7 +310,7 @@ require('lazy').setup {
     config = function()
       local lint = require 'lint'
       lint.linters_by_ft = {
-        python = { 'ruff' },
+        python = { 'ruff', 'mypy' },
       }
 
       local lint_augroup = vim.api.nvim_create_augroup('lint', { clear = true })
@@ -533,9 +415,6 @@ require('lazy').setup {
       -- },
       indent = { enable = true },
     },
-    -- config = function()
-    --   vim.cmd [[highlight! link TreesitterContext SignColumn]]
-    -- end,
   },
   -- Git
   {
@@ -620,29 +499,6 @@ require('lazy').setup {
     'stevearc/quicker.nvim',
     event = 'FileType qf',
     opts = {},
-  },
-  -- Databases
-  {
-    'kndndrj/nvim-dbee',
-    dependencies = {
-      'MunifTanjim/nui.nvim',
-    },
-    build = function()
-      require('dbee').install()
-    end,
-    config = function()
-      require('dbee').setup {
-        sources = {
-          require('dbee.sources').MemorySource:new {
-            {
-              name = 'reacto',
-              type = 'sqlite',
-              url = '~/proj/reacto/reacto.db',
-            },
-          },
-        },
-      }
-    end,
   },
   -- Remember position in buffer
   {
