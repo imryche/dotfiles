@@ -120,8 +120,6 @@ keybinds clear-defaults=true {
         bind "Alt g" { SwitchToMode "Locked"; }
         bind "Alt Q" { Quit; }
         bind "Alt n" { NewPane; }
-        // bind "Alt i" { MoveTab "Left"; }
-        // bind "Alt o" { MoveTab "Right"; }
         bind "Alt h" "Alt Left" { MoveFocusOrTab "Left"; }
         bind "Alt l" "Alt Right" { MoveFocusOrTab "Right"; }
         bind "Alt j" "Alt Down" { MoveFocus "Down"; }
@@ -144,7 +142,7 @@ keybinds clear-defaults=true {
         bind "Alt s" { SwitchToMode "Scroll"; }
     }
     shared_except "session" "locked" {
-        bind "Alt w" { SwitchToMode "Session"; }
+        bind "Alt o" { SwitchToMode "Session"; }
     }
     shared_except "tab" "locked" {
         bind "Alt t" { SwitchToMode "Tab"; }
