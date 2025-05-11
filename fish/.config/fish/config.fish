@@ -3,6 +3,7 @@ alias va="source .venv/bin/activate.fish"
 alias vd="deactivate.fish"
 
 set -gx PATH $HOME/.local/bin $PATH
+set -gx PATH /opt/nvim-linux-x86_64/bin $PATH
 
 # default editor
 set -gx EDITOR nvim
@@ -22,7 +23,5 @@ fzf --fish | source
 # zoxide
 zoxide init fish | source
 
-# zellij
-eval (zellij setup --generate-auto-start fish | string collect)
-
+# mise
 mise activate fish | source
