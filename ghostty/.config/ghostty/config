@@ -1,7 +1,8 @@
-window-decoration = false
-window-padding-x = 6
-window-padding-y = 6
+window-padding-x = 10
+window-padding-y = 10
 window-padding-balance = true
+gtk-tabs-location = "hidden"
+gtk-wide-tabs = false
 
 mouse-hide-while-typing = true
 
@@ -11,7 +12,22 @@ font-thicken = true
 
 cursor-style = block
 cursor-style-blink = false
+shell-integration-features = no-cursor
 
-theme = zenbones_dark
+theme = zenbones_light
 
-keybind = global:super+w=toggle_window_decorations
+keybind = alt+w=new_window
+
+keybind = alt+t=new_tab
+keybind = alt+n=next_tab
+keybind = alt+p=previous_tab
+
+keybind = alt+o=new_split:right
+keybind = alt+e=new_split:down
+keybind = alt+b=equalize_splits
+keybind = alt+l=goto_split:right
+keybind = alt+h=goto_split:left
+keybind = alt+j=goto_split:down
+keybind = alt+k=goto_split:up
+
+keybind = alt+q=close_surface
