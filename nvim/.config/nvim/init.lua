@@ -72,9 +72,9 @@ vim.keymap.set('n', 'n', 'nzzzv')
 vim.keymap.set('n', 'N', 'Nzzzv')
 
 -- Splits
-vim.keymap.set('n', '<leader>S', ':sp<cr>')
-vim.keymap.set('n', '<leader>s', ':vsp<cr>')
-vim.keymap.set('n', '<leader>o', ':only<cr>')
+vim.keymap.set('n', '<leader>e', ':sp<cr>')
+vim.keymap.set('n', '<leader>o', ':vsp<cr>')
+vim.keymap.set('n', '<leader>0', ':only<cr>')
 
 -- Buffer actions
 vim.keymap.set('n', '<leader>q', ':q<cr>')
@@ -181,6 +181,8 @@ require('lazy').setup {
       { 'nvim-telescope/telescope-ui-select.nvim' },
     },
     config = function()
+      local actions = require 'telescope.actions'
+
       require('telescope').setup {
         defaults = {
           layout_strategy = 'horizontal',
@@ -194,6 +196,10 @@ require('lazy').setup {
             i = {
               ['<C-u>'] = false,
               ['<C-d>'] = false,
+              ['<C-;>'] = actions.select_default,
+            },
+            n = {
+              ['<C-;>'] = actions.select_default,
             },
           },
         },
@@ -213,9 +219,11 @@ require('lazy').setup {
       vim.keymap.set('n', '<leader><leader>', builtin.buffers)
       vim.keymap.set('n', '<leader>f', builtin.git_files)
       vim.keymap.set('n', '<leader>F', builtin.find_files)
-      vim.keymap.set('n', '<leader>,', builtin.grep_string)
+      vim.keymap.set('n', '<leader>s', builtin.live_grep)
+      vim.keymap.set('n', '<leader>j', builtin.buffers)
+      vim.keymap.set('n', '<leader>l', builtin.grep_string)
+      vim.keymap.set('v', '<leader>l', builtin.grep_string)
       vim.keymap.set('n', '<leader>.', builtin.resume)
-      vim.keymap.set('n', '<leader>/', builtin.live_grep)
     end,
   },
   -- LSP
@@ -228,7 +236,6 @@ require('lazy').setup {
 
           vim.keymap.set('n', 'gd', builtin.lsp_definitions, { buffer = 0 })
           vim.keymap.set('n', 'gr', builtin.lsp_references, { buffer = 0 })
-          vim.keymap.set('n', 'ds', builtin.lsp_document_symbols, { buffer = 0 })
         end,
       })
 
@@ -290,7 +297,8 @@ require('lazy').setup {
     opts = {
       keymap = {
         preset = 'default',
-        ['<C-;>'] = { 'show_and_insert', 'select_and_accept' },
+        ['<C-;>'] = { 'show', 'select_and_accept' },
+        ['<C-space>'] = { 'show_documentation', 'hide_documentation' },
       },
       appearance = {
         nerd_font_variant = 'mono',
@@ -484,6 +492,13 @@ require('lazy').setup {
         map('n', '<leader>tD', gitsigns.toggle_deleted, { desc = '[T]oggle git show [D]eleted' })
       end,
     },
+  },
+  {
+    'FabijanZulj/blame.nvim',
+    lazy = false,
+    config = function()
+      require('blame').setup {}
+    end,
   },
   -- Files
   {
@@ -719,5 +734,5 @@ local function ask_llm()
 end
 
 vim.api.nvim_create_user_command('Ask', ask_llm, { range = true })
-vim.api.nvim_set_keymap('v', '<leader>a', ':Ask<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>a', ':Ask<CR>', { noremap = true, silent = true })
+-- vim.api.nvim_set_keymap('v', '<leader>a', ':Ask<CR>', { noremap = true, silent = true })
+-- vim.api.nvim_set_keymap('n', '<leader>a', ':Ask<CR>', { noremap = true, silent = true })
