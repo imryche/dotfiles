@@ -16,7 +16,7 @@ shell-integration-features = no-cursor
 
 theme = zenbones_light
 
-keybind = alt+w=new_window
+keybind = alt+c=new_window
 
 keybind = alt+t=new_tab
 keybind = alt+n=next_tab
@@ -30,4 +30,4 @@ keybind = alt+h=goto_split:left
 keybind = alt+j=goto_split:down
 keybind = alt+k=goto_split:up
 
-keybind = alt+q=close_surface
+keybind = alt+w=close_surface
