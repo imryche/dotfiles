@@ -33,8 +33,6 @@ sudo dnf install -y mozilla-fira-sans-fonts jetbrains-mono-fonts
 echo "Setting default system font..."
 gsettings set org.gnome.desktop.interface font-name 'Fira Sans 11'
 
-
-
 echo "Installing mise version manager..."
 sudo dnf copr enable jdxcode/mise -y
 sudo dnf install -y mise
@@ -50,7 +48,6 @@ echo "Applying shell and editor configurations with stow..."
 stow --override=.* fish nvim
 
 echo "Setting Fish as default shell..."
-chsh -s $(which fish)
+sudo chsh -s $(which fish) $USER
 
-echo "Installation complete!"
-echo "Please reboot."
+echo "Installation complete! Please reboot."
