@@ -1,0 +1,24 @@
+anchor=top-center
+margin=20,10
+
+width=460
+height=68
+padding=16,20
+
+border-radius=9
+border-size=0
+
+font=Fira Sans 11
+markup=1
+
+default-timeout=4000
+ignore-timeout=1
+layer=overlay
+group-by=app-name
+max-visible=3
+
+icons=1
+max-icon-size=64
+icon-path=/usr/share/icons/Adwaita
+
+background-color=#000000e6
