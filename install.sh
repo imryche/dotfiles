@@ -33,8 +33,7 @@ sudo dnf install -y mozilla-fira-sans-fonts jetbrains-mono-fonts
 echo "Setting default system font..."
 gsettings set org.gnome.desktop.interface font-name 'Fira Sans 11'
 
-echo "Installing Firefox..."
-sudo dnf install -y firefox
+
 
 echo "Installing mise version manager..."
 sudo dnf copr enable jdxcode/mise -y
