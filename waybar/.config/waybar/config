@@ -1,0 +1,19 @@
+{
+    "height": 30,
+    "layer": "top",
+    "modules-left": ["hyprland/workspaces", "hyprland/submap"],
+    "modules-center": ["clock"],
+    "modules-right": ["battery"],
+    "hyprland/workspaces": {
+        "format": "0"
+    },
+    "battery": {
+        "format": "{capacity}% {icon}",
+        "format-icons": ["", "", "", "", ""]
+    },
+    "clock": {
+      "format": "{:%a %b %d %H:%M}",
+      "tooltip": false,
+      "on-click": "gnome-calendar"
+    }
+}
