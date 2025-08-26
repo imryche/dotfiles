@@ -5,7 +5,8 @@
     "modules-center": ["clock"],
     "modules-right": ["battery"],
     "hyprland/workspaces": {
-        "format": "0"
+        "format": "{name}",
+        "on-click": "activate"
     },
     "battery": {
         "format": "{capacity}% {icon}",
