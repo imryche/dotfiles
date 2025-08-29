@@ -1,4 +1,5 @@
 [tools]
+go = "latest"
 lua-language-server = "latest"
 node = "latest"
 "npm:@olrtg/emmet-language-server" = "latest"
