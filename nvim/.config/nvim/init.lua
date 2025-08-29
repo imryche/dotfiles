@@ -6,7 +6,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Line numbers
-vim.opt.number = false
+vim.opt.number = true
 vim.opt.relativenumber = false
 vim.opt.cursorline = true
 vim.opt.fillchars = { eob = ' ' }
@@ -292,7 +292,10 @@ require('lazy').setup {
   -- Autocompletion
   {
     'saghen/blink.cmp',
-    dependencies = { 'rafamadriz/friendly-snippets' },
+    dependencies = {
+      'rafamadriz/friendly-snippets',
+      'mikavilpas/blink-ripgrep.nvim',
+    },
     version = '1.*',
     opts = {
       keymap = {
@@ -305,7 +308,16 @@ require('lazy').setup {
       },
       completion = { menu = { auto_show = false }, documentation = { auto_show = false } },
       sources = {
-        default = { 'lsp', 'path', 'snippets', 'buffer' },
+        default = { 'lsp', 'path', 'snippets', 'buffer', 'ripgrep' },
+        providers = {
+          ripgrep = {
+            module = 'blink-ripgrep',
+            name = 'Ripgrep',
+            ---@module "blink-ripgrep"
+            ---@type blink-ripgrep.Options
+            opts = {},
+          },
+        },
       },
       fuzzy = { implementation = 'prefer_rust_with_warning' },
     },
