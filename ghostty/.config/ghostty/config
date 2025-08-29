@@ -6,6 +6,7 @@ gtk-tabs-location = "hidden"
 gtk-wide-tabs = false
 
 mouse-hide-while-typing = true
+confirm-close-surface = false
 
 font-family = JetBrains Mono
 font-size = 10
