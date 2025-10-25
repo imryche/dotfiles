@@ -1,0 +1,50 @@
+# Zenberg - Light Theme for Ghostty
+# Contrast & typography-based color scheme
+# Based on the zenberg helix theme
+
+# Background and foreground
+background = #e9e9ed
+foreground = #33374d
+
+# Cursor
+cursor-color = #1a1d2e
+cursor-text = #e9e9ed
+
+# Selection
+selection-background = #b5c4f5
+selection-foreground = #1a1d2e
+
+# ANSI Colors (0-7: normal, 8-15: bright)
+# Grayscale palette with color reserved for diagnostics
+
+# Black (dark grays)
+palette = 0=#1a1d2e
+palette = 8=#2d3142
+
+# Red (errors, deletions)
+palette = 1=#cc3768
+palette = 9=#e04577
+
+# Green (success, additions)
+palette = 2=#598030
+palette = 10=#6a9940
+
+# Yellow (warnings, modifications)
+palette = 3=#c67439
+palette = 11=#d68549
+
+# Blue (info, links)
+palette = 4=#22478e
+palette = 12=#3a5fa0
+
+# Magenta (grayscale - medium)
+palette = 5=#6b7089
+palette = 13=#8389a3
+
+# Cyan (grayscale - medium-light)
+palette = 6=#9099b0
+palette = 14=#a0a5c0
+
+# White (light grays)
+palette = 7=#c5c9db
+palette = 15=#dddfe9

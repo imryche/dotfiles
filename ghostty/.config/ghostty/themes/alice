@@ -1,0 +1,49 @@
+# Alice - Ghostty Terminal Theme
+# Companion theme for Alice Helix editor theme
+# Based on alice blue (#F0F8FF) background with dark navy blue text
+
+# Background and foreground
+background = #f0f8ff
+foreground = #1a1a3e
+
+# Cursor
+cursor-color = #1a1a3e
+cursor-text = #f0f8ff
+
+# Selection
+selection-background = #c4d8ff
+selection-foreground = #1a1a3e
+
+# ANSI Colors (0-7: normal, 8-15: bright)
+
+# Black (dark navy)
+palette = 0=#1a1a3e
+palette = 8=#6b6b8f
+
+# Red
+palette = 1=#d63759
+palette = 9=#e85577
+
+# Green
+palette = 2=#5a8533
+palette = 10=#6fa042
+
+# Yellow/Orange
+palette = 3=#c67235
+palette = 11=#d88a4f
+
+# Blue
+palette = 4=#1e5a9e
+palette = 12=#3a7ac8
+
+# Magenta/Purple
+palette = 5=#8b4a9e
+palette = 13=#a967c8
+
+# Cyan
+palette = 6=#2d7a9e
+palette = 14=#4a96c8
+
+# White (navy grays)
+palette = 7=#3a3a5c
+palette = 15=#2d2d52

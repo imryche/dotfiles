@@ -1,12 +1,11 @@
 window-decoration = false
 window-padding-x = 10
-window-padding-y = 10
+window-padding-y = 8
 window-padding-balance = true
 gtk-tabs-location = "hidden"
 gtk-wide-tabs = false
 
 mouse-hide-while-typing = true
-confirm-close-surface = false
 
 font-family = JetBrains Mono
 font-size = 10
@@ -16,7 +15,7 @@ cursor-style = block
 cursor-style-blink = false
 shell-integration-features = no-cursor
 
-theme = zenbones_light
+theme = alice
 
 keybind = super+t=new_tab
 keybind = super+n=next_tab
