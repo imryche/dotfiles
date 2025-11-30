@@ -7,15 +7,15 @@ gtk-wide-tabs = false
 
 mouse-hide-while-typing = true
 
-font-family = JetBrains Mono
-font-size = 10
-font-thicken = true
+# font-family = JetBrains Mono
+font-family = Cascadia Code
+font-size = 11
 
 cursor-style = block
 cursor-style-blink = false
 shell-integration-features = no-cursor
 
-theme = alice
+theme = signal
 
 keybind = super+t=new_tab
 keybind = super+n=next_tab

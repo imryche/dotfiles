@@ -1,0 +1,209 @@
+# Warmth Refined - High-Contrast Light Theme with Warm Paper Background
+# Based on Zenberg theme philosophy with warm neutral palette
+# Contrast & typography-based syntax highlighting
+# Colors reserved for diagnostics, diffs, and actionable information
+
+# ============================================================================
+# SYNTAX HIGHLIGHTING - Contrast and font variations
+# ============================================================================
+
+"keyword" = { fg = "text-dark", modifiers = ["bold"] }
+"keyword.control" = { fg = "text-dark", modifiers = ["bold"] }
+"keyword.function" = { fg = "text-dark", modifiers = ["bold"] }
+"keyword.operator" = { fg = "text-medium" }
+"keyword.directive" = { fg = "text-dark", modifiers = ["bold"] }
+"keyword.import" = { fg = "text-dark", modifiers = ["bold"] }
+
+"function" = { fg = "function-dark" }
+"function.method" = { fg = "function-dark" }
+"function.macro" = { fg = "text-dark", modifiers = ["italic"] }
+"method" = { fg = "function-dark" }
+
+"type" = { fg = "text-normal" }
+"type.builtin" = { fg = "text-normal" }
+"constructor" = { fg = "text-dark" }
+
+"string" = { fg = "text-medium", modifiers = ["italic"] }
+"string.escape" = { fg = "text-dark" }
+"string.special" = { fg = "text-dark" }
+
+"constant" = { fg = "text-medium" }
+"constant.numeric" = { fg = "text-medium" }
+"constant.builtin" = { fg = "text-medium" }
+"number" = { fg = "text-medium" }
+"float" = { fg = "text-medium" }
+"boolean" = { fg = "text-medium" }
+"character" = { fg = "text-medium" }
+
+"variable" = { fg = "text-medium" }
+"variable.builtin" = { fg = "text-medium", modifiers = ["italic"] }
+"variable.parameter" = { fg = "text-normal", modifiers = ["italic"] }
+"parameter" = { fg = "text-normal", modifiers = ["italic"] }
+
+"comment" = { fg = "text-light", modifiers = ["italic"] }
+
+"attribute" = { fg = "text-medium", modifiers = ["italic"] }
+"label" = { fg = "text-medium" }
+
+"punctuation" = { fg = "text-medium" }
+"punctuation.bracket" = { fg = "text-medium" }
+"punctuation.delimiter" = { fg = "text-medium" }
+"punctuation.special" = { fg = "text-dark" }
+
+"operator" = { fg = "text-medium" }
+"special" = { fg = "text-dark" }
+
+"namespace" = { fg = "text-normal" }
+"identifier" = { fg = "text-normal" }
+"field" = { fg = "text-normal" }
+"property" = { fg = "text-normal" }
+
+"conditional" = { fg = "text-dark", modifiers = ["bold"] }
+"repeat" = { fg = "text-dark", modifiers = ["bold"] }
+"exception" = { fg = "text-dark", modifiers = ["bold"] }
+
+"text" = { fg = "text-normal" }
+
+# ============================================================================
+# MARKUP (Markdown, etc.)
+# ============================================================================
+
+"markup.heading" = { fg = "text-dark", modifiers = ["bold"] }
+"markup.bold" = { modifiers = ["bold"] }
+"markup.italic" = { modifiers = ["italic"] }
+"markup.strikethrough" = { modifiers = ["crossed_out"] }
+"markup.list" = { fg = "text-dark", modifiers = ["bold"] }
+"markup.link" = { fg = "selection_blue", underline = { style = "line" } }
+"markup.link.url" = { fg = "cyan", underline = { style = "line" } }
+"markup.link.text" = { fg = "selection_blue" }
+"markup.link.label" = { fg = "cyan" }
+"markup.raw" = { fg = "text-medium" }
+"markup.raw.inline" = { bg = "cursorline_bg", fg = "text-medium" }
+
+# ============================================================================
+# TAGS (HTML, XML, etc.)
+# ============================================================================
+
+"tag" = { fg = "text-dark" }
+"tag.attribute" = { fg = "text-medium" }
+
+# ============================================================================
+# DIAGNOSTICS - Color-coded for attention
+# ============================================================================
+
+"error" = { fg = "red", modifiers = ["bold"] }
+"warning" = { fg = "orange", modifiers = ["bold"] }
+"info" = { fg = "selection_blue", modifiers = ["bold"] }
+"hint" = { fg = "text-light" }
+
+"diagnostic" = { underline = { style = "curl" } }
+"diagnostic.error" = { underline = { color = "red", style = "curl" } }
+"diagnostic.warning" = { underline = { color = "orange", style = "curl" } }
+"diagnostic.info" = { underline = { color = "selection_blue", style = "curl" } }
+"diagnostic.hint" = { underline = { color = "text-light", style = "curl" } }
+"diagnostic.unnecessary" = { modifiers = ["dim"] }
+"diagnostic.deprecated" = { modifiers = ["crossed_out"] }
+
+# ============================================================================
+# DIFFS - Color-coded changes
+# ============================================================================
+
+"diff.plus" = { fg = "green" }
+"diff.plus.gutter" = { fg = "green", bg = "linenr_bg" }
+"diff.minus" = { fg = "red" }
+"diff.minus.gutter" = { fg = "red", bg = "linenr_bg" }
+"diff.delta" = { fg = "orange" }
+"diff.delta.gutter" = { fg = "orange", bg = "linenr_bg" }
+
+# ============================================================================
+# UI ELEMENTS
+# ============================================================================
+
+"ui.background" = { bg = "background_bg", fg = "text-normal" }
+"ui.background.separator" = { fg = "text-light" }
+
+"ui.text" = { fg = "text-normal" }
+"ui.text.focus" = { fg = "text-dark", modifiers = ["bold"] }
+
+"ui.cursor" = { bg = "text-dark", fg = "background_bg" }
+"ui.cursor.primary" = { bg = "text-dark", fg = "background_bg" }
+"ui.cursor.match" = { bg = "matchparen_bg", fg = "text-dark" }
+"ui.cursor.insert" = { bg = "selection_blue", fg = "background_bg" }
+"ui.cursor.select" = { bg = "sel_bg_primary", fg = "text-dark" }
+
+"ui.cursorline.primary" = { bg = "cursorline_bg" }
+"ui.cursorcolumn" = { bg = "cursorline_bg" }
+
+"ui.selection" = { bg = "sel_bg" }
+"ui.selection.primary" = { bg = "sel_bg_primary" }
+
+"ui.linenr" = { fg = "linenr_fg", bg = "linenr_bg" }
+"ui.linenr.selected" = { fg = "text-dark", modifiers = ["bold"] }
+
+"ui.statusline" = { fg = "statusline_fg", bg = "statusline_bg" }
+"ui.statusline.inactive" = { fg = "text-light", bg = "statusline_bg" }
+"ui.statusline.insert" = { fg = "background_bg", bg = "selection_blue" }
+"ui.statusline.select" = { fg = "background_bg", bg = "green" }
+
+"ui.menu" = { fg = "text-normal", bg = "cursorlinenr_bg" }
+"ui.menu.selected" = { fg = "text-dark", bg = "menusel_bg", modifiers = [
+  "bold",
+] }
+"ui.menu.border" = { fg = "text-light" }
+
+"ui.popup" = { fg = "text-normal", bg = "cursorlinenr_bg" }
+"ui.popup.info" = { fg = "selection_blue" }
+
+"ui.window" = { fg = "text-light" }
+
+"ui.help" = { fg = "text-normal", bg = "cursorlinenr_bg" }
+
+"ui.gutter" = { fg = "linenr_fg", bg = "linenr_bg" }
+
+"ui.bufferline.active" = { fg = "text-dark", modifiers = ["bold"] }
+
+"ui.virtual" = { fg = "linenr_fg" }
+"ui.virtual.ruler" = { bg = "linenr_bg" }
+"ui.virtual.whitespace" = { fg = "sel_bg" }
+"ui.virtual.indent-guide" = { fg = "indent_guide_fg" }
+"ui.virtual.jump-label" = { fg = "matchparen_orange", modifiers = ["bold"] }
+
+"ui.highlight" = { bg = "sel_bg_primary" }
+
+# ============================================================================
+# PALETTE
+# ============================================================================
+
+[palette]
+
+# Text hierarchy (neutral grays - kept neutral for contrast clarity)
+text-dark = "#1F1D1B"     # Very dark gray for maximum contrast (14:1)
+function-dark = "#2A2826" # Slightly lighter for functions (11:1)
+text-medium = "#3D3935"   # Medium gray for strings/constants (9:1)
+text-normal = "#4D4843"   # Standard gray for main text (7:1)
+text-light = "#6E6A66"    # Light gray for comments (4.5:1)
+
+# Interactive colors
+selection_blue = "#3D5F8C"    # Darker blue (contrast: 7:1)
+matchparen_orange = "#B37138" # Rich golden amber (contrast: 5.2:1)
+
+# Diagnostic and action colors (saturated palette)
+red = "#C73838"    # Strong red - errors, deletions
+orange = "#D47D3D" # Vibrant orange - warnings, modifications
+green = "#5F8236"  # Strong olive green - success, additions
+cyan = "#3D9E98"   # Strong teal - hints, metadata
+
+# UI colors (warm grays - harmonized with paper background)
+background_bg = "#F8F5F0"   # Warm paper background - the foundation
+sel_bg = "#E8EDF3"          # Cool blue selection (deliberate contrast)
+sel_bg_primary = "#D3DEE8"  # Stronger cool selection (stands out against warm)
+cursorline_bg = "#EFECE7"   # Warm subtle highlight
+cursorlinenr_bg = "#E0DDD8" # Warm menu/popup background
+linenr_bg = "#EFECE7"       # Warm line number background
+linenr_fg = "#9B9996"       # Warm gray line numbers
+indent_guide_fg = "#CECCC8" # Warm indent guides
+matchparen_bg = "#D9E6D2"   # Pale sage - distinct from warm bg and cool selection
+menusel_bg = "#CAC8C4"      # Warm menu selection
+
+statusline_bg = "#E0DDD8" # Warm status line background
+statusline_fg = "#4D4843" # Status line text (text-normal)

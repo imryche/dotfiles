@@ -1,0 +1,37 @@
+[[language]]
+name = "python"
+language-servers = ["ruff", "pyrefly"]
+formatter = { command = "sh", args = [
+  "-c",
+  "ruff check --fix-only - | ruff format -",
+] }
+auto-format = true
+
+[language-server.pyrefly]
+command = "pyrefly"
+args = ["lsp"]
+
+[language-server.tailwindcss-ls]
+command = "tailwindcss-language-server"
+args = ["--stdio"]
+
+[[language]]
+name = "html"
+language-servers = ["vscode-html-language-server", "tailwindcss-ls"]
+formatter = { command = "prettierd", args = [".html"] }
+auto-format = true
+
+[[language]]
+name = "toml"
+formatter = { command = "taplo", args = ["format", "-"] }
+auto-format = true
+
+[[language]]
+name = "todotxt"
+file-types = [{ glob = "todo.txt" }, "todotxt"]
+auto-format = false
+
+[[language]]
+name = "sql"
+formatter = { command = "sql-formatter" }
+auto-format = true

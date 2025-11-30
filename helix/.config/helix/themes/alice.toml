@@ -1,0 +1,205 @@
+# Alice - Light Theme with Alice Blue Background
+# Based on Zenberg theme philosophy
+# Contrast & typography-based syntax highlighting
+# Colors reserved for diagnostics, diffs, and actionable information
+
+# ============================================================================
+# SYNTAX HIGHLIGHTING - Contrast and font variations
+# ============================================================================
+
+"keyword" = { fg = "text-dark", modifiers = ["bold"] }
+"keyword.control" = { fg = "text-dark", modifiers = ["bold"] }
+"keyword.function" = { fg = "text-dark", modifiers = ["bold"] }
+"keyword.operator" = { fg = "text-medium" }
+"keyword.directive" = { fg = "text-dark", modifiers = ["bold"] }
+"keyword.import" = { fg = "text-dark", modifiers = ["bold"] }
+
+"function" = { fg = "text-dark" }
+"function.method" = { fg = "text-dark" }
+"function.macro" = { fg = "text-dark", modifiers = ["italic"] }
+"method" = { fg = "text-dark" }
+
+"type" = { fg = "text-normal" }
+"type.builtin" = { fg = "text-normal" }
+"constructor" = { fg = "text-dark" }
+
+"string" = { fg = "text-medium", modifiers = ["italic"] }
+"string.escape" = { fg = "text-dark" }
+"string.special" = { fg = "text-dark" }
+
+"constant" = { fg = "text-medium" }
+"constant.numeric" = { fg = "text-medium" }
+"constant.builtin" = { fg = "text-medium" }
+"number" = { fg = "text-medium" }
+"float" = { fg = "text-medium" }
+"boolean" = { fg = "text-medium" }
+"character" = { fg = "text-medium" }
+
+"variable" = { fg = "text-medium" }
+"variable.builtin" = { fg = "text-medium", modifiers = ["italic"] }
+"variable.parameter" = { fg = "text-normal", modifiers = ["italic"] }
+"parameter" = { fg = "text-normal", modifiers = ["italic"] }
+
+"comment" = { fg = "text-light", modifiers = ["italic"] }
+
+"attribute" = { fg = "text-medium", modifiers = ["italic"] }
+"label" = { fg = "text-medium" }
+
+"punctuation" = { fg = "text-light" }
+"punctuation.bracket" = { fg = "text-medium" }
+"punctuation.delimiter" = { fg = "text-light" }
+"punctuation.special" = { fg = "text-dark" }
+
+"operator" = { fg = "text-medium" }
+"special" = { fg = "text-dark" }
+
+"namespace" = { fg = "text-normal" }
+"identifier" = { fg = "text-normal" }
+"field" = { fg = "text-normal" }
+"property" = { fg = "text-normal" }
+
+"conditional" = { fg = "text-dark", modifiers = ["bold"] }
+"repeat" = { fg = "text-dark", modifiers = ["bold"] }
+"exception" = { fg = "text-dark", modifiers = ["bold"] }
+
+"text" = { fg = "text-normal" }
+
+# ============================================================================
+# MARKUP (Markdown, etc.)
+# ============================================================================
+
+"markup.heading" = { fg = "text-dark", modifiers = ["bold"] }
+"markup.bold" = { modifiers = ["bold"] }
+"markup.italic" = { modifiers = ["italic"] }
+"markup.strikethrough" = { modifiers = ["crossed_out"] }
+"markup.list" = { fg = "text-dark", modifiers = ["bold"] }
+"markup.link" = { fg = "blue", underline = { style = "line" } }
+"markup.link.url" = { fg = "cyan", underline = { style = "line" } }
+"markup.link.text" = { fg = "blue" }
+"markup.link.label" = { fg = "cyan" }
+"markup.raw" = { fg = "text-medium" }
+"markup.raw.inline" = { bg = "cursorline_bg", fg = "text-medium" }
+
+# ============================================================================
+# TAGS (HTML, XML, etc.)
+# ============================================================================
+
+"tag" = { fg = "text-dark" }
+"tag.attribute" = { fg = "text-medium" }
+
+# ============================================================================
+# DIAGNOSTICS - Color-coded for attention
+# ============================================================================
+
+"error" = { fg = "red", modifiers = ["bold"] }
+"warning" = { fg = "orange", modifiers = ["bold"] }
+"info" = { fg = "blue", modifiers = ["bold"] }
+"hint" = { fg = "text-light" }
+
+"diagnostic" = { underline = { style = "curl" } }
+"diagnostic.error" = { underline = { color = "red", style = "curl" } }
+"diagnostic.warning" = { underline = { color = "orange", style = "curl" } }
+"diagnostic.info" = { underline = { color = "blue", style = "curl" } }
+"diagnostic.hint" = { underline = { color = "text-light", style = "curl" } }
+"diagnostic.unnecessary" = { modifiers = ["dim"] }
+"diagnostic.deprecated" = { modifiers = ["crossed_out"] }
+
+# ============================================================================
+# DIFFS - Color-coded changes
+# ============================================================================
+
+"diff.plus" = { fg = "green" }
+"diff.plus.gutter" = { fg = "green", bg = "linenr_bg" }
+"diff.minus" = { fg = "red" }
+"diff.minus.gutter" = { fg = "red", bg = "linenr_bg" }
+"diff.delta" = { fg = "orange" }
+"diff.delta.gutter" = { fg = "orange", bg = "linenr_bg" }
+
+# ============================================================================
+# UI ELEMENTS
+# ============================================================================
+
+"ui.background" = { bg = "background_bg", fg = "text-normal" }
+"ui.background.separator" = { fg = "text-light" }
+
+"ui.text" = { fg = "text-normal" }
+"ui.text.focus" = { fg = "text-dark", modifiers = ["bold"] }
+
+"ui.cursor" = { bg = "text-dark", fg = "background_bg" }
+"ui.cursor.primary" = { bg = "text-dark", fg = "background_bg" }
+"ui.cursor.match" = { bg = "matchparen_bg", fg = "text-dark" }
+"ui.cursor.insert" = { bg = "blue", fg = "background_bg" }
+"ui.cursor.select" = { bg = "sel_bg_primary", fg = "text-dark" }
+
+"ui.cursorline.primary" = { bg = "cursorline_bg" }
+"ui.cursorcolumn" = { bg = "cursorline_bg" }
+
+"ui.selection" = { bg = "sel_bg" }
+"ui.selection.primary" = { bg = "sel_bg_primary" }
+
+"ui.linenr" = { fg = "linenr_fg", bg = "linenr_bg" }
+"ui.linenr.selected" = { fg = "text-dark", modifiers = ["bold"] }
+
+"ui.statusline" = { fg = "statusline_fg", bg = "statusline_bg" }
+"ui.statusline.inactive" = { fg = "text-light", bg = "statusline_bg" }
+"ui.statusline.insert" = { fg = "background_bg", bg = "blue" }
+"ui.statusline.select" = { fg = "background_bg", bg = "green" }
+
+"ui.menu" = { fg = "text-normal", bg = "cursorlinenr_bg" }
+"ui.menu.selected" = { fg = "text-dark", bg = "menusel_bg", modifiers = [
+  "bold",
+] }
+"ui.menu.border" = { fg = "text-light" }
+
+"ui.popup" = { fg = "text-normal", bg = "cursorlinenr_bg" }
+"ui.popup.info" = { fg = "blue" }
+
+"ui.window" = { fg = "text-light" }
+
+"ui.help" = { fg = "text-normal", bg = "cursorlinenr_bg" }
+
+"ui.gutter" = { fg = "linenr_fg", bg = "linenr_bg" }
+
+"ui.bufferline.active" = { fg = "text-dark", modifiers = ["bold"] }
+
+"ui.virtual" = { fg = "linenr_fg" }
+"ui.virtual.ruler" = { bg = "linenr_bg" }
+"ui.virtual.whitespace" = { fg = "sel_bg" }
+"ui.virtual.indent-guide" = { fg = "indent_guide_fg" }
+"ui.virtual.jump-label" = { fg = "orange", modifiers = ["bold"] }
+
+"ui.highlight" = { bg = "sel_bg_primary" }
+
+# ============================================================================
+# PALETTE
+# ============================================================================
+
+[palette]
+
+# Text hierarchy (dark navy blue tones for alice blue background)
+text-dark = "#1a1a3e"   # Dark navy blue for maximum contrast
+text-medium = "#2d2d52" # Medium navy for strings/constants
+text-normal = "#3a3a5c" # Standard navy for main text
+text-light = "#6b6b8f"  # Light navy-gray for comments
+
+# Diagnostic and action colors (slightly adjusted for alice blue bg)
+red = "#d63759"    # Errors, deletions - slightly more saturated
+orange = "#c67235" # Warnings, modifications
+green = "#5a8533"  # Success, additions - slightly more saturated
+blue = "#1e5a9e"   # Info, links - deeper blue for better contrast on blue bg
+cyan = "#2d7a9e"   # Hints, metadata
+
+# UI colors (blue-tinted to harmonize with alice blue background)
+background_bg = "#f0f8ff"   # Alice blue
+sel_bg = "#d4e4ff"          # Soft blue selection
+sel_bg_primary = "#c4d8ff"  # Deeper blue selection
+cursorline_bg = "#e8f2ff"   # Subtle highlight
+cursorlinenr_bg = "#d8e8ff" # Menu/popup background
+linenr_bg = "#e4f0ff"       # Line number background
+linenr_fg = "#a0b0cc"       # Line number text
+indent_guide_fg = "#cbd8ec" # Indent guides
+matchparen_bg = "#c8d4e8"   # Matching parens
+menusel_bg = "#b4c8e8"      # Menu selection
+
+statusline_bg = "#e4f0ff" # Status line background
+statusline_fg = "#3a3a5c" # Status line text (text-normal)
