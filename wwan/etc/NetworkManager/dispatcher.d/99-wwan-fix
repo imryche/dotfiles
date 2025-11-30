@@ -1,0 +1,20 @@
+#!/bin/bash
+# Fix for Quectel RM520N-GL MBIM over MHI on Fedora
+# NetworkManager fails to configure IP on wwan0, this applies it from bearer data
+
+[ "$2" != "up" ] || [ "$DEVICE_IFACE" != "wwan0" ] && exit 0
+
+MODEM=$(mmcli -L 2>/dev/null | grep -oE 'Modem/[0-9]+' | head -1 | cut -d/ -f2)
+[ -z "$MODEM" ] && exit 0
+
+BEARER=$(mmcli -m "$MODEM" --output-keyvalue | grep "modem.generic.bearers.value" | head -1 | grep -oE '[0-9]+$')
+[ -z "$BEARER" ] && exit 0
+
+INFO=$(mmcli -b "$BEARER" --output-keyvalue)
+IP=$(echo "$INFO" | grep "bearer.ipv4-config.address" | cut -d: -f2 | tr -d ' ')
+PREFIX=$(echo "$INFO" | grep "bearer.ipv4-config.prefix" | cut -d: -f2 | tr -d ' ')
+GW=$(echo "$INFO" | grep "bearer.ipv4-config.gateway" | cut -d: -f2 | tr -d ' ')
+
+ip addr flush dev wwan0
+ip addr add "$IP/$PREFIX" dev wwan0
+ip route add default via "$GW" dev wwan0 metric 700
