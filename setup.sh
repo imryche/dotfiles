@@ -6,28 +6,16 @@ DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Fonts
 install_fonts() {
     echo "Installing fonts..."
-    sudo dnf install -y jetbrains-mono-fonts cascadia-mono-fonts
-
-    # Install Fira fonts from GitHub
-    if [[ ! -d "$HOME/.local/share/fonts/fira" ]]; then
-        local tmpdir=$(mktemp -d)
-        git clone --depth 1 https://github.com/mozilla/Fira "$tmpdir"
-        mkdir -p "$HOME/.local/share/fonts/fira"
-        cp "$tmpdir/otf/"*.otf "$HOME/.local/share/fonts/fira/"
-        rm -rf "$tmpdir"
-        fc-cache -f
-    fi
-
-    stow -d "$DOTFILES_DIR" -t "$HOME" fontconfig
+    sudo dnf install -y jetbrains-mono-fonts cascadia-mono-fonts rsms-inter-fonts
     echo "Fonts installed"
 }
 
 configure_fonts() {
     echo "Configuring system fonts..."
-    gsettings set org.gnome.desktop.interface font-name 'Fira Sans 10'
-    gsettings set org.gnome.desktop.interface document-font-name 'Fira Sans 10'
-    gsettings set org.gnome.desktop.interface monospace-font-name 'Cascadia Mono 10'
-    gsettings set org.gnome.desktop.wm.preferences titlebar-font 'Fira Sans Bold 10'
+    gsettings set org.gnome.desktop.interface font-name 'Inter 10'
+    gsettings set org.gnome.desktop.interface document-font-name 'Inter 10'
+    gsettings set org.gnome.desktop.interface monospace-font-name 'JetBrains Mono 10'
+    gsettings set org.gnome.desktop.wm.preferences titlebar-font 'Inter Bold 10'
     gsettings set org.gnome.desktop.interface font-antialiasing 'grayscale'
     gsettings set org.gnome.desktop.interface font-hinting 'slight'
     echo "System fonts configured"
@@ -279,6 +267,27 @@ install_intel_vaapi() {
     echo "Intel VA-API driver installed"
 }
 
+# WWAN access point configuration
+configure_wwan_apn() {
+    echo "Configuring WWAN access point..."
+    
+    # Remove all existing GSM connections
+    nmcli -t -f NAME,TYPE connection show | { grep ':gsm$' || true; } | cut -d: -f1 | while read -r conn; do
+        echo "Removing GSM connection: $conn"
+        nmcli connection delete "$conn" || true
+    done
+    
+    # Create Orange Internet connection
+    nmcli connection add type gsm con-name "Orange Internet" \
+        gsm.apn "internet" \
+        gsm.username "internet" \
+        gsm.password "internet" \
+        gsm.home-only yes \
+        connection.autoconnect no
+    
+    echo "WWAN access point configured"
+}
+
 # WWAN unlock for Lenovo ThinkPad (Quectel RM520N-GL)
 install_wwan_unlock() {
     if [[ -d /opt/fcc_lenovo ]]; then
@@ -325,6 +334,7 @@ main() {
     configure_chromium
     install_wwan_unlock
     install_wwan_fix
+    configure_wwan_apn
     install_ghostty
     install_cli_tools
     install_helix
@@ -336,4 +346,4 @@ main() {
     echo "Done. Reboot to activate WWAN."
 }
 
-main
+"${@:-main}"
