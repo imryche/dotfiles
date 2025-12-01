@@ -1,13 +1,13 @@
-window-decoration = false
-window-padding-x = 6
-window-padding-y = 6
-window-padding-color = extend
-gtk-tabs-location = "hidden"
-gtk-wide-tabs = false
-
+window-decoration = none
+gtk-tabs-location = hidden
 mouse-hide-while-typing = true
 
-font-family = Cascadia Code
+window-padding-balance = true
+window-padding-x = 6
+window-padding-y = 6
+
+font-family = JetBrains Mono
+font-style = Medium
 font-size = 9
 
 cursor-style = block
