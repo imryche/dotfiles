@@ -75,6 +75,23 @@ install_gnome_extensions() {
     echo "GNOME extensions installed and configured"
 }
 
+# Gradia screen annotation tool
+install_gradia() {
+    echo "Installing Gradia..."
+    flatpak install -y flathub be.alexandervanhee.gradia
+    echo "Gradia installed"
+}
+
+configure_gradia_shortcut() {
+    echo "Configuring Gradia keyboard shortcut..."
+    local path="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/gradia/"
+    gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "['$path']"
+    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$path name "Gradia Screenshot"
+    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$path command "flatpak run be.alexandervanhee.gradia --screenshot=INTERACTIVE"
+    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$path binding "<Super><Shift>s"
+    echo "Gradia shortcut configured"
+}
+
 # Chromium browser
 install_chromium() {
     if command -v chromium-browser &>/dev/null; then
@@ -331,6 +348,8 @@ main() {
     configure_gnome
     install_uv
     install_gnome_extensions
+    install_gradia
+    configure_gradia_shortcut
     install_chromium
     configure_chromium
     install_wwan_unlock
