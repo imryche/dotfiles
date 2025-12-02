@@ -243,6 +243,13 @@ install_uv() {
     echo "uv installed"
 }
 
+# Python versions via uv
+install_python() {
+    echo "Installing Python versions..."
+    uv python install 3.11 3.12 3.13
+    echo "Python installed (3.11, 3.12, 3.13)"
+}
+
 # Flathub repository
 configure_flathub() {
     if flatpak remotes | grep -q flathub; then
@@ -347,6 +354,7 @@ main() {
     configure_fonts
     configure_gnome
     install_uv
+    install_python
     install_gnome_extensions
     install_gradia
     configure_gradia_shortcut

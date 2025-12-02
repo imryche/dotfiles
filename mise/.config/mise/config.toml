@@ -6,3 +6,6 @@ node = "latest"
 "npm:sql-formatter" = "latest"
 "npm:tailwindcss" = "latest"
 "npm:vscode-langservers-extracted" = "latest"
+
+[settings]
+idiomatic_version_file_enable_tools = []
