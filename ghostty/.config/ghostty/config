@@ -2,13 +2,17 @@ window-decoration = none
 gtk-tabs-location = hidden
 mouse-hide-while-typing = true
 
+window-save-state = always
 window-padding-balance = true
 window-padding-x = 6
 window-padding-y = 6
 
 font-family = JetBrains Mono
-font-style = Medium
-font-size = 9
+font-style = SemiBold
+font-size = 9.5
+
+adjust-cell-width = -1
+adjust-cell-height = -1
 
 cursor-style = block
 cursor-style-blink = false
