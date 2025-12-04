@@ -3,6 +3,12 @@ set -euo pipefail
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Ensure gum is available
+if ! command -v gum &>/dev/null; then
+    echo "Installing gum..."
+    sudo dnf install -y gum
+fi
+
 # Fonts
 install_fonts() {
     echo "Installing fonts..."
@@ -104,6 +110,115 @@ install_chromium() {
     echo "Installing Chromium..."
     sudo dnf install -y chromium
     echo "Chromium installed"
+}
+
+install_gum() {
+    if command -v gum &>/dev/null; then
+        echo "gum already installed, skipping"
+        return
+    fi
+
+    echo "Installing gum..."
+    sudo dnf install -y gum
+    echo "gum installed"
+}
+
+chromium_profile_name() {
+    local chromium_dir="$HOME/.config/chromium"
+    local dir_name="$1"
+    jq -r --arg dir "$dir_name" '.profile.info_cache[$dir].name // $dir' "$chromium_dir/Local State"
+}
+
+chromium_choose_profile() {
+    local header="$1"
+    local chromium_dir="$HOME/.config/chromium"
+    declare -A profile_map
+
+    for dir in "$chromium_dir"/*/; do
+        if [[ -f "$dir/Bookmarks" || -f "$dir/History" ]]; then
+            local dir_name
+            dir_name=$(basename "$dir")
+            local display_name
+            display_name=$(chromium_profile_name "$dir_name")
+            profile_map["$display_name"]="$dir_name"
+        fi
+    done
+
+    if [[ ${#profile_map[@]} -eq 0 ]]; then
+        echo "No Chromium profiles found" >&2
+        return 1
+    fi
+
+    local selection
+    selection=$(printf '%s\n' "${!profile_map[@]}" | gum choose --header "$header")
+    [[ -z "$selection" ]] && return 1
+
+    echo "${profile_map[$selection]}"
+}
+
+backup_chromium() {
+    local chromium_dir="$HOME/.config/chromium"
+
+    local profile_dir_name
+    profile_dir_name=$(chromium_choose_profile "Select Chromium profile:")
+    [[ -z "$profile_dir_name" ]] && return 1
+
+    local profile_dir="$chromium_dir/$profile_dir_name"
+    local profile_name
+    profile_name=$(chromium_profile_name "$profile_dir_name")
+    local default_path="$DOTFILES_DIR/backups/chromium-$profile_name-$(date +%Y%m%d-%H%M%S).tar.gz"
+    local archive
+    archive=$(gum input --placeholder "$default_path" --header "Save backup to:" --value "$default_path")
+    [[ -z "$archive" ]] && return 1
+
+    mkdir -p "$(dirname "$archive")"
+
+    local files=()
+    [[ -f "$profile_dir/Bookmarks" ]] && files+=("Bookmarks")
+    [[ -f "$profile_dir/History" ]] && files+=("History")
+    [[ -f "$profile_dir/Favicons" ]] && files+=("Favicons")
+
+    tar -czf "$archive" -C "$profile_dir" "${files[@]}"
+    echo "Chromium backup created: $archive"
+}
+
+restore_chromium() {
+    local backup_dir="$DOTFILES_DIR/backups"
+    local chromium_dir="$HOME/.config/chromium"
+
+    # Find backups
+    local backups=()
+    for f in "$backup_dir"/chromium-*.tar.gz; do
+        [[ -f "$f" ]] && backups+=("$(basename "$f")")
+    done
+
+    if [[ ${#backups[@]} -eq 0 ]]; then
+        echo "No backups found in $backup_dir"
+        return 1
+    fi
+
+    # Check if Chromium is running
+    if pgrep -x chromium &>/dev/null; then
+        echo "Please close Chromium before restoring"
+        return 1
+    fi
+
+    # Pick backup
+    local backup
+    backup=$(printf '%s\n' "${backups[@]}" | gum choose --header "Select backup to restore:")
+    [[ -z "$backup" ]] && return 1
+
+    # Pick target profile
+    local profile
+    profile=$(chromium_choose_profile "Restore to profile:")
+    [[ -z "$profile" ]] && return 1
+
+    # Confirm
+    gum confirm "Restore $backup to $profile?" || return 1
+
+    # Extract
+    tar -xzf "$backup_dir/$backup" -C "$chromium_dir/$profile"
+    echo "Restored $backup to $profile"
 }
 
 configure_chromium() {
