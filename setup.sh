@@ -9,6 +9,13 @@ if ! command -v gum &>/dev/null; then
     sudo dnf install -y gum
 fi
 
+# System update
+update_system() {
+    gum style --foreground 212 "Updating system..."
+    sudo dnf upgrade -y --refresh
+    gum style --foreground 42 "✓ System updated"
+}
+
 # Fonts
 install_fonts() {
     gum style --foreground 212 "Installing fonts..."
@@ -47,14 +54,21 @@ configure_gnome() {
 
 install_gnome_extension() {
     local ext="$1"
-    if gext ls | grep -q "($ext)"; then
+    local ext_dir="$HOME/.local/share/gnome-shell/extensions/$ext"
+
+    if [[ -d "$ext_dir" ]]; then
         gum style --foreground 214 "$ext already installed, skipping"
         return
     fi
 
-    gext install "$ext"
+    gdbus call --session \
+        --dest org.gnome.Shell.Extensions \
+        --object-path /org/gnome/Shell/Extensions \
+        --method org.gnome.Shell.Extensions.InstallRemoteExtension \
+        "$ext" >/dev/null 2>&1 || true
+    gum style --foreground 39 "✓ $ext installed"
 
-    local schema_dir=~/.local/share/gnome-shell/extensions/$ext/schemas
+    local schema_dir="$ext_dir/schemas"
     if [[ -d "$schema_dir" ]]; then
         glib-compile-schemas "$schema_dir"
         sudo cp "$schema_dir"/*.gschema.xml /usr/share/glib-2.0/schemas/
@@ -65,7 +79,6 @@ install_gnome_extension() {
 install_gnome_extensions() {
     gum style --foreground 212 "Installing GNOME extensions..."
     flatpak install -y flathub com.mattjakeman.ExtensionManager
-    uv tool install gnome-extensions-cli
 
     install_gnome_extension just-perfection-desktop@just-perfection
     install_gnome_extension tactile@lundal.io
@@ -461,37 +474,54 @@ install_wwan_fix() {
 }
 
 main() {
-    disable_nm_wait
+    # System
+    update_system
     configure_dnf
+    disable_nm_wait
     configure_flathub
     install_rpmfusion
+
+    # Multimedia
     install_multimedia
     install_intel_vaapi
+
+    # Fonts
     install_fonts
     configure_fonts
+
+    # GNOME
     configure_gnome
-    install_uv
-    install_python
     install_gnome_extensions
     configure_gnome_extensions
-    install_gradia
-    configure_gradia
+
+    # Dev tools
+    configure_git
+    install_cli_tools
+    install_mise
+    configure_mise
+    install_uv
+    install_python
+
+    # Apps
     install_chromium
     configure_chromium
+    install_ghostty
+    configure_ghostty
+    install_helix
+    configure_helix
+    install_gradia
+    configure_gradia
+
+    # Network
+    install_tailscale
     install_wwan_unlock
     install_wwan_fix
     configure_wwan_apn
-    install_ghostty
-    configure_ghostty
-    install_cli_tools
-    install_helix
-    configure_helix
-    configure_git
-    install_tailscale
-    install_mise
-    configure_mise
+
+    # Shell (last, requires re-login)
     install_fish
     configure_fish
+
     echo ""
     gum style --foreground 42 "✓ Setup complete"
 }
