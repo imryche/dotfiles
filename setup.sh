@@ -363,6 +363,23 @@ configure_dnf() {
     gum style --foreground 42 "✓ DNF configured"
 }
 
+# SQLite database
+install_sqlite() {
+    if command -v sqlite3 &>/dev/null; then
+        gum style --foreground 214 "SQLite already installed, skipping"
+        return
+    fi
+
+    gum style --foreground 212 "Installing SQLite..."
+    sudo dnf install -y sqlite
+    gum style --foreground 42 "✓ SQLite installed"
+}
+
+configure_sqlite() {
+    stow -d "$DOTFILES_DIR" -t "$HOME" sqlite
+    gum style --foreground 42 "✓ SQLite configured"
+}
+
 # uv package manager
 install_uv() {
     if command -v uv &>/dev/null; then
@@ -501,6 +518,8 @@ main() {
     configure_mise
     install_uv
     install_python
+    install_sqlite
+    configure_sqlite
 
     # Apps
     install_chromium
