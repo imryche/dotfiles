@@ -11,24 +11,21 @@ fi
 
 # Fonts
 install_fonts() {
-    echo "Installing fonts..."
-    sudo dnf install -y jetbrains-mono-fonts cascadia-mono-fonts rsms-inter-fonts
-    echo "Fonts installed"
+    gum spin --title "Installing fonts..." --show-output -- sudo dnf install -y jetbrains-mono-fonts cascadia-mono-fonts rsms-inter-fonts
+    gum style --foreground 42 "✓ Fonts installed"
 }
 
 configure_fonts() {
-    echo "Configuring system fonts..."
     gsettings set org.gnome.desktop.interface font-name 'Inter 10'
     gsettings set org.gnome.desktop.interface document-font-name 'Inter 10'
     gsettings set org.gnome.desktop.interface monospace-font-name 'JetBrains Mono 10'
     gsettings set org.gnome.desktop.wm.preferences titlebar-font 'Inter Bold 10'
     gsettings set org.gnome.desktop.interface font-antialiasing 'grayscale'
     gsettings set org.gnome.desktop.interface font-hinting 'slight'
-    echo "System fonts configured"
+    gum style --foreground 42 "✓ System fonts configured"
 }
 
 configure_gnome() {
-    echo "Configuring GNOME..."
     gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:'
     gsettings set org.gnome.desktop.wm.keybindings close "['<Super>q']"
     gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-1 "['<Alt>1']"
@@ -44,7 +41,7 @@ configure_gnome() {
     gsettings set org.gnome.desktop.interface enable-hot-corners false
     gsettings set org.gnome.mutter dynamic-workspaces false
     gsettings set org.gnome.desktop.wm.preferences num-workspaces 4
-    echo "GNOME configured"
+    gum style --foreground 42 "✓ GNOME configured"
 }
 
 install_gnome_extensions() {
@@ -110,17 +107,6 @@ install_chromium() {
     echo "Installing Chromium..."
     sudo dnf install -y chromium
     echo "Chromium installed"
-}
-
-install_gum() {
-    if command -v gum &>/dev/null; then
-        echo "gum already installed, skipping"
-        return
-    fi
-
-    echo "Installing gum..."
-    sudo dnf install -y gum
-    echo "gum installed"
 }
 
 chromium_profile_name() {
@@ -248,11 +234,11 @@ install_ghostty() {
     stow -d "$DOTFILES_DIR" -t "$HOME" ghostty
 }
 
-# CLI tools (zoxide, ripgrep, fzf)
+# CLI tools (zoxide, ripgrep, fzf, gh)
 install_cli_tools() {
-    echo "Installing CLI tools..."
-    sudo dnf install -y zoxide ripgrep fzf
-    echo "CLI tools installed"
+    gum style --foreground 212 "Installing CLI tools..."
+    sudo dnf install -y zoxide ripgrep fzf gh
+    gum style --foreground 42 "✓ CLI tools installed"
 }
 
 # Helix text editor
@@ -488,7 +474,7 @@ main() {
     install_mise
     install_fish
     echo ""
-    echo "Done. Reboot to activate WWAN."
+    gum style --foreground 42 "✓ Setup complete"
 }
 
 "${@:-main}"
