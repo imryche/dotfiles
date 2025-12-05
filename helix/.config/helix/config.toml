@@ -30,33 +30,10 @@ display-color-swatches = false
 
 "ret" = ":write"
 
-# "C-g" = [
-#   ":write-all",
-#   ":insert-output printf '\\x1b[>u' >/dev/tty",
-#   ":insert-output lazygit >/dev/tty",
-#   ":insert-output printf '\\x1b[<u\\x1b[?1049l\\x1b[?25h\\x1b[?1049h' >/dev/tty",
-#   ":redraw",
-#   ":reload-all",
-# ]
-
 [keys.normal.space]
 q = ":quit"
 l = ":reload-all"
 t = ":open ~/todo.txt"
-
-# e = [
-#   ":sh rm -f /tmp/unique-file-h21a434",
-#   # 1) Plain keys for Yazi
-#   ":insert-output printf '\\x1b[>u' >/dev/tty",
-#   # 2) Yazi chooser on the same TTY
-#   ":insert-output yazi '%{buffer_name}' --chooser-file=/tmp/unique-file-h21a434 >/dev/tty",
-#   # 3) One-shot cleanup: pop keys, ensure main screen, show cursor, then
-#   #    re-enter alt screen so Helix repaints cleanly on :redraw
-#   ":insert-output printf '\\x1b[<u\\x1b[?1049l\\x1b[?25h\\x1b[?1049h' >/dev/tty",
-#   ":open %sh{cat /tmp/unique-file-h21a434}",
-#   ":redraw",
-# ]
-
 
 [keys.insert]
 "C-[" = "normal_mode"
