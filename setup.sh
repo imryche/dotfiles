@@ -191,7 +191,7 @@ configure_git() {
 # CLI tools (zoxide, ripgrep, fzf, gh)
 install_cli_tools() {
     gum style --foreground 212 "Installing CLI tools..."
-    sudo dnf install -y zoxide ripgrep fzf gh
+    sudo dnf install -y zoxide ripgrep fzf gh htop btop nvtop
     gum style --foreground 42 "✓ CLI tools installed"
 }
 
