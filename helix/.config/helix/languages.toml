@@ -1,15 +1,18 @@
 [[language]]
 name = "python"
-language-servers = ["ruff", "pyrefly"]
+language-servers = ["ruff", { name = "ty", except-features = ["diagnostics"] }]
 formatter = { command = "sh", args = [
   "-c",
   "ruff check --fix-only - | ruff format -",
 ] }
 auto-format = true
 
-[language-server.pyrefly]
-command = "pyrefly"
-args = ["lsp"]
+[language-server.ty]
+command = "ty"
+args = ["server"]
+
+[language-server.ty.config]
+experimental = { rename = true, autoImport = true }
 
 [language-server.tailwindcss-ls]
 command = "tailwindcss-language-server"
@@ -23,7 +26,7 @@ auto-format = true
 
 [[language]]
 name = "toml"
-formatter = { command = "taplo", args = ["format", "-"] }
+formatter = { command = "taplo", args = ["fmt", "-"] }
 auto-format = true
 
 [[language]]
@@ -34,4 +37,9 @@ auto-format = false
 [[language]]
 name = "sql"
 formatter = { command = "sql-formatter" }
+auto-format = true
+
+[[language]]
+name = "bash"
+formatter = { command = "shfmt", args = ["-i", "4"] }
 auto-format = true
