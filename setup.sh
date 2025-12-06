@@ -16,6 +16,79 @@ update_system() {
     gum style --foreground 42 "✓ System updated"
 }
 
+# Faster DNF downloads
+configure_dnf() {
+    if grep -q "max_parallel_downloads" /etc/dnf/dnf.conf; then
+        gum style --foreground 214 "DNF already configured, skipping"
+        return
+    fi
+
+    gum style --foreground 212 "Configuring DNF for faster downloads..."
+    echo -e "max_parallel_downloads=10\nfastestmirror=True" | sudo tee -a /etc/dnf/dnf.conf
+    gum style --foreground 42 "✓ DNF configured"
+}
+
+# Disable NetworkManager-wait-online (faster boot)
+disable_nm_wait() {
+    if ! systemctl is-enabled NetworkManager-wait-online.service &>/dev/null; then
+        gum style --foreground 214 "NetworkManager-wait-online already disabled, skipping"
+        return
+    fi
+
+    gum style --foreground 212 "Disabling NetworkManager-wait-online..."
+    sudo systemctl disable NetworkManager-wait-online.service
+    gum style --foreground 42 "✓ NetworkManager-wait-online disabled"
+}
+
+# Flathub repository
+configure_flathub() {
+    if flatpak remotes | grep -q flathub; then
+        gum style --foreground 214 "Flathub already configured, skipping"
+        return
+    fi
+
+    gum style --foreground 212 "Adding Flathub repository..."
+    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+    gum style --foreground 42 "✓ Flathub configured"
+}
+
+# RPM Fusion repositories (free + nonfree)
+install_rpmfusion() {
+    if dnf repolist | grep -q rpmfusion; then
+        gum style --foreground 214 "RPM Fusion already enabled, skipping"
+        return
+    fi
+
+    gum style --foreground 212 "Enabling RPM Fusion repositories..."
+    sudo dnf install -y \
+        https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
+        https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+    sudo dnf group upgrade -y core
+    gum style --foreground 42 "✓ RPM Fusion enabled"
+}
+
+# Full multimedia support (FFmpeg, GStreamer, codecs)
+install_multimedia() {
+    gum style --foreground 212 "Installing multimedia packages..."
+    sudo dnf swap -y ffmpeg-free ffmpeg --allowerasing
+    sudo dnf group install -y multimedia
+    gum style --foreground 42 "✓ Multimedia packages installed"
+}
+
+# Intel hardware video acceleration (VA-API)
+install_intel_vaapi() {
+    gum style --foreground 212 "Installing Intel media driver..."
+    sudo dnf install -y intel-media-driver libva-utils
+    gum style --foreground 42 "✓ Intel VA-API driver installed"
+}
+
+# Intel compute runtime (OpenCL, Level Zero)
+install_intel_compute() {
+    gum style --foreground 212 "Installing Intel compute runtime..."
+    sudo dnf install -y intel-compute-runtime intel-level-zero intel-igc intel-ocloc
+    gum style --foreground 42 "✓ Intel compute runtime installed"
+}
+
 # Fonts
 install_fonts() {
     gum style --foreground 212 "Installing fonts..."
@@ -33,6 +106,7 @@ configure_fonts() {
     gum style --foreground 42 "✓ System fonts configured"
 }
 
+# GNOME
 configure_gnome() {
     gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:'
     gsettings set org.gnome.desktop.wm.keybindings close "['<Super>q']"
@@ -103,42 +177,106 @@ configure_gnome_extensions() {
     gum style --foreground 42 "✓ GNOME extensions configured"
 }
 
-# Gradia screen annotation tool
-install_gradia() {
-    gum style --foreground 212 "Installing Gradia..."
-    flatpak install -y flathub be.alexandervanhee.gradia
-    gum style --foreground 42 "✓ Gradia installed"
-}
-
-configure_gradia() {
-    local path="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/gradia/"
-    gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "['$path']"
-    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$path name "Gradia Screenshot"
-    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$path command "flatpak run be.alexandervanhee.gradia --screenshot=INTERACTIVE"
-    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$path binding "<Super><Shift>s"
-    gum style --foreground 42 "✓ Gradia configured"
-}
-
-# Chromium browser
-install_chromium() {
-    if command -v chromium-browser &>/dev/null; then
-        gum style --foreground 214 "Chromium already installed, skipping"
+# Git
+configure_git() {
+    if [[ -e "$HOME/.gitconfig" ]]; then
+        gum style --foreground 214 "Git already configured, skipping"
         return
     fi
 
-    gum style --foreground 212 "Installing Chromium..."
-    sudo dnf install -y chromium
-    gum style --foreground 42 "✓ Chromium installed"
+    stow -d "$DOTFILES_DIR" -t "$HOME" gitconfig
+    gum style --foreground 42 "✓ Git configured"
 }
 
-configure_chromium() {
-    local target="$HOME/.local/share/applications/chromium-browser.desktop"
-    mkdir -p "$HOME/.local/share/applications"
-    sed 's|Exec=\(.*chromium-browser\)|Exec=\1 --enable-features=TouchpadOverscrollHistoryNavigation|' \
-        /usr/share/applications/chromium-browser.desktop >"$target"
-    gum style --foreground 42 "✓ Chromium configured"
+# CLI tools (zoxide, ripgrep, fzf, gh)
+install_cli_tools() {
+    gum style --foreground 212 "Installing CLI tools..."
+    sudo dnf install -y zoxide ripgrep fzf gh
+    gum style --foreground 42 "✓ CLI tools installed"
 }
 
+# mise runtime manager
+install_mise() {
+    if command -v mise &>/dev/null; then
+        gum style --foreground 214 "mise already installed, skipping"
+        return
+    fi
+
+    gum style --foreground 212 "Installing mise..."
+    sudo dnf copr enable -y jdxcode/mise
+    sudo dnf install -y mise
+    gum style --foreground 42 "✓ mise installed"
+}
+
+configure_mise() {
+    stow -d "$DOTFILES_DIR" -t "$HOME" mise
+    mise install
+    gum style --foreground 42 "✓ mise configured"
+}
+
+# direnv
+install_direnv() {
+    if command -v direnv &>/dev/null; then
+        gum style --foreground 214 "direnv already installed, skipping"
+        return
+    fi
+
+    gum style --foreground 212 "Installing direnv..."
+    sudo dnf install -y direnv
+    gum style --foreground 42 "✓ direnv installed"
+}
+
+configure_direnv() {
+    stow -d "$DOTFILES_DIR" -t "$HOME" direnv
+    gum style --foreground 42 "✓ direnv configured"
+}
+
+# uv package manager
+install_uv() {
+    if command -v uv &>/dev/null; then
+        gum style --foreground 214 "uv already installed, skipping"
+        return
+    fi
+
+    gum style --foreground 212 "Installing uv..."
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    gum style --foreground 42 "✓ uv installed"
+}
+
+# Python versions via uv
+install_python() {
+    gum style --foreground 212 "Installing Python versions..."
+    uv python install 3.11 3.12 3.13
+    gum style --foreground 42 "✓ Python installed (3.11, 3.12, 3.13)"
+}
+
+# Dev tools via uv
+install_dev_tools() {
+    gum style --foreground 212 "Installing dev tools..."
+    uv tool install ruff@latest
+    uv tool install ty@latest
+    uv tool install taplo@latest
+    gum style --foreground 42 "✓ Dev tools installed (ruff, ty, taplo)"
+}
+
+# SQLite database
+install_sqlite() {
+    if command -v sqlite3 &>/dev/null; then
+        gum style --foreground 214 "SQLite already installed, skipping"
+        return
+    fi
+
+    gum style --foreground 212 "Installing SQLite..."
+    sudo dnf install -y sqlite
+    gum style --foreground 42 "✓ SQLite installed"
+}
+
+configure_sqlite() {
+    stow -d "$DOTFILES_DIR" -t "$HOME" sqlite
+    gum style --foreground 42 "✓ SQLite configured"
+}
+
+# Chromium browser
 chromium_profile_name() {
     local chromium_dir="$HOME/.config/chromium"
     local dir_name="$1"
@@ -170,6 +308,25 @@ chromium_choose_profile() {
     [[ -z "$selection" ]] && return 1
 
     echo "${profile_map[$selection]}"
+}
+
+install_chromium() {
+    if command -v chromium-browser &>/dev/null; then
+        gum style --foreground 214 "Chromium already installed, skipping"
+        return
+    fi
+
+    gum style --foreground 212 "Installing Chromium..."
+    sudo dnf install -y chromium
+    gum style --foreground 42 "✓ Chromium installed"
+}
+
+configure_chromium() {
+    local target="$HOME/.local/share/applications/chromium-browser.desktop"
+    mkdir -p "$HOME/.local/share/applications"
+    sed 's|Exec=\(.*chromium-browser\)|Exec=\1 --enable-features=TouchpadOverscrollHistoryNavigation|' \
+        /usr/share/applications/chromium-browser.desktop >"$target"
+    gum style --foreground 42 "✓ Chromium configured"
 }
 
 backup_chromium() {
@@ -246,13 +403,6 @@ configure_ghostty() {
     gum style --foreground 42 "✓ Ghostty configured"
 }
 
-# CLI tools (zoxide, ripgrep, fzf, gh)
-install_cli_tools() {
-    gum style --foreground 212 "Installing CLI tools..."
-    sudo dnf install -y zoxide ripgrep fzf gh
-    gum style --foreground 42 "✓ CLI tools installed"
-}
-
 # Helix text editor
 install_helix() {
     if command -v hx &>/dev/null; then
@@ -270,15 +420,20 @@ configure_helix() {
     gum style --foreground 42 "✓ Helix configured"
 }
 
-# Git
-configure_git() {
-    if [[ -e "$HOME/.gitconfig" ]]; then
-        gum style --foreground 214 "Git already configured, skipping"
-        return
-    fi
+# Gradia screen annotation tool
+install_gradia() {
+    gum style --foreground 212 "Installing Gradia..."
+    flatpak install -y flathub be.alexandervanhee.gradia
+    gum style --foreground 42 "✓ Gradia installed"
+}
 
-    stow -d "$DOTFILES_DIR" -t "$HOME" gitconfig
-    gum style --foreground 42 "✓ Git configured"
+configure_gradia() {
+    local path="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/gradia/"
+    gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "['$path']"
+    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$path name "Gradia Screenshot"
+    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$path command "flatpak run be.alexandervanhee.gradia --screenshot=INTERACTIVE"
+    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$path binding "<Super><Shift>s"
+    gum style --foreground 42 "✓ Gradia configured"
 }
 
 # Tailscale VPN
@@ -293,180 +448,6 @@ install_tailscale() {
     sudo dnf install -y tailscale
     sudo systemctl enable --now tailscaled
     gum style --foreground 42 "✓ Tailscale installed (run 'sudo tailscale up' to authenticate)"
-}
-
-# mise runtime manager
-install_mise() {
-    if command -v mise &>/dev/null; then
-        gum style --foreground 214 "mise already installed, skipping"
-        return
-    fi
-
-    gum style --foreground 212 "Installing mise..."
-    sudo dnf copr enable -y jdxcode/mise
-    sudo dnf install -y mise
-    gum style --foreground 42 "✓ mise installed"
-}
-
-configure_mise() {
-    stow -d "$DOTFILES_DIR" -t "$HOME" mise
-    mise install
-    gum style --foreground 42 "✓ mise configured"
-}
-
-# Fish shell
-install_fish() {
-    if command -v fish &>/dev/null; then
-        gum style --foreground 214 "Fish already installed, skipping"
-        return
-    fi
-
-    gum style --foreground 212 "Installing Fish..."
-    sudo dnf install -y fish
-    gum style --foreground 42 "✓ Fish installed"
-}
-
-configure_fish() {
-    stow -d "$DOTFILES_DIR" -t "$HOME" fish
-
-    if [[ "$SHELL" == *"fish"* ]]; then
-        gum style --foreground 42 "✓ Fish configured"
-        return
-    fi
-
-    gum style --foreground 212 "Setting Fish as default shell..."
-    sudo chsh -s "$(which fish)" "$USER"
-    gum style --foreground 42 "✓ Fish configured (re-login to activate)"
-}
-
-# Disable NetworkManager-wait-online (faster boot)
-disable_nm_wait() {
-    if ! systemctl is-enabled NetworkManager-wait-online.service &>/dev/null; then
-        gum style --foreground 214 "NetworkManager-wait-online already disabled, skipping"
-        return
-    fi
-
-    gum style --foreground 212 "Disabling NetworkManager-wait-online..."
-    sudo systemctl disable NetworkManager-wait-online.service
-    gum style --foreground 42 "✓ NetworkManager-wait-online disabled"
-}
-
-# Faster DNF downloads
-configure_dnf() {
-    if grep -q "max_parallel_downloads" /etc/dnf/dnf.conf; then
-        gum style --foreground 214 "DNF already configured, skipping"
-        return
-    fi
-
-    gum style --foreground 212 "Configuring DNF for faster downloads..."
-    echo -e "max_parallel_downloads=10\nfastestmirror=True" | sudo tee -a /etc/dnf/dnf.conf
-    gum style --foreground 42 "✓ DNF configured"
-}
-
-# SQLite database
-install_sqlite() {
-    if command -v sqlite3 &>/dev/null; then
-        gum style --foreground 214 "SQLite already installed, skipping"
-        return
-    fi
-
-    gum style --foreground 212 "Installing SQLite..."
-    sudo dnf install -y sqlite
-    gum style --foreground 42 "✓ SQLite installed"
-}
-
-configure_sqlite() {
-    stow -d "$DOTFILES_DIR" -t "$HOME" sqlite
-    gum style --foreground 42 "✓ SQLite configured"
-}
-
-# uv package manager
-install_uv() {
-    if command -v uv &>/dev/null; then
-        gum style --foreground 214 "uv already installed, skipping"
-        return
-    fi
-
-    gum style --foreground 212 "Installing uv..."
-    curl -LsSf https://astral.sh/uv/install.sh | sh
-    gum style --foreground 42 "✓ uv installed"
-}
-
-# Python versions via uv
-install_python() {
-    gum style --foreground 212 "Installing Python versions..."
-    uv python install 3.11 3.12 3.13
-    gum style --foreground 42 "✓ Python installed (3.11, 3.12, 3.13)"
-}
-
-# Dev tools via uv
-install_dev_tools() {
-    gum style --foreground 212 "Installing dev tools..."
-    uv tool install ruff@latest
-    uv tool install ty@latest
-    uv tool install taplo@latest
-    gum style --foreground 42 "✓ Dev tools installed (ruff, ty, taplo)"
-}
-
-# Flathub repository
-configure_flathub() {
-    if flatpak remotes | grep -q flathub; then
-        gum style --foreground 214 "Flathub already configured, skipping"
-        return
-    fi
-
-    gum style --foreground 212 "Adding Flathub repository..."
-    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-    gum style --foreground 42 "✓ Flathub configured"
-}
-
-# RPM Fusion repositories (free + nonfree)
-install_rpmfusion() {
-    if dnf repolist | grep -q rpmfusion; then
-        gum style --foreground 214 "RPM Fusion already enabled, skipping"
-        return
-    fi
-
-    gum style --foreground 212 "Enabling RPM Fusion repositories..."
-    sudo dnf install -y \
-        https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
-        https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
-    sudo dnf group upgrade -y core
-    gum style --foreground 42 "✓ RPM Fusion enabled"
-}
-
-# Full multimedia support (FFmpeg, GStreamer, codecs)
-install_multimedia() {
-    gum style --foreground 212 "Installing multimedia packages..."
-    sudo dnf swap -y ffmpeg-free ffmpeg --allowerasing
-    sudo dnf group install -y multimedia
-    gum style --foreground 42 "✓ Multimedia packages installed"
-}
-
-# Intel hardware video acceleration (VA-API)
-install_intel_vaapi() {
-    gum style --foreground 212 "Installing Intel media driver..."
-    sudo dnf install -y intel-media-driver libva-utils
-    gum style --foreground 42 "✓ Intel VA-API driver installed"
-}
-
-# WWAN access point configuration
-configure_wwan_apn() {
-    gum style --foreground 212 "Configuring WWAN access point..."
-
-    nmcli -t -f NAME,TYPE connection show | { grep ':gsm$' || true; } | cut -d: -f1 | while read -r conn; do
-        gum style --foreground 214 "Removing GSM connection: $conn"
-        nmcli connection delete "$conn" || true
-    done
-
-    nmcli connection add type gsm con-name "Orange Internet" \
-        gsm.apn "internet" \
-        gsm.username "internet" \
-        gsm.password "internet" \
-        gsm.home-only yes \
-        connection.autoconnect no
-
-    gum style --foreground 42 "✓ WWAN access point configured"
 }
 
 # WWAN unlock for Lenovo ThinkPad (Quectel RM520N-GL)
@@ -499,6 +480,61 @@ install_wwan_fix() {
     gum style --foreground 42 "✓ WWAN fix installed"
 }
 
+# WWAN access point configuration
+configure_wwan_apn() {
+    if nmcli -t -f NAME connection show | grep -q "^Orange Internet$"; then
+        gum style --foreground 214 "WWAN access point already configured, skipping"
+        return
+    fi
+
+    gum style --foreground 212 "Configuring WWAN access point..."
+
+    nmcli -t -f NAME,TYPE connection show | { grep ':gsm$' || true; } | cut -d: -f1 | while read -r conn; do
+        gum style --foreground 214 "Removing GSM connection: $conn"
+        nmcli connection delete "$conn" || true
+    done
+
+    nmcli connection add type gsm con-name "Orange Internet" \
+        gsm.apn "internet" \
+        gsm.username "internet" \
+        gsm.password "internet" \
+        gsm.home-only yes \
+        connection.autoconnect no
+
+    gum style --foreground 42 "✓ WWAN access point configured"
+}
+
+# Fish shell
+install_fish() {
+    if command -v fish &>/dev/null; then
+        gum style --foreground 214 "Fish already installed, skipping"
+        return
+    fi
+
+    gum style --foreground 212 "Installing Fish..."
+    sudo dnf install -y fish
+    gum style --foreground 42 "✓ Fish installed"
+}
+
+configure_fish() {
+    stow -d "$DOTFILES_DIR" -t "$HOME" fish
+
+    if [[ "$SHELL" == *"fish"* ]]; then
+        gum style --foreground 42 "✓ Fish configured"
+        return
+    fi
+
+    gum style --foreground 212 "Setting Fish as default shell..."
+    sudo chsh -s "$(which fish)" "$USER"
+    gum style --foreground 42 "✓ Fish configured (re-login to activate)"
+}
+
+# Project directories
+create_project_dirs() {
+    mkdir -p "$HOME/proj" "$HOME/fun"
+    gum style --foreground 42 "✓ Project directories created"
+}
+
 main() {
     # System
     update_system
@@ -510,6 +546,7 @@ main() {
     # Multimedia
     install_multimedia
     install_intel_vaapi
+    install_intel_compute
 
     # Fonts
     install_fonts
@@ -525,6 +562,8 @@ main() {
     install_cli_tools
     install_mise
     configure_mise
+    install_direnv
+    configure_direnv
     install_uv
     install_python
     install_dev_tools
@@ -550,6 +589,9 @@ main() {
     # Shell (last, requires re-login)
     install_fish
     configure_fish
+
+    # Directories
+    create_project_dirs
 
     echo ""
     gum style --foreground 42 "✓ Setup complete"

@@ -22,11 +22,11 @@ set -gx PATH $PATH $GOPATH/bin
 set -gx FZF_DEFAULT_OPTS '--layout=reverse --border'
 fzf --fish | source
 
-# zoxide
 zoxide init fish | source
 
-# mise
 mise activate fish | source
+
+direnv hook fish | source
 
 alias todo="hx ~/todo.txt"
 
