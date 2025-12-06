@@ -3,9 +3,13 @@ go = "latest"
 node = "latest"
 "npm:@tailwindcss/cli" = "latest"
 "npm:@tailwindcss/language-server" = "latest"
+"npm:@fsouza/prettierd" = "latest"
+"npm:bash-language-server" = "latest"
 "npm:sql-formatter" = "latest"
 "npm:tailwindcss" = "latest"
 "npm:vscode-langservers-extracted" = "latest"
+"go:mvdan.cc/sh/v3/cmd/shfmt" = "latest"
 
 [settings]
+experimental = true
 idiomatic_version_file_enable_tools = []
