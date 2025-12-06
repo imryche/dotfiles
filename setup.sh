@@ -135,7 +135,7 @@ configure_chromium() {
     local target="$HOME/.local/share/applications/chromium-browser.desktop"
     mkdir -p "$HOME/.local/share/applications"
     sed 's|Exec=\(.*chromium-browser\)|Exec=\1 --enable-features=TouchpadOverscrollHistoryNavigation|' \
-        /usr/share/applications/chromium-browser.desktop > "$target"
+        /usr/share/applications/chromium-browser.desktop >"$target"
     gum style --foreground 42 "✓ Chromium configured"
 }
 
@@ -399,6 +399,15 @@ install_python() {
     gum style --foreground 42 "✓ Python installed (3.11, 3.12, 3.13)"
 }
 
+# Dev tools via uv
+install_dev_tools() {
+    gum style --foreground 212 "Installing dev tools..."
+    uv tool install ruff@latest
+    uv tool install ty@latest
+    uv tool install taplo@latest
+    gum style --foreground 42 "✓ Dev tools installed (ruff, ty, taplo)"
+}
+
 # Flathub repository
 configure_flathub() {
     if flatpak remotes | grep -q flathub; then
@@ -444,19 +453,19 @@ install_intel_vaapi() {
 # WWAN access point configuration
 configure_wwan_apn() {
     gum style --foreground 212 "Configuring WWAN access point..."
-    
+
     nmcli -t -f NAME,TYPE connection show | { grep ':gsm$' || true; } | cut -d: -f1 | while read -r conn; do
         gum style --foreground 214 "Removing GSM connection: $conn"
         nmcli connection delete "$conn" || true
     done
-    
+
     nmcli connection add type gsm con-name "Orange Internet" \
         gsm.apn "internet" \
         gsm.username "internet" \
         gsm.password "internet" \
         gsm.home-only yes \
         connection.autoconnect no
-    
+
     gum style --foreground 42 "✓ WWAN access point configured"
 }
 
@@ -478,7 +487,7 @@ install_wwan_unlock() {
 # WWAN dispatcher fix for MBIM over MHI
 install_wwan_fix() {
     local target="/etc/NetworkManager/dispatcher.d/99-wwan-fix"
-    
+
     if [[ -e "$target" ]]; then
         gum style --foreground 214 "WWAN fix already installed, skipping"
         return
@@ -518,6 +527,7 @@ main() {
     configure_mise
     install_uv
     install_python
+    install_dev_tools
     install_sqlite
     configure_sqlite
 
