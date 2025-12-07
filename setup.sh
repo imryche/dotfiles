@@ -9,105 +9,113 @@ if ! command -v gum &>/dev/null; then
     sudo dnf install -y gum
 fi
 
+# Helper: install flatpak app
+install_flatpak() {
+    local app_id="$1"
+    local name="$2"
+    gum style --foreground 33 "Installing $name..."
+    flatpak install -y flathub "$app_id"
+}
+
+# Helper: install dnf package
+install_dnf() {
+    local pkg="$1"
+    gum style --foreground 33 "Installing $pkg..."
+    sudo dnf install -y "$pkg"
+}
+
+# Helper: install multiple dnf packages
+install_dnf_packages() {
+    sudo dnf install -y "$@"
+}
+
+# Helper: install uv tools
+install_uv_tools() {
+    for tool in "$@"; do
+        uv tool install "$tool@latest"
+    done
+}
+
+# Helper: stow dotfiles
+stow_dotfiles() {
+    local pkg="$1"
+    gum style --foreground 33 "Configuring $pkg..."
+    stow -d "$DOTFILES_DIR" -t "$HOME" --adopt "$pkg"
+    git -C "$DOTFILES_DIR" checkout -- "$pkg"
+}
+
 # System update
 update_system() {
-    gum style --foreground 212 "Updating system..."
+    gum style --foreground 33 "Updating system..."
     sudo dnf upgrade -y --refresh
-    gum style --foreground 42 "✓ System updated"
 }
 
 # Faster DNF downloads
 configure_dnf() {
-    if grep -q "max_parallel_downloads" /etc/dnf/dnf.conf; then
-        gum style --foreground 214 "DNF already configured, skipping"
-        return
-    fi
-
-    gum style --foreground 212 "Configuring DNF for faster downloads..."
+    grep -q "max_parallel_downloads" /etc/dnf/dnf.conf && return
+    gum style --foreground 33 "Configuring DNF for faster downloads..."
     echo -e "max_parallel_downloads=10\nfastestmirror=True" | sudo tee -a /etc/dnf/dnf.conf
-    gum style --foreground 42 "✓ DNF configured"
 }
 
 # Disable NetworkManager-wait-online (faster boot)
 disable_nm_wait() {
-    if ! systemctl is-enabled NetworkManager-wait-online.service &>/dev/null; then
-        gum style --foreground 214 "NetworkManager-wait-online already disabled, skipping"
-        return
-    fi
-
-    gum style --foreground 212 "Disabling NetworkManager-wait-online..."
-    sudo systemctl disable NetworkManager-wait-online.service
-    gum style --foreground 42 "✓ NetworkManager-wait-online disabled"
+    gum style --foreground 33 "Disabling NetworkManager-wait-online..."
+    sudo systemctl disable NetworkManager-wait-online.service 2>/dev/null || true
 }
 
 # Flathub repository
 configure_flathub() {
-    if flatpak remotes | grep -q flathub; then
-        gum style --foreground 214 "Flathub already configured, skipping"
-        return
-    fi
-
-    gum style --foreground 212 "Adding Flathub repository..."
+    gum style --foreground 33 "Adding Flathub repository..."
     flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-    gum style --foreground 42 "✓ Flathub configured"
 }
 
 # RPM Fusion repositories (free + nonfree)
 install_rpmfusion() {
-    if dnf repolist | grep -q rpmfusion; then
-        gum style --foreground 214 "RPM Fusion already enabled, skipping"
-        return
-    fi
-
-    gum style --foreground 212 "Enabling RPM Fusion repositories..."
+    gum style --foreground 33 "Enabling RPM Fusion repositories..."
     sudo dnf install -y \
         https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
         https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
     sudo dnf group upgrade -y core
-    gum style --foreground 42 "✓ RPM Fusion enabled"
 }
 
 # Full multimedia support (FFmpeg, GStreamer, codecs)
 install_multimedia() {
-    gum style --foreground 212 "Installing multimedia packages..."
+    gum style --foreground 33 "Installing multimedia packages..."
     sudo dnf swap -y ffmpeg-free ffmpeg --allowerasing
     sudo dnf group install -y multimedia
-    gum style --foreground 42 "✓ Multimedia packages installed"
 }
 
 # Intel hardware video acceleration (VA-API)
 install_intel_vaapi() {
-    gum style --foreground 212 "Installing Intel media driver..."
-    sudo dnf install -y intel-media-driver libva-utils
-    gum style --foreground 42 "✓ Intel VA-API driver installed"
+    gum style --foreground 33 "Installing Intel media driver..."
+    install_dnf_packages intel-media-driver libva-utils
 }
 
 # Intel compute runtime (OpenCL, Level Zero)
 install_intel_compute() {
-    gum style --foreground 212 "Installing Intel compute runtime..."
-    sudo dnf install -y intel-compute-runtime intel-level-zero intel-igc intel-ocloc
-    gum style --foreground 42 "✓ Intel compute runtime installed"
+    gum style --foreground 33 "Installing Intel compute runtime..."
+    install_dnf_packages intel-compute-runtime intel-level-zero intel-igc intel-ocloc
 }
 
 # Fonts
 install_fonts() {
-    gum style --foreground 212 "Installing fonts..."
-    sudo dnf install -y jetbrains-mono-fonts cascadia-mono-fonts rsms-inter-fonts
-    gum style --foreground 42 "✓ Fonts installed"
+    gum style --foreground 33 "Installing fonts..."
+    install_dnf_packages jetbrains-mono-fonts cascadia-mono-fonts rsms-inter-fonts
 }
 
 configure_fonts() {
+    gum style --foreground 33 "Configuring fonts..."
     gsettings set org.gnome.desktop.interface font-name 'Inter 10'
     gsettings set org.gnome.desktop.interface document-font-name 'Inter 10'
     gsettings set org.gnome.desktop.interface monospace-font-name 'JetBrains Mono 10'
     gsettings set org.gnome.desktop.wm.preferences titlebar-font 'Inter Bold 10'
     gsettings set org.gnome.desktop.interface font-antialiasing 'grayscale'
     gsettings set org.gnome.desktop.interface font-hinting 'slight'
-    gum style --foreground 42 "✓ System fonts configured"
 }
 
 # GNOME
 configure_gnome() {
+    gum style --foreground 33 "Configuring GNOME..."
     gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:'
     gsettings set org.gnome.desktop.wm.keybindings close "['<Super>q']"
     gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-1 "['<Alt>1']"
@@ -124,24 +132,19 @@ configure_gnome() {
     gsettings set org.gnome.mutter dynamic-workspaces false
     gsettings set org.gnome.desktop.wm.preferences num-workspaces 4
     gsettings set org.gnome.GWeather4 temperature-unit 'centigrade'
-    gum style --foreground 42 "✓ GNOME configured"
 }
 
 install_gnome_extension() {
     local ext="$1"
     local ext_dir="$HOME/.local/share/gnome-shell/extensions/$ext"
 
-    if [[ -d "$ext_dir" ]]; then
-        gum style --foreground 214 "$ext already installed, skipping"
-        return
-    fi
+    [[ -d "$ext_dir" ]] && return
 
     gdbus call --session \
         --dest org.gnome.Shell.Extensions \
         --object-path /org/gnome/Shell/Extensions \
         --method org.gnome.Shell.Extensions.InstallRemoteExtension \
         "$ext" >/dev/null 2>&1 || true
-    gum style --foreground 39 "✓ $ext installed"
 
     local schema_dir="$ext_dir/schemas"
     if [[ -d "$schema_dir" ]]; then
@@ -152,17 +155,14 @@ install_gnome_extension() {
 }
 
 install_gnome_extensions() {
-    gum style --foreground 212 "Installing GNOME extensions..."
-    flatpak install -y flathub com.mattjakeman.ExtensionManager
-
+    gum style --foreground 33 "Installing GNOME extensions..."
     install_gnome_extension just-perfection-desktop@just-perfection
     install_gnome_extension tactile@lundal.io
     install_gnome_extension disable-workspace-animation@ethnarque
-    gum style --foreground 42 "✓ GNOME extensions installed"
 }
 
 configure_gnome_extensions() {
-    # Configure Just Perfection
+    gum style --foreground 33 "Configuring GNOME extensions..."
     gsettings set org.gnome.shell.extensions.just-perfection animation 4
     gsettings set org.gnome.shell.extensions.just-perfection workspace-popup false
     # Configure Tactile
@@ -175,107 +175,56 @@ configure_gnome_extensions() {
     gsettings set org.gnome.shell.extensions.tactile col-1 3
     gsettings set org.gnome.shell.extensions.tactile col-2 3
     gsettings set org.gnome.shell.extensions.tactile col-3 1
-    gum style --foreground 42 "✓ GNOME extensions configured"
 }
 
 # Git
-configure_git() {
-    if [[ -e "$HOME/.gitconfig" ]]; then
-        gum style --foreground 214 "Git already configured, skipping"
-        return
-    fi
-
-    stow -d "$DOTFILES_DIR" -t "$HOME" gitconfig
-    gum style --foreground 42 "✓ Git configured"
-}
+configure_git() { stow_dotfiles gitconfig; }
 
 # CLI tools (zoxide, ripgrep, fzf, gh)
 install_cli_tools() {
-    gum style --foreground 212 "Installing CLI tools..."
-    sudo dnf install -y zoxide ripgrep fzf gh htop btop nvtop
-    gum style --foreground 42 "✓ CLI tools installed"
+    gum style --foreground 33 "Installing CLI tools..."
+    install_dnf_packages zoxide ripgrep fzf gh htop btop nvtop
 }
 
 # mise runtime manager
 install_mise() {
-    if command -v mise &>/dev/null; then
-        gum style --foreground 214 "mise already installed, skipping"
-        return
-    fi
-
-    gum style --foreground 212 "Installing mise..."
+    gum style --foreground 33 "Installing mise..."
     sudo dnf copr enable -y jdxcode/mise
     sudo dnf install -y mise
-    gum style --foreground 42 "✓ mise installed"
 }
 
 configure_mise() {
-    stow -d "$DOTFILES_DIR" -t "$HOME" mise
+    stow_dotfiles mise
     mise install
-    gum style --foreground 42 "✓ mise configured"
 }
 
 # direnv
-install_direnv() {
-    if command -v direnv &>/dev/null; then
-        gum style --foreground 214 "direnv already installed, skipping"
-        return
-    fi
+install_direnv() { install_dnf direnv; }
 
-    gum style --foreground 212 "Installing direnv..."
-    sudo dnf install -y direnv
-    gum style --foreground 42 "✓ direnv installed"
-}
-
-configure_direnv() {
-    stow -d "$DOTFILES_DIR" -t "$HOME" direnv
-    gum style --foreground 42 "✓ direnv configured"
-}
+configure_direnv() { stow_dotfiles direnv; }
 
 # uv package manager
 install_uv() {
-    if command -v uv &>/dev/null; then
-        gum style --foreground 214 "uv already installed, skipping"
-        return
-    fi
-
-    gum style --foreground 212 "Installing uv..."
+    gum style --foreground 33 "Installing uv..."
     curl -LsSf https://astral.sh/uv/install.sh | sh
-    gum style --foreground 42 "✓ uv installed"
 }
 
 # Python versions via uv
 install_python() {
-    gum style --foreground 212 "Installing Python versions..."
+    gum style --foreground 33 "Installing Python versions..."
     uv python install 3.11 3.12 3.13
-    gum style --foreground 42 "✓ Python installed (3.11, 3.12, 3.13)"
 }
 
 # Dev tools via uv
 install_dev_tools() {
-    gum style --foreground 212 "Installing dev tools..."
-    uv tool install ruff@latest
-    uv tool install ty@latest
-    uv tool install taplo@latest
-    gum style --foreground 42 "✓ Dev tools installed (ruff, ty, taplo)"
+    gum style --foreground 33 "Installing dev tools..."
+    install_uv_tools ruff ty taplo
 }
 
 # SQLite database
-install_sqlite() {
-    if command -v sqlite3 &>/dev/null; then
-        gum style --foreground 214 "SQLite already installed, skipping"
-        return
-    fi
+install_sqlite() { install_dnf sqlite; }
 
-    gum style --foreground 212 "Installing SQLite..."
-    sudo dnf install -y sqlite
-    gum style --foreground 42 "✓ SQLite installed"
-}
-
-configure_sqlite() {
-    stow -d "$DOTFILES_DIR" -t "$HOME" sqlite
-    gum style --foreground 42 "✓ SQLite configured"
-}
+configure_sqlite() { stow_dotfiles sqlite; }
 
 # Chromium browser
 chromium_profile_name() {
@@ -311,23 +260,14 @@ chromium_choose_profile() {
     echo "${profile_map[$selection]}"
 }
 
-install_chromium() {
-    if command -v chromium-browser &>/dev/null; then
-        gum style --foreground 214 "Chromium already installed, skipping"
-        return
-    fi
-
-    gum style --foreground 212 "Installing Chromium..."
-    sudo dnf install -y chromium
-    gum style --foreground 42 "✓ Chromium installed"
-}
+install_chromium() { install_dnf chromium; }
 
 configure_chromium() {
+    gum style --foreground 33 "Configuring Chromium..."
     local target="$HOME/.local/share/applications/chromium-browser.desktop"
     mkdir -p "$HOME/.local/share/applications"
     sed 's|Exec=\(.*chromium-browser\)|Exec=\1 --enable-features=TouchpadOverscrollHistoryNavigation|' \
         /usr/share/applications/chromium-browser.desktop >"$target"
-    gum style --foreground 42 "✓ Chromium configured"
 }
 
 backup_chromium() {
@@ -353,7 +293,7 @@ backup_chromium() {
     [[ -f "$profile_dir/Favicons" ]] && files+=("Favicons")
 
     tar -czf "$archive" -C "$profile_dir" "${files[@]}"
-    gum style --foreground 42 "✓ Chromium backup created: $archive"
+    gum style --foreground 28 "✓ Chromium backup created: $archive"
 }
 
 restore_chromium() {
@@ -383,169 +323,113 @@ restore_chromium() {
 
     # Extract
     tar -xzf "$backup" -C "$chromium_dir/$profile"
-    gum style --foreground 42 "✓ Restored $(basename "$backup") to $profile_name"
+    gum style --foreground 28 "✓ Restored $(basename "$backup") to $profile_name"
 }
+
+# Bitwarden password manager
+install_bitwarden() { install_flatpak com.bitwarden.desktop "Bitwarden"; }
+
+# Eyedropper color picker
+install_eyedropper() { install_flatpak com.github.finefindus.eyedropper "Eyedropper"; }
+
+# Extension Manager
+install_extension_manager() { install_flatpak com.mattjakeman.ExtensionManager "Extension Manager"; }
+
+# Spotify
+install_spotify() { install_flatpak com.spotify.Client "Spotify"; }
 
 # Ghostty terminal
 install_ghostty() {
-    if command -v ghostty &>/dev/null; then
-        gum style --foreground 214 "Ghostty already installed, skipping"
-        return
-    fi
-
-    gum style --foreground 212 "Installing Ghostty..."
+    gum style --foreground 33 "Installing Ghostty..."
     sudo dnf copr enable -y scottames/ghostty
     sudo dnf install -y ghostty
-    gum style --foreground 42 "✓ Ghostty installed"
 }
 
-configure_ghostty() {
-    stow -d "$DOTFILES_DIR" -t "$HOME" ghostty
-    gum style --foreground 42 "✓ Ghostty configured"
-}
+configure_ghostty() { stow_dotfiles ghostty; }
 
 # Helix text editor
-install_helix() {
-    if command -v hx &>/dev/null; then
-        gum style --foreground 214 "Helix already installed, skipping"
-        return
-    fi
+install_helix() { install_dnf helix; }
 
-    gum style --foreground 212 "Installing Helix..."
-    sudo dnf install -y helix
-    gum style --foreground 42 "✓ Helix installed"
-}
-
-configure_helix() {
-    stow -d "$DOTFILES_DIR" -t "$HOME" helix
-    gum style --foreground 42 "✓ Helix configured"
-}
+configure_helix() { stow_dotfiles helix; }
 
 # Gradia screen annotation tool
-install_gradia() {
-    gum style --foreground 212 "Installing Gradia..."
-    flatpak install -y flathub be.alexandervanhee.gradia
-    gum style --foreground 42 "✓ Gradia installed"
-}
+install_gradia() { install_flatpak be.alexandervanhee.gradia "Gradia"; }
 
 configure_gradia() {
+    gum style --foreground 33 "Configuring Gradia..."
     local path="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/gradia/"
     gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "['$path']"
     gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$path name "Gradia Screenshot"
     gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$path command "flatpak run be.alexandervanhee.gradia --screenshot=INTERACTIVE"
     gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$path binding "<Super><Shift>s"
-    gum style --foreground 42 "✓ Gradia configured"
 }
 
 # Tailscale VPN
 install_tailscale() {
-    if command -v tailscale &>/dev/null; then
-        gum style --foreground 214 "Tailscale already installed, skipping"
-        return
-    fi
-
-    gum style --foreground 212 "Installing Tailscale..."
-    sudo dnf config-manager addrepo --from-repofile=https://pkgs.tailscale.com/stable/fedora/tailscale.repo
+    gum style --foreground 33 "Installing Tailscale..."
+    sudo dnf config-manager addrepo --overwrite --from-repofile=https://pkgs.tailscale.com/stable/fedora/tailscale.repo
     sudo dnf install -y tailscale
     sudo systemctl enable --now tailscaled
-    gum style --foreground 42 "✓ Tailscale installed (run 'sudo tailscale up' to authenticate)"
 }
 
 # WWAN unlock for Lenovo ThinkPad (Quectel RM520N-GL)
 install_wwan_unlock() {
-    if [[ -d /opt/fcc_lenovo ]]; then
-        gum style --foreground 214 "WWAN unlock already installed, skipping"
-        return
-    fi
-
-    gum style --foreground 212 "Installing Lenovo WWAN unlock..."
+    [[ -d /opt/fcc_lenovo ]] && return
+    gum style --foreground 33 "Installing Lenovo WWAN unlock..."
     local tmpdir=$(mktemp -d)
     git clone --depth 1 https://github.com/lenovo/lenovo-wwan-unlock "$tmpdir"
     sudo "$tmpdir/fcc_unlock_setup.sh"
     rm -rf "$tmpdir"
-    gum style --foreground 42 "✓ WWAN unlock installed (reboot required)"
 }
 
 # WWAN dispatcher fix for MBIM over MHI
 install_wwan_fix() {
     local target="/etc/NetworkManager/dispatcher.d/99-wwan-fix"
-
-    if [[ -e "$target" ]]; then
-        gum style --foreground 214 "WWAN fix already installed, skipping"
-        return
-    fi
-
-    gum style --foreground 212 "Installing WWAN dispatcher fix..."
+    [[ -e "$target" ]] && return
+    gum style --foreground 33 "Installing WWAN dispatcher fix..."
     sudo stow -d "$DOTFILES_DIR" -t / wwan
     sudo chmod +x "$target"
-    gum style --foreground 42 "✓ WWAN fix installed"
 }
 
 # WWAN access point configuration
 configure_wwan_apn() {
-    if nmcli -t -f NAME connection show | grep -q "^Orange Internet$"; then
-        gum style --foreground 214 "WWAN access point already configured, skipping"
-        return
-    fi
-
-    gum style --foreground 212 "Configuring WWAN access point..."
-
+    nmcli -t -f NAME connection show | grep -q "^Orange Internet$" && return
+    gum style --foreground 33 "Configuring WWAN access point..."
     nmcli -t -f NAME,TYPE connection show | { grep ':gsm$' || true; } | cut -d: -f1 | while read -r conn; do
-        gum style --foreground 214 "Removing GSM connection: $conn"
         nmcli connection delete "$conn" || true
     done
-
     nmcli connection add type gsm con-name "Orange Internet" \
         gsm.apn "internet" \
         gsm.username "internet" \
         gsm.password "internet" \
         gsm.home-only yes \
         connection.autoconnect no
-
-    gum style --foreground 42 "✓ WWAN access point configured"
 }
 
 # Fish shell
 install_fish() {
-    if command -v fish &>/dev/null; then
-        gum style --foreground 214 "Fish already installed, skipping"
-        return
-    fi
-
-    gum style --foreground 212 "Installing Fish..."
+    gum style --foreground 33 "Installing Fish..."
     sudo dnf install -y fish
-    gum style --foreground 42 "✓ Fish installed"
 }
 
 configure_fish() {
-    stow -d "$DOTFILES_DIR" -t "$HOME" fish
-
-    if [[ "$SHELL" == *"fish"* ]]; then
-        gum style --foreground 42 "✓ Fish configured"
-        return
-    fi
-
-    gum style --foreground 212 "Setting Fish as default shell..."
+    stow_dotfiles fish
+    [[ "$SHELL" == *"fish"* ]] && return
+    gum style --foreground 33 "Setting Fish as default shell..."
     sudo chsh -s "$(which fish)" "$USER"
-    gum style --foreground 42 "✓ Fish configured (re-login to activate)"
 }
 
 # Disable fingerprint for sudo
 disable_sudo_fingerprint() {
-    if grep -q "pam_unix.so" /etc/pam.d/sudo; then
-        gum style --foreground 214 "Fingerprint already disabled for sudo, skipping"
-        return
-    fi
-
-    gum style --foreground 212 "Disabling fingerprint for sudo..."
+    grep -q "pam_unix.so" /etc/pam.d/sudo && return
+    gum style --foreground 33 "Disabling fingerprint for sudo..."
     sudo sed -i 's/auth       required     system-auth/auth       required     pam_unix.so/' /etc/pam.d/sudo
-    gum style --foreground 42 "✓ Fingerprint disabled for sudo"
 }
 
 # Project directories
 create_project_dirs() {
+    gum style --foreground 33 "Creating project directories..."
     mkdir -p "$HOME/proj" "$HOME/fun"
-    gum style --foreground 42 "✓ Project directories created"
 }
 
 main() {
@@ -591,8 +475,12 @@ main() {
     configure_ghostty
     install_helix
     configure_helix
+    install_bitwarden
     install_gradia
     configure_gradia
+    install_eyedropper
+    install_extension_manager
+    install_spotify
 
     # Network
     install_tailscale
@@ -608,7 +496,13 @@ main() {
     create_project_dirs
 
     echo ""
-    gum style --foreground 42 "✓ Setup complete"
+    gum style --foreground 28 --bold "Setup complete!"
+    echo ""
+    gum style --faint "Restart for all changes to take effect."
+    echo ""
+    if gum confirm "Restart now?" --default=false; then
+        systemctl reboot
+    fi
 }
 
 "${@:-main}"
