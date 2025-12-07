@@ -123,6 +123,7 @@ configure_gnome() {
     gsettings set org.gnome.desktop.interface enable-hot-corners false
     gsettings set org.gnome.mutter dynamic-workspaces false
     gsettings set org.gnome.desktop.wm.preferences num-workspaces 4
+    gsettings set org.gnome.GWeather4 temperature-unit 'centigrade'
     gum style --foreground 42 "✓ GNOME configured"
 }
 
@@ -529,6 +530,18 @@ configure_fish() {
     gum style --foreground 42 "✓ Fish configured (re-login to activate)"
 }
 
+# Disable fingerprint for sudo
+disable_sudo_fingerprint() {
+    if grep -q "pam_unix.so" /etc/pam.d/sudo; then
+        gum style --foreground 214 "Fingerprint already disabled for sudo, skipping"
+        return
+    fi
+
+    gum style --foreground 212 "Disabling fingerprint for sudo..."
+    sudo sed -i 's/auth       required     system-auth/auth       required     pam_unix.so/' /etc/pam.d/sudo
+    gum style --foreground 42 "✓ Fingerprint disabled for sudo"
+}
+
 # Project directories
 create_project_dirs() {
     mkdir -p "$HOME/proj" "$HOME/fun"
@@ -540,6 +553,7 @@ main() {
     update_system
     configure_dnf
     disable_nm_wait
+    disable_sudo_fingerprint
     configure_flathub
     install_rpmfusion
 
