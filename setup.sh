@@ -4,36 +4,19 @@ set -euo pipefail
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Ensure gum is available
-if ! command -v gum &>/dev/null; then
+if ! which gum &>/dev/null; then
     echo "Installing gum..."
     sudo dnf install -y gum
 fi
 
 # Helper: install flatpak app
 install_flatpak() {
-    local app_id="$1"
-    local name="$2"
-    gum style --foreground 33 "Installing $name..."
-    flatpak install -y flathub "$app_id"
+    flatpak install -y flathub "$@"
 }
 
-# Helper: install dnf package
+# Helper: install dnf packages
 install_dnf() {
-    local pkg="$1"
-    gum style --foreground 33 "Installing $pkg..."
-    sudo dnf install -y "$pkg"
-}
-
-# Helper: install multiple dnf packages
-install_dnf_packages() {
     sudo dnf install -y "$@"
-}
-
-# Helper: install uv tools
-install_uv_tools() {
-    for tool in "$@"; do
-        uv tool install "$tool@latest"
-    done
 }
 
 # Helper: stow dotfiles
@@ -88,19 +71,19 @@ install_multimedia() {
 # Intel hardware video acceleration (VA-API)
 install_intel_vaapi() {
     gum style --foreground 33 "Installing Intel media driver..."
-    install_dnf_packages intel-media-driver libva-utils
+    install_dnf intel-media-driver libva-utils
 }
 
 # Intel compute runtime (OpenCL, Level Zero)
 install_intel_compute() {
     gum style --foreground 33 "Installing Intel compute runtime..."
-    install_dnf_packages intel-compute-runtime intel-level-zero intel-igc intel-ocloc
+    install_dnf intel-compute-runtime intel-level-zero intel-igc intel-ocloc
 }
 
 # Fonts
 install_fonts() {
     gum style --foreground 33 "Installing fonts..."
-    install_dnf_packages jetbrains-mono-fonts cascadia-mono-fonts rsms-inter-fonts
+    install_dnf jetbrains-mono-fonts cascadia-mono-fonts rsms-inter-fonts
 }
 
 configure_fonts() {
@@ -145,13 +128,6 @@ install_gnome_extension() {
         --object-path /org/gnome/Shell/Extensions \
         --method org.gnome.Shell.Extensions.InstallRemoteExtension \
         "$ext" >/dev/null 2>&1 || true
-
-    local schema_dir="$ext_dir/schemas"
-    if [[ -d "$schema_dir" ]]; then
-        glib-compile-schemas "$schema_dir"
-        sudo cp "$schema_dir"/*.gschema.xml /usr/share/glib-2.0/schemas/
-        sudo glib-compile-schemas /usr/share/glib-2.0/schemas/
-    fi
 }
 
 install_gnome_extensions() {
@@ -163,18 +139,18 @@ install_gnome_extensions() {
 
 configure_gnome_extensions() {
     gum style --foreground 33 "Configuring GNOME extensions..."
-    gsettings set org.gnome.shell.extensions.just-perfection animation 4
-    gsettings set org.gnome.shell.extensions.just-perfection workspace-popup false
-    # Configure Tactile
-    gsettings set org.gnome.shell.extensions.tactile show-tiles "['<Super>Return']"
-    gsettings set org.gnome.shell.extensions.tactile grid-rows 2
-    gsettings set org.gnome.shell.extensions.tactile grid-cols 4
-    gsettings set org.gnome.shell.extensions.tactile row-0 0
-    gsettings set org.gnome.shell.extensions.tactile row-1 1
-    gsettings set org.gnome.shell.extensions.tactile col-0 1
-    gsettings set org.gnome.shell.extensions.tactile col-1 3
-    gsettings set org.gnome.shell.extensions.tactile col-2 3
-    gsettings set org.gnome.shell.extensions.tactile col-3 1
+    dconf write /org/gnome/shell/extensions/just-perfection/animation 4
+    dconf write /org/gnome/shell/extensions/just-perfection/workspace-popup false
+    dconf write /org/gnome/shell/extensions/just-perfection/startup-status 0
+    dconf write /org/gnome/shell/extensions/tactile/show-tiles "['<Super>Return']"
+    dconf write /org/gnome/shell/extensions/tactile/grid-rows 2
+    dconf write /org/gnome/shell/extensions/tactile/grid-cols 4
+    dconf write /org/gnome/shell/extensions/tactile/row-0 0
+    dconf write /org/gnome/shell/extensions/tactile/row-1 1
+    dconf write /org/gnome/shell/extensions/tactile/col-0 1
+    dconf write /org/gnome/shell/extensions/tactile/col-1 3
+    dconf write /org/gnome/shell/extensions/tactile/col-2 3
+    dconf write /org/gnome/shell/extensions/tactile/col-3 1
 }
 
 # Git
@@ -183,14 +159,14 @@ configure_git() { stow_dotfiles gitconfig; }
 # CLI tools (zoxide, ripgrep, fzf, gh)
 install_cli_tools() {
     gum style --foreground 33 "Installing CLI tools..."
-    install_dnf_packages zoxide ripgrep fzf gh htop btop nvtop
+    install_dnf zoxide ripgrep fzf gh htop btop nvtop
 }
 
 # mise runtime manager
 install_mise() {
     gum style --foreground 33 "Installing mise..."
     sudo dnf copr enable -y jdxcode/mise
-    sudo dnf install -y mise
+    install_dnf mise
 }
 
 configure_mise() {
@@ -199,7 +175,10 @@ configure_mise() {
 }
 
 # direnv
-install_direnv() { install_dnf direnv; }
+install_direnv() {
+    gum style --foreground 33 "Installing direnv..."
+    install_dnf direnv
+}
 
 configure_direnv() { stow_dotfiles direnv; }
 
@@ -207,6 +186,7 @@ configure_direnv() { stow_dotfiles direnv; }
 install_uv() {
     gum style --foreground 33 "Installing uv..."
     curl -LsSf https://astral.sh/uv/install.sh | sh
+    export PATH="$HOME/.local/bin:$PATH"
 }
 
 # Python versions via uv
@@ -218,11 +198,16 @@ install_python() {
 # Dev tools via uv
 install_dev_tools() {
     gum style --foreground 33 "Installing dev tools..."
-    install_uv_tools ruff ty taplo
+    uv tool install ruff
+    uv tool install ty
+    uv tool install taplo
 }
 
 # SQLite database
-install_sqlite() { install_dnf sqlite; }
+install_sqlite() {
+    gum style --foreground 33 "Installing SQLite..."
+    install_dnf sqlite
+}
 
 configure_sqlite() { stow_dotfiles sqlite; }
 
@@ -260,7 +245,10 @@ chromium_choose_profile() {
     echo "${profile_map[$selection]}"
 }
 
-install_chromium() { install_dnf chromium; }
+install_chromium() {
+    gum style --foreground 33 "Installing Chromium..."
+    install_dnf chromium
+}
 
 configure_chromium() {
     gum style --foreground 33 "Configuring Chromium..."
@@ -327,48 +315,75 @@ restore_chromium() {
 }
 
 # Bitwarden password manager
-install_bitwarden() { install_flatpak com.bitwarden.desktop "Bitwarden"; }
+install_bitwarden() {
+    gum style --foreground 33 "Installing Bitwarden..."
+    install_flatpak com.bitwarden.desktop
+}
 
 # Eyedropper color picker
-install_eyedropper() { install_flatpak com.github.finefindus.eyedropper "Eyedropper"; }
+install_eyedropper() {
+    gum style --foreground 33 "Installing Eyedropper..."
+    install_flatpak com.github.finefindus.eyedropper
+}
 
 # Extension Manager
-install_extension_manager() { install_flatpak com.mattjakeman.ExtensionManager "Extension Manager"; }
+install_extension_manager() {
+    gum style --foreground 33 "Installing Extension Manager..."
+    install_flatpak com.mattjakeman.ExtensionManager
+}
 
 # Spotify
-install_spotify() { install_flatpak com.spotify.Client "Spotify"; }
+install_spotify() {
+    gum style --foreground 33 "Installing Spotify..."
+    install_flatpak com.spotify.Client
+}
 
 # Ghostty terminal
 install_ghostty() {
     gum style --foreground 33 "Installing Ghostty..."
     sudo dnf copr enable -y scottames/ghostty
-    sudo dnf install -y ghostty
+    install_dnf ghostty
 }
 
 configure_ghostty() { stow_dotfiles ghostty; }
 
 # Helix text editor
-install_helix() { install_dnf helix; }
+install_helix() {
+    gum style --foreground 33 "Installing Helix..."
+    install_dnf helix
+}
 
 configure_helix() { stow_dotfiles helix; }
 
 # Gradia screen annotation tool
-install_gradia() { install_flatpak be.alexandervanhee.gradia "Gradia"; }
+install_gradia() {
+    gum style --foreground 33 "Installing Gradia..."
+    install_flatpak be.alexandervanhee.gradia
+}
 
 configure_gradia() {
     gum style --foreground 33 "Configuring Gradia..."
     local path="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/gradia/"
-    gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "['$path']"
-    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$path name "Gradia Screenshot"
-    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$path command "flatpak run be.alexandervanhee.gradia --screenshot=INTERACTIVE"
-    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$path binding "<Super><Shift>s"
+    local schema="org.gnome.settings-daemon.plugins.media-keys"
+    local current
+    current=$(gsettings get "$schema" custom-keybindings)
+
+    if [[ "$current" == "@as []" ]]; then
+        gsettings set "$schema" custom-keybindings "['$path']"
+    elif [[ "$current" != *"$path"* ]]; then
+        gsettings set "$schema" custom-keybindings "${current%]},'$path']"
+    fi
+
+    gsettings set "$schema".custom-keybinding:$path name "Gradia Screenshot"
+    gsettings set "$schema".custom-keybinding:$path command "flatpak run be.alexandervanhee.gradia --screenshot=INTERACTIVE"
+    gsettings set "$schema".custom-keybinding:$path binding "<Super><Shift>s"
 }
 
 # Tailscale VPN
 install_tailscale() {
     gum style --foreground 33 "Installing Tailscale..."
     sudo dnf config-manager addrepo --overwrite --from-repofile=https://pkgs.tailscale.com/stable/fedora/tailscale.repo
-    sudo dnf install -y tailscale
+    install_dnf tailscale
     sudo systemctl enable --now tailscaled
 }
 
@@ -409,20 +424,21 @@ configure_wwan_apn() {
 # Fish shell
 install_fish() {
     gum style --foreground 33 "Installing Fish..."
-    sudo dnf install -y fish
+    install_dnf fish
 }
 
 configure_fish() {
     stow_dotfiles fish
     [[ "$SHELL" == *"fish"* ]] && return
     gum style --foreground 33 "Setting Fish as default shell..."
-    sudo chsh -s "$(which fish)" "$USER"
+    chsh -s "$(which fish)" "$USER"
 }
 
 # Disable fingerprint for sudo
 disable_sudo_fingerprint() {
     grep -q "pam_unix.so" /etc/pam.d/sudo && return
     gum style --foreground 33 "Disabling fingerprint for sudo..."
+    sudo cp /etc/pam.d/sudo /etc/pam.d/sudo.bak
     sudo sed -i 's/auth       required     system-auth/auth       required     pam_unix.so/' /etc/pam.d/sudo
 }
 
@@ -505,4 +521,10 @@ main() {
     fi
 }
 
-"${@:-main}"
+cmd="${1:-main}"
+if declare -F "$cmd" >/dev/null; then
+    "$cmd"
+else
+    echo "Unknown command: $cmd" >&2
+    exit 1
+fi
