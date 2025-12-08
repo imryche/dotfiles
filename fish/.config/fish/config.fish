@@ -1,5 +1,5 @@
 # path
-set -gx PATH $HOME/.local/bin $PATH
+fish_add_path -g $HOME/.local/bin
 
 # editor
 set -gx EDITOR hx
@@ -9,10 +9,10 @@ set -gx PYTHONBREAKPOINT ipdb.set_trace
 set -gx PYTHONDONTWRITEBYTECODE 1
 set -gx UV_ENV_FILE .env
 
-# golang
-set -gx PATH $PATH /usr/local/go/bin
+# go
 set -gx GOPATH $HOME/go
-set -gx PATH $PATH $GOPATH/bin
+fish_add_path -g /usr/local/go/bin
+fish_add_path -g $GOPATH/bin
 
 # fzf
 set -gx FZF_DEFAULT_OPTS '--layout=reverse --border'
