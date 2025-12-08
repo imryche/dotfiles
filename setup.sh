@@ -338,6 +338,12 @@ install_spotify() {
     install_flatpak com.spotify.Client
 }
 
+# LocalSend
+install_localsend() {
+    gum style --foreground 33 "Installing LocalSend..."
+    install_flatpak org.localsend.localsend_app
+}
+
 # Ghostty terminal
 install_ghostty() {
     gum style --foreground 33 "Installing Ghostty..."
@@ -434,6 +440,13 @@ configure_fish() {
     chsh -s "$(which fish)" "$USER"
 }
 
+# Remove PyCharm COPR repo
+remove_pycharm_repo() {
+    dnf repolist --all | grep -q "phracek:PyCharm" || return
+    gum style --foreground 33 "Removing PyCharm COPR repo..."
+    sudo dnf copr remove -y phracek/PyCharm
+}
+
 # Disable fingerprint for sudo
 disable_sudo_fingerprint() {
     grep -q "pam_unix.so" /etc/pam.d/sudo && return
@@ -449,6 +462,9 @@ create_project_dirs() {
 }
 
 main() {
+    # Cleanup
+    remove_pycharm_repo
+
     # System
     update_system
     configure_dnf
@@ -497,6 +513,7 @@ main() {
     install_eyedropper
     install_extension_manager
     install_spotify
+    install_localsend
 
     # Network
     install_tailscale
