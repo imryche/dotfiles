@@ -370,19 +370,19 @@ install_gradia() {
 configure_gradia() {
     gum style --foreground 33 "Configuring Gradia..."
     local path="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/gradia/"
-    local schema="org.gnome.settings-daemon.plugins.media-keys"
+    local key="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings"
+
+    dconf write "${path}name" "'Gradia Screenshot'"
+    dconf write "${path}command" "'flatpak run be.alexandervanhee.gradia --screenshot=INTERACTIVE'"
+    dconf write "${path}binding" "'<Super><Shift>s'"
+
     local current
-    current=$(gsettings get "$schema" custom-keybindings)
-
-    if [[ "$current" == "@as []" ]]; then
-        gsettings set "$schema" custom-keybindings "['$path']"
+    current=$(dconf read "$key")
+    if [[ -z "$current" || "$current" == "@as []" ]]; then
+        dconf write "$key" "['$path']"
     elif [[ "$current" != *"$path"* ]]; then
-        gsettings set "$schema" custom-keybindings "${current%]},'$path']"
+        dconf write "$key" "${current%]},'$path']"
     fi
-
-    gsettings set "$schema".custom-keybinding:$path name "Gradia Screenshot"
-    gsettings set "$schema".custom-keybinding:$path command "flatpak run be.alexandervanhee.gradia --screenshot=INTERACTIVE"
-    gsettings set "$schema".custom-keybinding:$path binding "<Super><Shift>s"
 }
 
 # Tailscale VPN
