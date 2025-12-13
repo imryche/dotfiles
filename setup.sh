@@ -41,12 +41,6 @@ update_system() {
     sudo dnf upgrade -y --refresh
 }
 
-# DNF plugins (required for copr and config-manager)
-install_dnf_plugins() {
-    gum style --foreground 33 "Installing DNF plugins..."
-    install_dnf dnf-plugins-core
-}
-
 # Faster DNF downloads
 configure_dnf() {
     grep -q "max_parallel_downloads" /etc/dnf/dnf.conf && return
@@ -355,6 +349,18 @@ install_extension_manager() {
     install_flatpak com.mattjakeman.ExtensionManager
 }
 
+# GNOME Tweaks
+install_gnome_tweaks() {
+    gum style --foreground 33 "Installing GNOME Tweaks..."
+    install_dnf gnome-tweaks
+}
+
+# Gear Lever (AppImage manager)
+install_gear_lever() {
+    gum style --foreground 33 "Installing Gear Lever..."
+    install_flatpak it.mijorus.gearlever
+}
+
 # Spotify
 install_spotify() {
     gum style --foreground 33 "Installing Spotify..."
@@ -492,7 +498,6 @@ main() {
     remove_pycharm_repo
 
     # System
-    install_dnf_plugins
     update_system
     configure_dnf
     disable_nm_wait
@@ -540,6 +545,8 @@ main() {
     configure_gradia
     install_eyedropper
     install_extension_manager
+    install_gnome_tweaks
+    install_gear_lever
     install_spotify
     install_localsend
 
