@@ -483,7 +483,7 @@ remove_pycharm_repo() {
 disable_sudo_fingerprint() {
     grep -q "pam_unix.so" /etc/pam.d/sudo && return
     gum style --foreground 33 "Disabling fingerprint for sudo..."
-    sudo sed -i.bak 's/^\(\s*auth\s*\)include\s*system-auth/\1required pam_unix.so/' /etc/pam.d/sudo
+    sudo sed -i.bak 's/^auth\s*include\s*system-auth/auth       required     pam_unix.so/' /etc/pam.d/sudo
 }
 
 # Project directories
