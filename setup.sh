@@ -189,6 +189,12 @@ install_uv() {
     export PATH="$HOME/.local/bin:$PATH"
 }
 
+# Ampcode CLI
+install_ampcode() {
+    gum style --foreground 33 "Installing Ampcode..."
+    curl -fsSL https://ampcode.com/install.sh | bash
+}
+
 # Python versions via uv
 install_python() {
     gum style --foreground 33 "Installing Python versions..."
@@ -495,6 +501,7 @@ main() {
     install_direnv
     configure_direnv
     install_uv
+    install_ampcode
     install_python
     install_dev_tools
     install_sqlite
