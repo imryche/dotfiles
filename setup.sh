@@ -4,7 +4,7 @@ set -euo pipefail
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Ensure gum is available
-if ! which gum &>/dev/null; then
+if ! command -v gum &>/dev/null; then
     echo "Installing gum..."
     sudo dnf install -y gum
 fi
@@ -22,6 +22,14 @@ install_dnf() {
 # Helper: stow dotfiles
 stow_dotfiles() {
     local pkg="$1"
+    if ! command -v stow &>/dev/null; then
+        gum style --foreground 33 "Installing stow..."
+        install_dnf stow
+    fi
+    if ! command -v git &>/dev/null; then
+        gum style --foreground 33 "Installing git..."
+        install_dnf git
+    fi
     gum style --foreground 33 "Configuring $pkg..."
     stow -d "$DOTFILES_DIR" -t "$HOME" --adopt "$pkg"
     git -C "$DOTFILES_DIR" checkout -- "$pkg"
@@ -31,6 +39,12 @@ stow_dotfiles() {
 update_system() {
     gum style --foreground 33 "Updating system..."
     sudo dnf upgrade -y --refresh
+}
+
+# DNF plugins (required for copr and config-manager)
+install_dnf_plugins() {
+    gum style --foreground 33 "Installing DNF plugins..."
+    install_dnf dnf-plugins-core
 }
 
 # Faster DNF downloads
@@ -159,11 +173,12 @@ configure_git() { stow_dotfiles gitconfig; }
 # CLI tools (zoxide, ripgrep, fzf, gh)
 install_cli_tools() {
     gum style --foreground 33 "Installing CLI tools..."
-    install_dnf zoxide ripgrep fd-find fzf gh htop btop nvtop
+    install_dnf zoxide ripgrep fd-find fzf gh htop btop nvtop stow jq
 }
 
 # mise runtime manager
 install_mise() {
+    command -v mise &>/dev/null && return
     gum style --foreground 33 "Installing mise..."
     sudo dnf copr enable -y jdxcode/mise
     install_dnf mise
@@ -184,13 +199,15 @@ configure_direnv() { stow_dotfiles direnv; }
 
 # uv package manager
 install_uv() {
+    export PATH="$HOME/.local/bin:$PATH"
+    command -v uv &>/dev/null && return
     gum style --foreground 33 "Installing uv..."
     curl -LsSf https://astral.sh/uv/install.sh | sh
-    export PATH="$HOME/.local/bin:$PATH"
 }
 
 # Ampcode CLI
 install_ampcode() {
+    command -v amp &>/dev/null && return
     gum style --foreground 33 "Installing Ampcode..."
     curl -fsSL https://ampcode.com/install.sh | bash
 }
@@ -352,6 +369,7 @@ install_localsend() {
 
 # Ghostty terminal
 install_ghostty() {
+    command -v ghostty &>/dev/null && return
     gum style --foreground 33 "Installing Ghostty..."
     sudo dnf copr enable -y scottames/ghostty
     install_dnf ghostty
@@ -383,7 +401,7 @@ configure_gradia() {
     dconf write "${path}binding" "'<Super><Shift>s'"
 
     local current
-    current=$(dconf read "$key")
+    current=$(dconf read "$key" 2>/dev/null || echo "@as []")
     if [[ -z "$current" || "$current" == "@as []" ]]; then
         dconf write "$key" "['$path']"
     elif [[ "$current" != *"$path"* ]]; then
@@ -443,12 +461,14 @@ configure_fish() {
     stow_dotfiles fish
     [[ "$SHELL" == *"fish"* ]] && return
     gum style --foreground 33 "Setting Fish as default shell..."
-    chsh -s "$(which fish)" "$USER"
+    chsh -s "$(command -v fish)" "$USER"
 }
 
 # Remove PyCharm COPR repo
 remove_pycharm_repo() {
-    dnf repolist --all | grep -q "phracek:PyCharm" || return
+    if ! dnf repolist --all | grep -q "phracek:PyCharm"; then
+        return 0
+    fi
     gum style --foreground 33 "Removing PyCharm COPR repo..."
     sudo dnf copr remove -y phracek/PyCharm
 }
@@ -472,6 +492,7 @@ main() {
     remove_pycharm_repo
 
     # System
+    install_dnf_plugins
     update_system
     configure_dnf
     disable_nm_wait
