@@ -7,7 +7,6 @@ set -gx EDITOR hx
 # python
 set -gx PYTHONBREAKPOINT ipdb.set_trace
 set -gx PYTHONDONTWRITEBYTECODE 1
-set -gx UV_ENV_FILE .env
 
 # go
 set -gx GOPATH $HOME/go
