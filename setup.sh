@@ -167,7 +167,7 @@ configure_git() { stow_dotfiles gitconfig; }
 # CLI tools (zoxide, ripgrep, fzf, gh)
 install_cli_tools() {
     gum style --foreground 33 "Installing CLI tools..."
-    install_dnf zoxide ripgrep fd-find fzf gh htop btop nvtop stow jq
+    install_dnf zoxide ripgrep fd-find fzf gh htop btop nvtop stow jq mosh
 }
 
 # mise runtime manager
