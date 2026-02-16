@@ -81,3 +81,9 @@ end
 if test -f ~/.config/fish/private.fish
     source ~/.config/fish/private.fish
 end
+
+# Amp CLI
+fish_add_path /home/ryche/.amp/bin
+
+# opencode
+fish_add_path /home/ryche/.opencode/bin
