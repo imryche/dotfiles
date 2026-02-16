@@ -20,6 +20,9 @@ skip-levels = 1
 auto-signature-help = false
 display-color-swatches = false
 
+[editor.file-picker]
+hidden = false
+
 [keys.normal]
 "C-w" = ":buffer-close"
 

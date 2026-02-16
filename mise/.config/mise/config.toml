@@ -9,6 +9,7 @@ node = "latest"
 "npm:tailwindcss" = "latest"
 "npm:vscode-langservers-extracted" = "latest"
 "go:mvdan.cc/sh/v3/cmd/shfmt" = "latest"
+"npm:emmet-ls" = "latest"
 
 [settings]
 experimental = true

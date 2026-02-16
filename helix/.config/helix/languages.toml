@@ -18,10 +18,20 @@ experimental = { rename = true, autoImport = true }
 command = "tailwindcss-language-server"
 args = ["--stdio"]
 
+[language-server.emmet-ls]
+command = "emmet-ls"
+args = ["--stdio"]
+
 [[language]]
 name = "html"
-language-servers = ["vscode-html-language-server", "tailwindcss-ls"]
+language-servers = ["vscode-html-language-server", "tailwindcss-ls", "emmet-ls"]
 formatter = { command = "prettierd", args = [".html"] }
+auto-format = true
+
+[[language]]
+name = "css"
+language-servers = ["vscode-css-language-server"]
+formatter = { command = "prettierd", args = [".css"] }
 auto-format = true
 
 [[language]]

@@ -120,6 +120,7 @@ configure_gnome() {
     gsettings set org.gnome.desktop.peripherals.keyboard repeat-interval 20
     gsettings set org.gnome.desktop.peripherals.keyboard delay 200
     gsettings set org.gnome.desktop.interface enable-hot-corners false
+    gsettings set org.gnome.desktop.peripherals.touchpad tap-to-click false
     gsettings set org.gnome.mutter dynamic-workspaces false
     gsettings set org.gnome.desktop.wm.preferences num-workspaces 4
     gsettings set org.gnome.GWeather4 temperature-unit 'centigrade'
@@ -167,7 +168,7 @@ configure_git() { stow_dotfiles gitconfig; }
 # CLI tools (zoxide, ripgrep, fzf, gh)
 install_cli_tools() {
     gum style --foreground 33 "Installing CLI tools..."
-    install_dnf zoxide ripgrep fd-find fzf gh htop btop nvtop stow jq
+    install_dnf zoxide ripgrep fd-find fzf gh htop btop nvtop stow jq mosh
 }
 
 # mise runtime manager
