@@ -14,6 +14,39 @@ args = ["server"]
 [language-server.ty.config]
 experimental = { rename = true, autoImport = true }
 
+[[language]]
+name = "typescript"
+roots = ["deno.json", "deno.jsonc"]
+file-types = ["ts"]
+auto-format = true
+language-servers = ["deno-lsp"]
+
+[[language]]
+name = "tsx"
+roots = ["deno.json", "deno.jsonc"]
+file-types = ["tsx"]
+auto-format = true
+language-servers = ["deno-lsp"]
+
+[[language]]
+name = "javascript"
+roots = ["deno.json", "deno.jsonc"]
+file-types = ["js"]
+auto-format = true
+language-servers = ["deno-lsp"]
+
+[[language]]
+name = "javascript"
+roots = ["deno.json", "deno.jsonc"]
+file-types = ["jsx"]
+auto-format = true
+language-servers = ["deno-lsp"]
+
+[language-server.deno-lsp]
+command = "deno"
+args = ["lsp"]
+environment = { NO_COLOR = "1" }
+
 [language-server.tailwindcss-ls]
 command = "tailwindcss-language-server"
 args = ["--stdio"]
