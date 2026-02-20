@@ -1,6 +1,7 @@
 window-decoration = none
 gtk-tabs-location = hidden
 mouse-hide-while-typing = true
+unfocused-split-opacity = 1
 
 window-save-state = always
 window-padding-balance = true
