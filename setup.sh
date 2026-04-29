@@ -274,6 +274,7 @@ configure_chromium() {
     mkdir -p "$HOME/.local/share/applications"
     sed 's|Exec=\(.*chromium-browser\)|Exec=\1 --ozone-platform=wayland --enable-features=TouchpadOverscrollHistoryNavigation --disable-features=WaylandWpColorManagerV1,WaylandFractionalScaleV1|' \
         /usr/share/applications/chromium-browser.desktop >"$target"
+    command -v kbuildsycoca6 >/dev/null && kbuildsycoca6
 }
 
 backup_chromium() {
