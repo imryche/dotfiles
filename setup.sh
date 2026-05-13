@@ -229,6 +229,8 @@ install_sqlite() {
 
 configure_sqlite() { stow_dotfiles sqlite; }
 
+configure_pi() { stow_dotfiles pi; }
+
 # Chromium browser
 chromium_profile_name() {
     local chromium_dir="$HOME/.config/chromium"
@@ -533,6 +535,7 @@ main() {
     install_dev_tools
     install_sqlite
     configure_sqlite
+    configure_pi
 
     # Apps
     install_chromium
