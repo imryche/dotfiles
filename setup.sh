@@ -268,12 +268,40 @@ install_chromium() {
     install_dnf chromium
 }
 
+browser_flags() {
+    echo "--remote-debugging-port=9222 --ozone-platform=wayland --enable-features=TouchpadOverscrollHistoryNavigation --disable-features=WaylandWpColorManagerV1,WaylandFractionalScaleV1"
+}
+
 configure_chromium() {
     gum style --foreground 33 "Configuring Chromium..."
     local target="$HOME/.local/share/applications/chromium-browser.desktop"
     mkdir -p "$HOME/.local/share/applications"
-    sed 's|Exec=\(.*chromium-browser\)|Exec=\1 --ozone-platform=wayland --enable-features=TouchpadOverscrollHistoryNavigation --disable-features=WaylandWpColorManagerV1,WaylandFractionalScaleV1|' \
+
+    local flags
+    flags=$(browser_flags)
+
+    sed "s|Exec=\\(.*chromium-browser\\)|Exec=\\1 $flags|" \
         /usr/share/applications/chromium-browser.desktop >"$target"
+
+    command -v kbuildsycoca6 >/dev/null && kbuildsycoca6
+}
+
+configure_helium() {
+    gum style --foreground 33 "Configuring Helium..."
+    local target="$HOME/.local/share/applications/helium.desktop"
+    mkdir -p "$HOME/.local/share/applications"
+
+    if [[ ! -f /usr/share/applications/helium.desktop ]]; then
+        gum style --foreground 214 "Helium desktop file not found; skipping."
+        return 0
+    fi
+
+    local flags
+    flags=$(browser_flags)
+
+    sed "s|Exec=\\(.*helium\\)|Exec=\\1 $flags|" \
+        /usr/share/applications/helium.desktop >"$target"
+
     command -v kbuildsycoca6 >/dev/null && kbuildsycoca6
 }
 
@@ -437,11 +465,16 @@ install_wwan_unlock() {
 
 # WWAN dispatcher fix for MBIM over MHI
 install_wwan_fix() {
+    local source="$DOTFILES_DIR/wwan/etc/NetworkManager/dispatcher.d/99-wwan-fix"
     local target="/etc/NetworkManager/dispatcher.d/99-wwan-fix"
-    [[ -e "$target" ]] && return
+
+    if [[ -f "$target" && ! -L "$target" ]] && cmp -s "$source" "$target"; then
+        return
+    fi
+
     gum style --foreground 33 "Installing WWAN dispatcher fix..."
-    sudo stow -d "$DOTFILES_DIR" -t / wwan
-    sudo chmod +x "$target"
+    sudo install -o root -g root -m 0755 "$source" "$target"
+    sudo restorecon "$target" 2>/dev/null || true
 }
 
 # WWAN access point configuration
@@ -537,6 +570,7 @@ main() {
     # Apps
     install_chromium
     configure_chromium
+    configure_helium
     install_ghostty
     configure_ghostty
     install_helix
