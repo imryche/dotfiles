@@ -231,6 +231,8 @@ configure_sqlite() { stow_dotfiles sqlite; }
 
 configure_pi() { stow_dotfiles pi; }
 
+configure_mcp() { stow_dotfiles mcp; }
+
 # Chromium browser
 chromium_profile_name() {
     local chromium_dir="$HOME/.config/chromium"
@@ -271,7 +273,7 @@ install_chromium() {
 }
 
 browser_flags() {
-    echo "--remote-debugging-port=9222 --ozone-platform=wayland --enable-features=TouchpadOverscrollHistoryNavigation --disable-features=WaylandWpColorManagerV1,WaylandFractionalScaleV1"
+    echo "--ozone-platform=wayland --enable-features=TouchpadOverscrollHistoryNavigation --disable-features=WaylandWpColorManagerV1,WaylandFractionalScaleV1"
 }
 
 configure_chromium() {
@@ -280,7 +282,7 @@ configure_chromium() {
     mkdir -p "$HOME/.local/share/applications"
 
     local flags
-    flags=$(browser_flags)
+    flags="$(browser_flags) --remote-debugging-port=9222"
 
     sed "s|Exec=\\(.*chromium-browser\\)|Exec=\\1 $flags|" \
         /usr/share/applications/chromium-browser.desktop >"$target"
@@ -569,6 +571,7 @@ main() {
     install_sqlite
     configure_sqlite
     configure_pi
+    configure_mcp
 
     # Apps
     install_chromium
