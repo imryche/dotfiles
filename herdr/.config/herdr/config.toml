@@ -1,0 +1,34 @@
+onboarding = false
+
+[keys]
+prefix = "ctrl+a"
+new_tab = "alt+t"
+next_tab = "alt+n"
+previous_tab = "alt+p"
+split_vertical = "alt+v"
+split_horizontal = "alt+s"
+focus_pane_right = "alt+l"
+focus_pane_left = "alt+h"
+focus_pane_down = "alt+j"
+focus_pane_up = "alt+k"
+close_pane = "alt+w"
+
+[ui]
+agent_panel_sort = "spaces"
+pane_borders = true
+pane_gaps = false
+
+[experimental]
+kitty_graphics = true
+
+[theme]
+name = "terminal"
+auto_switch = false
+
+[theme.custom]
+accent = "#886B8B"
+surface1 = "#D3DEE8"
+surface_dim = "#D3DEE8"
+
+[ui.toast]
+delivery = "system"

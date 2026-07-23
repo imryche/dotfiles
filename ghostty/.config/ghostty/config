@@ -1,7 +1,8 @@
-window-decoration = none
+# window-decoration = none
 gtk-tabs-location = hidden
 mouse-hide-while-typing = true
 unfocused-split-opacity = 1
+command = herdr
 
 window-save-state = always
 window-padding-balance = true
@@ -14,7 +15,7 @@ font-style = Medium
 font-style-italic = Medium Italic
 font-style-bold = Bold
 font-style-bold-italic = Bold Italic
-font-size = 9.5
+font-size = 10
 
 adjust-cell-width = -1
 adjust-cell-height = -1
@@ -25,16 +26,6 @@ shell-integration-features = no-cursor
 
 theme = signal
 
-keybind = alt+t=new_tab
-keybind = alt+n=next_tab
-keybind = alt+p=previous_tab
-
-keybind = alt+v=new_split:right
-keybind = alt+s=new_split:down
-keybind = alt+==equalize_splits
-keybind = alt+l=goto_split:right
-keybind = alt+h=goto_split:left
-keybind = alt+j=goto_split:down
-keybind = alt+k=goto_split:up
-
-keybind = alt+w=close_surface
+keybind = global:super+grave_accent=toggle_quick_terminal
+quick-terminal-position = top
+quick-terminal-autohide = false
