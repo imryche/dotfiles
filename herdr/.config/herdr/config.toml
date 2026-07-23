@@ -3,6 +3,7 @@ onboarding = false
 [keys]
 prefix = "ctrl+a"
 new_tab = "alt+t"
+rename_tab = "alt+r"
 next_tab = "alt+n"
 previous_tab = "alt+p"
 split_vertical = "alt+v"
