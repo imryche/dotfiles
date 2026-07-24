@@ -416,6 +416,7 @@ install_ghostty() {
 }
 
 configure_ghostty() { stow_dotfiles ghostty; }
+configure_herdr() { stow_dotfiles herdr; }
 
 # Helix text editor
 install_helix() {
@@ -579,6 +580,7 @@ main() {
     configure_helium
     install_ghostty
     configure_ghostty
+    configure_herdr
     install_helix
     configure_helix
     install_bitwarden
