@@ -1,0 +1,14 @@
+{
+  "name": "pi-google-search-console",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "pi": {
+    "extensions": [
+      "./index.ts"
+    ]
+  },
+  "dependencies": {
+    "googleapis": "^160.0.0"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "credentialsFile": "~/.config/pi-google/search-console-service-account.json",
+  "allowedSites": [],
+  "maxRowsPerRequest": 5000,
+  "maxDateRangeDays": 550
+}
