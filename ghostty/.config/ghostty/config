@@ -2,7 +2,7 @@
 gtk-tabs-location = hidden
 mouse-hide-while-typing = true
 unfocused-split-opacity = 1
-command = herdr
+command = /usr/bin/fish --login --init-command herdr
 
 window-save-state = always
 window-padding-balance = true
