@@ -4,6 +4,7 @@ onboarding = false
 prefix = "ctrl+a"
 new_tab = "alt+t"
 rename_tab = "alt+r"
+goto = "alt+d"
 next_tab = "alt+n"
 previous_tab = "alt+p"
 split_vertical = "alt+v"
@@ -18,6 +19,7 @@ close_pane = "alt+w"
 agent_panel_sort = "spaces"
 pane_borders = true
 pane_gaps = false
+mouse_scroll_lines = 1
 
 [experimental]
 kitty_graphics = true
