@@ -26,6 +26,7 @@ type -q direnv && direnv hook fish | source
 abbr -a va 'source .venv/bin/activate.fish'
 abbr -a vd deactivate.fish
 abbr -a todo 'hx ~/todo.txt'
+abbr -a rr tuicr
 
 # python
 function ruff-fix-format
