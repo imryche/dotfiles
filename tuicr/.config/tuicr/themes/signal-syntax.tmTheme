@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- TextMate syntax theme built from Ghostty's Signal palette. -->
+<plist version="1.0">
+<dict>
+  <key>name</key>
+  <string>Signal</string>
+  <key>settings</key>
+  <array>
+    <dict>
+      <key>settings</key>
+      <dict>
+        <key>foreground</key><string>#1F1D1B</string>
+        <key>background</key><string>#F8F5F0</string>
+        <key>caret</key><string>#1F1D1B</string>
+        <key>selection</key><string>#D3DEE8</string>
+        <key>lineHighlight</key><string>#D3DEE8</string>
+      </dict>
+    </dict>
+    <dict>
+      <key>name</key><string>Comments</string>
+      <key>scope</key><string>comment, punctuation.definition.comment</string>
+      <key>settings</key>
+      <dict><key>foreground</key><string>#9B9996</string><key>fontStyle</key><string>italic</string></dict>
+    </dict>
+    <dict>
+      <key>name</key><string>Keywords</string>
+      <key>scope</key><string>keyword, storage, storage.type, storage.modifier</string>
+      <key>settings</key>
+      <dict><key>foreground</key><string>#886B8B</string></dict>
+    </dict>
+    <dict>
+      <key>name</key><string>Strings</string>
+      <key>scope</key><string>string, punctuation.definition.string</string>
+      <key>settings</key>
+      <dict><key>foreground</key><string>#5F8236</string></dict>
+    </dict>
+    <dict>
+      <key>name</key><string>Numbers and constants</string>
+      <key>scope</key><string>constant, constant.numeric, constant.language, variable.language</string>
+      <key>settings</key>
+      <dict><key>foreground</key><string>#D47D3D</string></dict>
+    </dict>
+    <dict>
+      <key>name</key><string>Functions</string>
+      <key>scope</key><string>entity.name.function, meta.function-call, support.function</string>
+      <key>settings</key>
+      <dict><key>foreground</key><string>#3D5F8C</string></dict>
+    </dict>
+    <dict>
+      <key>name</key><string>Types</string>
+      <key>scope</key><string>entity.name.type, entity.name.class, support.type, support.class</string>
+      <key>settings</key>
+      <dict><key>foreground</key><string>#3D9E98</string></dict>
+    </dict>
+    <dict>
+      <key>name</key><string>Variables and properties</string>
+      <key>scope</key><string>variable, variable.parameter, variable.other, entity.name.tag, entity.other.attribute-name</string>
+      <key>settings</key>
+      <dict><key>foreground</key><string>#1F1D1B</string></dict>
+    </dict>
+    <dict>
+      <key>name</key><string>Diff inserted</string>
+      <key>scope</key><string>markup.inserted</string>
+      <key>settings</key>
+      <dict><key>foreground</key><string>#5F8236</string></dict>
+    </dict>
+    <dict>
+      <key>name</key><string>Diff deleted and invalid</string>
+      <key>scope</key><string>markup.deleted, invalid, invalid.illegal</string>
+      <key>settings</key>
+      <dict><key>foreground</key><string>#C73838</string></dict>
+    </dict>
+  </array>
+</dict>
+</plist>

@@ -1,0 +1,3 @@
+# Keep tuicr aligned with Ghostty's custom Signal palette.
+theme = "signal"
+transparent_background = true

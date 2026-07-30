@@ -1,0 +1,52 @@
+# tuicr companion to ~/.config/ghostty/themes/signal.
+# The subtle diff backgrounds are Signal palette colors blended over its background.
+panel_bg = "#F8F5F0"
+bg_highlight = "#D3DEE8"
+fg_primary = "#1F1D1B"
+fg_secondary = "#6E6A66"
+fg_dim = "#9B9996"
+
+diff_add = "#5F8236"
+diff_add_bg = "#E1E4D4"
+diff_del = "#C73838"
+diff_del_bg = "#F1D8D4"
+diff_context = "#1F1D1B"
+diff_hunk_header = "#3D5F8C"
+expanded_context_fg = "#9B9996"
+
+syntax_add_bg = "#E1E4D4"
+syntax_del_bg = "#F1D8D4"
+syntax_theme = "signal-syntax.tmTheme"
+
+file_added = "#5F8236"
+file_modified = "#D47D3D"
+file_deleted = "#C73838"
+file_renamed = "#886B8B"
+
+reviewed = "#5F8236"
+pending = "#D47D3D"
+
+comment_note = "#3D5F8C"
+comment_suggestion = "#3D9E98"
+comment_issue = "#C73838"
+comment_praise = "#5F8236"
+
+border_focused = "#3D9E98"
+border_unfocused = "#9B9996"
+status_bar_bg = "#D3DEE8"
+cursor_color = "#1F1D1B"
+cursor_line_bg = "#D3DEE8"
+branch_name = "#886B8B"
+help_indicator = "#6E6A66"
+
+message_info_fg = "#F8F5F0"
+message_info_bg = "#3D5F8C"
+message_warning_fg = "#1F1D1B"
+message_warning_bg = "#E89452"
+message_error_fg = "#F8F5F0"
+message_error_bg = "#C73838"
+update_badge_fg = "#1F1D1B"
+update_badge_bg = "#E89452"
+
+mode_fg = "#F8F5F0"
+mode_bg = "#3D5F8C"
