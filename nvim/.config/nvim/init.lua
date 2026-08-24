@@ -130,12 +130,6 @@ require('lualine').setup {
   },
 }
 
-require('no-neck-pain').setup {
-  width = 120,
-  autocmds = { enableOnVimEnter = true },
-  mappings = { enabled = true },
-}
-
 require('ibl').setup { indent = { char = '▏' }, scope = { enabled = false } }
 do
   local hooks = require 'ibl.hooks'

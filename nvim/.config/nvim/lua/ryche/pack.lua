@@ -20,7 +20,6 @@ vim.api.nvim_create_autocmd('PackChanged', {
 vim.pack.add({
   { src = gh 'bjarneo/aether.nvim', name = 'aether', version = 'v3' },
   gh 'nvim-lualine/lualine.nvim',
-  gh 'shortcuts/no-neck-pain.nvim',
   gh 'lukas-reineke/indent-blankline.nvim',
   gh 'nvim-lua/plenary.nvim',
   { src = gh 'nvim-telescope/telescope.nvim', version = 'master' },
@@ -41,7 +40,6 @@ vim.pack.add({
   gh 'stevearc/quicker.nvim',
   gh 'echasnovski/mini.nvim',
   gh 'windwp/nvim-ts-autotag',
-  gh 'mg979/vim-visual-multi',
   gh 'tpope/vim-sleuth',
   { src = 'https://codeberg.org/andyg/leap.nvim', name = 'leap.nvim' },
 }, { confirm = false, load = true })
