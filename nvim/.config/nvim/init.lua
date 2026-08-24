@@ -238,6 +238,8 @@ vim.lsp.config('ts_ls', {
 })
 vim.lsp.enable 'ts_ls'
 
+vim.lsp.enable 'gopls'
+
 require('blink.cmp').setup {
   keymap = {
     preset = 'default',
@@ -412,8 +414,25 @@ require('gitsigns').setup {
   end,
 }
 
-require('oil').setup {}
-vim.keymap.set('n', '<leader>-', ':Oil<CR>', { silent = true, noremap = true })
+require('oil').setup {
+  default_file_explorer = true,
+  delete_to_trash = true,
+  skip_confirm_for_simple_edits = true,
+  watch_for_changes = true,
+  columns = {}, -- names only; matches lualine's no-icons look
+  view_options = {
+    show_hidden = true,
+  },
+  keymaps = {
+    -- don't fight <C-h>/<C-l> window movement
+    ['<C-h>'] = false,
+    ['<C-l>'] = false,
+    ['<C-s>'] = false,
+    ['<C-p>'] = 'actions.preview',
+    ['R'] = 'actions.refresh',
+  },
+}
+vim.keymap.set('n', '<leader>-', require('oil').open, { silent = true, noremap = true, desc = 'Oil' })
 
 require('quicker').setup {}
 
