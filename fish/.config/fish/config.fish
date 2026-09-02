@@ -27,6 +27,7 @@ abbr -a va 'source .venv/bin/activate.fish'
 abbr -a vd deactivate.fish
 abbr -a todo 'hx ~/todo.txt'
 abbr -a rr tuicr
+abbr -a cy 'codex --approve-for-me'
 
 # python
 function ruff-fix-format
