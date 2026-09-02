@@ -1,7 +1,16 @@
 onboarding = false
+[theme]
+name = "terminal"
+
+[theme.custom]
+panel_bg = "black"
+
+[terminal]
+new_cwd = "follow"
 
 [keys]
-prefix = "ctrl+a"
+prefix = "ctrl+space"
+
 new_tab = "alt+t"
 rename_tab = "alt+r"
 goto = "alt+d"
@@ -16,22 +25,15 @@ focus_pane_up = "alt+k"
 close_pane = "alt+w"
 
 [ui]
-agent_panel_sort = "spaces"
-pane_borders = true
+accent = "blue"
 pane_gaps = false
-mouse_scroll_lines = 1
+pane_outer_borders = false
+pane_scrollbars = false
+confirm_close = false
+prompt_new_tab_name = false
+mouse_capture = true
+tab_bar_right = [{ type = "zoom" }, { type = "hostname" }]
+window_title = "{hostname}: {workspace}"
 
 [experimental]
 kitty_graphics = true
-
-[theme]
-name = "terminal"
-auto_switch = false
-
-[theme.custom]
-accent = "#886B8B"
-surface1 = "#D3DEE8"
-surface_dim = "#D3DEE8"
-
-[ui.toast]
-delivery = "system"
