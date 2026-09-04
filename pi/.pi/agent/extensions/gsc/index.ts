@@ -9,7 +9,7 @@ import {
   truncateHead,
   type ExtensionAPI,
 } from "@earendil-works/pi-coding-agent";
-import { google } from "googleapis";
+import type { google } from "googleapis";
 import { Type } from "typebox";
 
 const READONLY_SCOPE = "https://www.googleapis.com/auth/webmasters.readonly";
@@ -204,7 +204,7 @@ export default function (pi: ExtensionAPI) {
   function getRuntime(): Promise<Runtime> {
     if (!runtimePromise) {
       runtimePromise = (async () => {
-        const config = await loadConfig();
+        const [{ google }, config] = await Promise.all([import("googleapis"), loadConfig()]);
         const auth = new google.auth.GoogleAuth({
           keyFile: config.credentialsFile,
           scopes: [READONLY_SCOPE],
