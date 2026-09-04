@@ -1,0 +1,16 @@
+{
+  "name": "pi-web-tools",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "pi": {
+    "extensions": [
+      "./index.ts"
+    ]
+  },
+  "dependencies": {
+    "defuddle": "^0.19.3",
+    "ipaddr.js": "^2.2.0",
+    "linkedom": "^0.18.13"
+  }
+}
