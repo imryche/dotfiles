@@ -15,6 +15,7 @@ import {
   type TruncationResult,
 } from "@earendil-works/pi-coding-agent";
 import ipaddr from "ipaddr.js";
+import { Agent, fetch as pinnedFetch } from "undici";
 import { Text } from "@earendil-works/pi-tui";
 import { Type } from "typebox";
 
@@ -104,7 +105,7 @@ function requestSignal(parent: AbortSignal | undefined, timeoutMs: number): {
   };
 }
 
-async function readBody(response: Response, maximumBytes: number): Promise<Uint8Array> {
+export async function readBody(response: Response, maximumBytes: number): Promise<Uint8Array> {
   const declaredLength = Number(response.headers.get("content-length"));
   if (Number.isFinite(declaredLength) && declaredLength > maximumBytes) {
     await response.body?.cancel();
@@ -150,7 +151,7 @@ function decodeBody(bytes: Uint8Array, contentType: string): string {
   }
 }
 
-function parsePublicUrl(input: string): URL {
+export function parsePublicUrl(input: string): URL {
   let url: URL;
   try {
     url = new URL(input);
@@ -169,7 +170,7 @@ function parsePublicUrl(input: string): URL {
   return url;
 }
 
-function assertPublicAddress(address: string): void {
+export function assertPublicAddress(address: string): void {
   let parsed = ipaddr.parse(address.split("%")[0]);
   if (parsed.kind() === "ipv6" && parsed.isIPv4MappedAddress()) {
     parsed = parsed.toIPv4Address();
@@ -179,7 +180,8 @@ function assertPublicAddress(address: string): void {
   }
 }
 
-async function assertPublicDestination(url: URL): Promise<void> {
+export async function publicAddresses(url: URL, resolve = lookup, signal?: AbortSignal): Promise<Array<{ address: string; family: number }>> {
+  signal?.throwIfAborted();
   const hostname = url.hostname.replace(/^\[|\]$/g, "").replace(/\.+$/, "").toLowerCase();
   if (!hostname || hostname === "localhost" || hostname.endsWith(".localhost") || hostname.endsWith(".local")) {
     throw new Error("Local hostnames are not allowed");
@@ -187,17 +189,34 @@ async function assertPublicDestination(url: URL): Promise<void> {
 
   if (isIP(hostname)) {
     assertPublicAddress(hostname);
-    return;
+    return [{ address: hostname, family: isIP(hostname) }];
   }
 
-  let addresses: Awaited<ReturnType<typeof lookup>>;
+  let addresses: Array<{ address: string; family: number }>;
   try {
-    addresses = await lookup(hostname, { all: true, verbatim: true });
+    // OS DNS lookups cannot be cancelled, but must not hold a cancelled tool open.
+    addresses = await new Promise((accept, reject) => {
+      const onAbort = () => reject(signal?.reason);
+      signal?.addEventListener("abort", onAbort, { once: true });
+      resolve(hostname, { all: true, verbatim: true }).then(accept, reject).finally(() => {
+        signal?.removeEventListener("abort", onAbort);
+      });
+    });
   } catch (error: any) {
     throw new Error(`Could not resolve ${hostname}: ${error?.code || error?.message || String(error)}`);
   }
   if (addresses.length === 0) throw new Error(`Could not resolve ${hostname}`);
   for (const { address } of addresses) assertPublicAddress(address);
+  return addresses;
+}
+
+export function pinnedLookup(addresses: Array<{ address: string; family: number }>) {
+  return (_hostname: string, options: any, callback: any) => {
+    const candidates = options.family ? addresses.filter((item) => item.family === options.family) : addresses;
+    if (!candidates.length) return callback(new Error("No validated address for requested family"));
+    if (options.all) callback(null, candidates);
+    else callback(null, candidates[0].address, candidates[0].family);
+  };
 }
 
 async function fetchPublicPage(input: string, parentSignal?: AbortSignal): Promise<{
@@ -212,36 +231,44 @@ async function fetchPublicPage(input: string, parentSignal?: AbortSignal): Promi
 
   try {
     for (let redirects = 0; redirects <= MAX_REDIRECTS; redirects += 1) {
-      await assertPublicDestination(current);
-      const response = await fetch(current, {
-        redirect: "manual",
-        signal: timed.signal,
-        headers: {
-          Accept: "text/html,application/xhtml+xml,text/markdown,text/plain,application/json,application/xml;q=0.8,*/*;q=0.1",
-          "User-Agent": USER_AGENT,
-        },
-      });
+      const addresses = await publicAddresses(current, lookup, timed.signal);
+      timed.signal.throwIfAborted();
+      // Preserve Host/SNI, but never resolve the hostname again at connection time.
+      const dispatcher = new Agent({ connect: { lookup: pinnedLookup(addresses) } });
+      try {
+        const response = await pinnedFetch(current, {
+          dispatcher,
+          redirect: "manual",
+          signal: timed.signal,
+          headers: {
+            Accept: "text/html,application/xhtml+xml,text/markdown,text/plain,application/json,application/xml;q=0.8,*/*;q=0.1",
+            "User-Agent": USER_AGENT,
+          },
+        });
 
-      if (response.status >= 300 && response.status < 400) {
-        const location = response.headers.get("location");
-        await response.body?.cancel();
-        if (!location) throw new Error(`Redirect from ${current} did not include a Location header`);
-        if (redirects === MAX_REDIRECTS) throw new Error(`Too many redirects (maximum ${MAX_REDIRECTS})`);
-        current = parsePublicUrl(new URL(location, current).href);
-        continue;
+        if (response.status >= 300 && response.status < 400) {
+          const location = response.headers.get("location");
+          await response.body?.cancel();
+          if (!location) throw new Error(`Redirect from ${current} did not include a Location header`);
+          if (redirects === MAX_REDIRECTS) throw new Error(`Too many redirects (maximum ${MAX_REDIRECTS})`);
+          current = parsePublicUrl(new URL(location, current).href);
+          continue;
+        }
+
+        if (!response.ok) {
+          await response.body?.cancel();
+          throw new Error(`HTTP ${response.status} ${response.statusText} for ${current}`);
+        }
+
+        return {
+          response: response as unknown as Response,
+          body: await readBody(response as unknown as Response, MAX_RESPONSE_BYTES),
+          requestedUrl: requested.href,
+          finalUrl: current.href,
+        };
+      } finally {
+        await dispatcher.destroy();
       }
-
-      if (!response.ok) {
-        await response.body?.cancel();
-        throw new Error(`HTTP ${response.status} ${response.statusText} for ${current}`);
-      }
-
-      return {
-        response,
-        body: await readBody(response, MAX_RESPONSE_BYTES),
-        requestedUrl: requested.href,
-        finalUrl: current.href,
-      };
     }
   } finally {
     timed.dispose();

@@ -2,10 +2,14 @@
   "name": "pi-browser-tools",
   "version": "1.0.0",
   "private": true,
+  "scripts": { "test": "node --test *.test.mjs" },
   "type": "module",
   "pi": {
     "extensions": [
       "./index.ts"
     ]
+  },
+  "devDependencies": {
+    "linkedom": "^0.18.13"
   }
 }
