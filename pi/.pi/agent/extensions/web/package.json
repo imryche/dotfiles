@@ -2,7 +2,9 @@
   "name": "pi-web-tools",
   "version": "1.0.0",
   "private": true,
-  "scripts": { "test": "node --test *.test.mjs" },
+  "scripts": {
+    "test": "node --test *.test.mjs"
+  },
   "type": "module",
   "pi": {
     "extensions": [
@@ -12,7 +14,6 @@
   "dependencies": {
     "defuddle": "^0.19.3",
     "ipaddr.js": "^2.2.0",
-    "linkedom": "^0.18.13",
-    "undici": "^7.29.1"
+    "linkedom": "^0.18.13"
   }
 }

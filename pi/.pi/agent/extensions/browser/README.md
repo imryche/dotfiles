@@ -32,6 +32,21 @@ chromium \
 
 Set `PI_BROWSER_CDP_URL` to use a separately managed browser; only loopback HTTP(S) endpoints are accepted. **Any explicit endpoint is connect-only**, even if it equals the default: Pi never launches a fallback browser for it. If the Pi profile is already open without remote debugging, close that browser and retry.
 
+## Task tabs
+
+One shared browser does not mean reusing the same tab for unrelated work. Start a new task with:
+
+```js
+// browser_execute arguments:
+{ newTab: true, code: "return goto('https://example.com');" }
+```
+
+This opens a fresh tab before running code, selects it, and leaves existing tabs unchanged. Continue related actions without `newTab`; `goto()` navigates the selected task tab. `newTab` cannot be combined with `tab`.
+
+Use `return closeTab();` in `browser_execute` to close the selected task tab when it is no longer needed. The helper refuses to close tabs this session did not create, or tabs with unsaved recordings. Ownership resets on `/reload`; tabs remain open. Leave requested results open for the user.
+
+Task boundaries are an agent instruction, not inferred from domains or URLs. Explicitly use an existing tab only when the user requests it. Arbitrary JavaScript remains powerful; the close helper is a guardrail, not a sandbox.
+
 ## Execution model
 
 Call `browser_snapshot` first. Interactive elements receive refs. Then batch related work into one `browser_execute` call:

@@ -10,7 +10,9 @@ const mocks = {
     export const DEFAULT_MAX_BYTES = 51200, DEFAULT_MAX_LINES = 2000;
     export const formatSize = String;
     export const withFileMutationQueue = async (_path, fn) => fn();
-    export const truncateHead = content => ({ content, truncated: false });
+    export const truncateHead = (content, options) => globalThis.__piTestTruncateHead
+      ? globalThis.__piTestTruncateHead(content, options)
+      : ({ content, truncated: false });
   `,
 };
 registerHooks({

@@ -1,7 +1,7 @@
 import '../test-support/loader.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-const { parsePublicUrl, assertPublicAddress, publicAddresses, pinnedLookup, readBody } = await import('./index.ts');
+const { parsePublicUrl, assertPublicAddress, publicAddresses, readBody } = await import('./index.ts');
 
 test('public fetch rejects unsafe URLs and addresses', async () => {
   for (const url of ['file:///etc/passwd', 'http://user:pass@example.com', 'https://example.com:8443']) {
@@ -20,20 +20,6 @@ test('public fetch rejects unsafe URLs and addresses', async () => {
 test('all DNS answers must be public', async () => {
   const resolve = async () => [{ address: '8.8.8.8', family: 4 }, { address: '10.0.0.1', family: 4 }];
   await assert.rejects(publicAddresses(new URL('https://example.com'), resolve), /non-public/);
-});
-
-test('connection lookup uses validated addresses instead of resolving again', async () => {
-  let calls = 0;
-  const resolve = async () => [{ address: ++calls === 1 ? '8.8.8.8' : '127.0.0.1', family: 4 }];
-  const addresses = await publicAddresses(new URL('https://example.com'), resolve);
-  const lookup = pinnedLookup(addresses);
-  const lookupOne = options => new Promise((resolve, reject) => {
-    lookup('example.com', options, (error, address, family) => error ? reject(error) : resolve({ address, family }));
-  });
-  assert.deepEqual(await lookupOne({}), { address: '8.8.8.8', family: 4 });
-  assert.deepEqual((await lookupOne({ all: true })).address, addresses);
-  await assert.rejects(lookupOne({ family: 6 }), /No validated address/);
-  assert.equal(calls, 1);
 });
 
 test('cancellation does not wait for stalled DNS', async () => {
