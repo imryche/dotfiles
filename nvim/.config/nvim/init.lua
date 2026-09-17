@@ -171,21 +171,29 @@ do
 
   local builtin = require 'telescope.builtin'
 
-  vim.keymap.set('n', '<leader><leader>', builtin.buffers)
-  vim.keymap.set('n', '<leader>f', builtin.git_files)
-  vim.keymap.set('n', '<leader>F', builtin.find_files)
-  vim.keymap.set('n', '<leader>s', builtin.live_grep)
-  vim.keymap.set('n', '<leader>j', builtin.buffers)
-  vim.keymap.set('n', '<leader>l', builtin.grep_string)
-  vim.keymap.set('v', '<leader>l', builtin.grep_string)
-  vim.keymap.set('n', '<leader>.', builtin.resume)
+  -- Helix's Space menu, while retaining Neovim's editing grammar.
+  vim.keymap.set('n', '<leader>f', builtin.find_files, { desc = 'File picker' })
+  vim.keymap.set('n', '<leader>b', builtin.buffers, { desc = 'Buffer picker' })
+  vim.keymap.set('n', '<leader>/', builtin.live_grep, { desc = 'Global search' })
+  vim.keymap.set('n', '<leader>s', builtin.lsp_document_symbols, { desc = 'Document symbols' })
+  vim.keymap.set('n', '<leader>S', builtin.lsp_workspace_symbols, { desc = 'Workspace symbols' })
+  vim.keymap.set('n', '<leader>d', function()
+    builtin.diagnostics { bufnr = 0 }
+  end, { desc = 'Buffer diagnostics' })
+  vim.keymap.set('n', '<leader>D', builtin.diagnostics, { desc = 'Workspace diagnostics' })
+  vim.keymap.set('n', '<leader>.', builtin.resume, { desc = 'Resume picker' })
 end
 
 vim.api.nvim_create_autocmd('LspAttach', {
-  callback = function()
+  callback = function(ev)
     local builtin = require 'telescope.builtin'
-    vim.keymap.set('n', 'gd', builtin.lsp_definitions, { buffer = 0 })
-    vim.keymap.set('n', 'gr', builtin.lsp_references, { buffer = 0 })
+    local opts = { buffer = ev.buf }
+
+    vim.keymap.set('n', 'gd', builtin.lsp_definitions, vim.tbl_extend('force', opts, { desc = 'Go to definition' }))
+    vim.keymap.set('n', 'gr', builtin.lsp_references, vim.tbl_extend('force', opts, { desc = 'Go to references' }))
+    vim.keymap.set('n', '<leader>r', vim.lsp.buf.rename, vim.tbl_extend('force', opts, { desc = 'Rename symbol' }))
+    vim.keymap.set('n', '<leader>a', vim.lsp.buf.code_action, vim.tbl_extend('force', opts, { desc = 'Code action' }))
+    vim.keymap.set('n', '<leader>k', vim.lsp.buf.hover, vim.tbl_extend('force', opts, { desc = 'Hover documentation' }))
   end,
 })
 
@@ -233,8 +241,30 @@ vim.lsp.config('emmet_language_server', {
 })
 vim.lsp.enable 'emmet_language_server'
 
+vim.lsp.config('denols', {
+  cmd = { 'deno', 'lsp' },
+  filetypes = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' },
+  root_markers = { 'deno.json', 'deno.jsonc' },
+  settings = {
+    deno = {
+      enable = true,
+    },
+  },
+})
+vim.lsp.enable 'denols'
+
 vim.lsp.config('ts_ls', {
-  filetypes = { 'javascript' },
+  filetypes = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' },
+  root_dir = function(bufnr, on_dir)
+    -- Deno and ts_ls must not attach to the same project.
+    if vim.fs.root(bufnr, { 'deno.json', 'deno.jsonc' }) then
+      return
+    end
+    local root = vim.fs.root(bufnr, { 'tsconfig.json', 'jsconfig.json', 'package.json' })
+    if root then
+      on_dir(root)
+    end
+  end,
 })
 vim.lsp.enable 'ts_ls'
 
@@ -468,12 +498,12 @@ end
 do
   local bufremove = require 'mini.bufremove'
   bufremove.setup {}
-  vim.keymap.set('n', '<leader>d', function()
+  vim.keymap.set('n', '<leader>x', function()
     bufremove.delete(0, false)
-  end, { noremap = true, silent = true })
-  vim.keymap.set('n', '<leader>D', function()
+  end, { noremap = true, silent = true, desc = 'Close buffer' })
+  vim.keymap.set('n', '<leader>X', function()
     bufremove.delete(0, true)
-  end, { noremap = true, silent = true })
+  end, { noremap = true, silent = true, desc = 'Force close buffer' })
 end
 
 require('nvim-ts-autotag').setup()
