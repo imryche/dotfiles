@@ -18,6 +18,11 @@ next_tab = "alt+n"
 previous_tab = "alt+p"
 switch_tab = "alt+1..9"
 focus_agent = "alt+shift+1..9"
+next_agent = "alt+shift+n"
+previous_agent = "alt+shift+p"
+next_workspace = "ctrl+alt+n"
+previous_workspace = "ctrl+alt+p"
+switch_workspace = "ctrl+alt+1..9"
 split_vertical = "alt+v"
 split_horizontal = "alt+s"
 focus_pane_right = "alt+l"
@@ -37,5 +42,6 @@ mouse_capture = true
 tab_bar_right = [{ type = "zoom" }, { type = "hostname" }]
 window_title = "{hostname}: {workspace}"
 
+agent_panel_sort = "priority"
 [experimental]
 kitty_graphics = true
