@@ -122,10 +122,31 @@ require('lualine').setup {
     section_separators = '',
   },
   sections = {
-    lualine_c = { 'tabs', {
+    lualine_c = { {
       'filename',
       file_status = true,
       path = 1,
+    } },
+  },
+  tabline = {
+    lualine_c = { {
+      'buffers',
+      show_filename_only = false,
+      hide_filename_extension = false,
+      show_modified_status = true,
+      mode = 0,
+      max_length = function()
+        return vim.o.columns
+      end,
+      buffers_color = {
+        active = 'TabLineSel',
+        inactive = 'TabLine',
+      },
+      symbols = {
+        modified = ' ●',
+        alternate_file = '',
+        directory = '',
+      },
     } },
   },
 }
@@ -460,6 +481,7 @@ require('oil').setup {
     ['<C-s>'] = false,
     ['<C-p>'] = 'actions.preview',
     ['R'] = 'actions.refresh',
+    ['q'] = 'actions.close',
   },
 }
 vim.keymap.set('n', '<leader>-', require('oil').open, { silent = true, noremap = true, desc = 'Oil' })
