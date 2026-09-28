@@ -1231,9 +1231,8 @@ export const BrowserFindParameters = Type.Object({
 
 export const TYPESAFE_ENDPOINT = "https://api.typesafe.ai/v1/systemone";
 export const TYPESAFE_DEFAULT_MODEL = "jev-latest";
-export const JEV_CHUNK_SIZE = 200;
-export const JEV_WINDOW_SIZE = 50;
-export const SINGLE_PASS_MAX_CHARS = 12000;
+export const JEV_REQUEST_BUDGET_CHARS = 10_000;
+export const JEV_MAX_CRITERIA = 254;
 export const NONE_OF_ABOVE = "none_of_above";
 
 export const JEV_TOOLS = ["browser_find", "browser_act"] as const;
@@ -1300,9 +1299,18 @@ export function parseSnapshotRefs(text) {
     const match = line.match(/\[ref=(e\d+_[^\]]+)\]/);
     if (!match) continue;
     const desc = line.trim().slice(0, 300);
-    out.push({ ref: match[1], desc, line: line.trim(), short: stripUrls(desc) });
+    out.push({ ref: match[1], desc, line: line.trim(), short: stripUrls(desc), label: compactLabel(stripUrls(desc)) });
   }
   return out;
+}
+
+export function compactLabel(desc) {
+  const text = String(desc || "").replace(/^[\s-]*/, "");
+  const role = text.split(/\s+/, 1)[0] || "element";
+  const name = (text.match(/"((?:[^"\\]|\\.)*)"/) || [])[1] || "";
+  const cleanName = name.replace(/\s+/g, " ").trim().slice(0, 120);
+  const label = cleanName ? `${role} "${cleanName}"` : role;
+  return label.slice(0, 140);
 }
 
 export function stripUrls(line) {
@@ -1363,9 +1371,36 @@ export async function callSystemOne(state, questions, model, apiKey, signal) {
 
 function criteriaFor(candidates) {
   const criteria = {};
-  for (const c of candidates) criteria[c.ref] = c.short || c.desc;
+  for (const c of candidates) criteria[c.ref] = c.label || c.short || c.desc;
   criteria[NONE_OF_ABOVE] = "No listed element satisfies the goal; pick this when nothing matches.";
   return criteria;
+}
+
+export function existsFromProbabilities(probabilities, choice) {
+  if (probabilities && typeof probabilities === "object") {
+    const none = Number(probabilities[NONE_OF_ABOVE]);
+    if (Number.isFinite(none)) return Math.min(1, Math.max(0, 1 - none));
+  }
+  return choice && choice !== NONE_OF_ABOVE ? 1 : 0;
+}
+
+export function chunkCandidatesByBudget(items, budget = JEV_REQUEST_BUDGET_CHARS) {
+  const chunks = [];
+  let current = [];
+  let currentChars = 0;
+  for (const item of items) {
+    // Each candidate costs its state line plus its criteria value: roughly twice the label.
+    const cost = item.label.length * 2 + 2;
+    if (current.length > 0 && (current.length + 1 > JEV_MAX_CRITERIA || currentChars + cost > budget)) {
+      chunks.push(current);
+      current = [];
+      currentChars = 0;
+    }
+    current.push(item);
+    currentChars += cost;
+  }
+  if (current.length > 0) chunks.push(current);
+  return chunks;
 }
 
 function topFromProbabilities(probabilities, descByRef, k) {
@@ -1391,29 +1426,28 @@ export async function groundRefs({ snapshotText, goal, model, apiKey, topK, sign
     };
   }
   const descByRef = new Map(candidates.map((c) => [c.ref, c.desc]));
-  const strippedFull = stripUrls(snapshotText);
-  const existsQuestion = {
-    type: "noul",
-    instructions: "Goal: " + goal + ". Does the page snapshot contain an element that satisfies the goal?",
-  };
+  const byRef = new Map(candidates.map((c) => [c.ref, c]));
+  const title = titleOf(snapshotText);
+  const stateFor = (items) => [title, ...items.map((c) => c.label)].join("\n");
+  const choiceQuestion = (items, windowed) => ({
+    type: "choice",
+    instructions: "Goal: " + goal + ". Which element ref best satisfies the goal? Use the element labels to decide." +
+      (windowed ? " Only the elements in THIS WINDOW are listed; if none match, pick none_of_above." : ""),
+    criteria: criteriaFor(items),
+  });
 
-  if (strippedFull.length <= SINGLE_PASS_MAX_CHARS && candidates.length + 1 <= 255) {
-    const data = await callSystemOne(strippedFull, {
-      target: {
-        type: "choice",
-        instructions: "Goal: " + goal + ". Which element ref best satisfies the goal? Use the snapshot line text to decide.",
-        criteria: criteriaFor(candidates),
-      },
-      exists: existsQuestion,
+  const chunks = chunkCandidatesByBudget(candidates);
+  if (chunks.length === 1) {
+    const data = await callSystemOne(stateFor(candidates), {
+      target: choiceQuestion(candidates, false),
     }, model, apiKey, signal);
     const target = data.answers?.target;
-    const exists = data.answers?.exists;
     if (!target) throw new Error("TypeSafe response missing target answer");
     return {
       candidates,
       choice: target.choice ?? null,
       confidence: target.confidence ?? 0,
-      exists: exists?.noul ?? 0,
+      exists: existsFromProbabilities(target.probabilities, target.choice),
       top: topFromProbabilities(target.probabilities || {}, descByRef, topK),
       usage: data.usage ?? null,
       latencyMs: Date.now() - startedAt,
@@ -1422,25 +1456,14 @@ export async function groundRefs({ snapshotText, goal, model, apiKey, topK, sign
     };
   }
 
-  // Windowed fan-out for large snapshots: each window carries ONLY its own
-  // lines as state, so no single request exceeds Jev's input limit.
-  const title = titleOf(strippedFull);
-  const needStateChunking = snapshotText.length > SINGLE_PASS_MAX_CHARS;
-  const windowSize = needStateChunking ? JEV_WINDOW_SIZE : JEV_CHUNK_SIZE;
-  const chunks = chunkCandidates(candidates, windowSize);
+  // Windowed fan-out for large snapshots: each window carries only its own
+  // labels, so no single request exceeds the char budget.
   const usage = { input_tokens: 0, output_tokens: 0 };
-  const windowResults = await Promise.all(chunks.map((chunk) => {
-    const state = needStateChunking
-      ? [title, ...chunk.map((c) => stripUrls(c.line))].join("\n")
-      : strippedFull;
-    return callSystemOne(state, {
-      target: {
-        type: "choice",
-        instructions: "Goal: " + goal + ". Which element ref in THIS WINDOW best satisfies the goal? If none match, pick none_of_above.",
-        criteria: criteriaFor(chunk),
-      },
-    }, model, apiKey, signal).then((data) => ({ chunk, answer: data.answers?.target, usage: data.usage }));
-  }));
+  const windowResults = await Promise.all(chunks.map((chunk) =>
+    callSystemOne(stateFor(chunk), {
+      target: choiceQuestion(chunk, true),
+    }, model, apiKey, signal).then((data) => ({ chunk, answer: data.answers?.target, usage: data.usage }))
+  ));
   for (const w of windowResults) {
     usage.input_tokens += w.usage?.input_tokens || 0;
     usage.output_tokens += w.usage?.output_tokens || 0;
@@ -1448,31 +1471,19 @@ export async function groundRefs({ snapshotText, goal, model, apiKey, topK, sign
   const finalists = [];
   for (const w of windowResults) {
     const choice = w.answer?.choice;
-    if (choice && choice !== NONE_OF_ABOVE && descByRef.has(choice)) {
-      finalists.push({ ref: choice, desc: descByRef.get(choice) });
+    if (choice && choice !== NONE_OF_ABOVE && byRef.has(choice)) {
+      finalists.push(byRef.get(choice));
     }
   }
   if (finalists.length === 0) {
-    const existsData = await callSystemOne(title + "\n(no candidate matched in any window)", { exists: existsQuestion }, model, apiKey, signal);
-    usage.input_tokens += existsData.usage?.input_tokens || 0;
-    usage.output_tokens += existsData.usage?.output_tokens || 0;
+    // Nothing matched in any window: no extra exists call needed.
     return {
-      candidates, choice: NONE_OF_ABOVE, confidence: 0,
-      exists: existsData.answers?.exists?.noul ?? 0, top: [],
+      candidates, choice: NONE_OF_ABOVE, confidence: 0, exists: 0, top: [],
       usage, latencyMs: Date.now() - startedAt, model, chunked: true,
     };
   }
-  const finalState = [title, ...finalists.map((f) => {
-    const full = candidates.find((c) => c.ref === f.ref);
-    return stripUrls((full && full.line) || f.desc);
-  })].join("\n");
-  const final = await callSystemOne(finalState, {
-    target: {
-      type: "choice",
-      instructions: "Goal: " + goal + ". Which element ref best satisfies the goal?",
-      criteria: criteriaFor(finalists),
-    },
-    exists: existsQuestion,
+  const final = await callSystemOne(stateFor(finalists), {
+    target: choiceQuestion(finalists, false),
   }, model, apiKey, signal);
   usage.input_tokens += final.usage?.input_tokens || 0;
   usage.output_tokens += final.usage?.output_tokens || 0;
@@ -1481,7 +1492,7 @@ export async function groundRefs({ snapshotText, goal, model, apiKey, topK, sign
     candidates,
     choice: target?.choice ?? finalists[0].ref,
     confidence: target?.confidence ?? 0,
-    exists: final.answers?.exists?.noul ?? 0,
+    exists: existsFromProbabilities(target?.probabilities, target?.choice),
     top: topFromProbabilities(target?.probabilities || {}, descByRef, topK),
     usage,
     latencyMs: Date.now() - startedAt,

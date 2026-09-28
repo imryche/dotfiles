@@ -144,7 +144,7 @@ Opting in only reveals the tools; grounding calls still need `TYPESAFE_API_KEY` 
 { goal: "the Login button", topK: 5 }
 ```
 
-The full snapshot stays inside the plugin: it is sent to Jev (`jev-latest` via `https://api.typesafe.ai/v1/systemone`) as one `Choice` (which ref?) plus one `Noul` (does it exist?) in a single request, then the plugin returns only the top candidates with `exists`/`confidence`. Act with `browser_execute click("<ref>")`. If confidence is low or choice is `none_of_above`, fall back to `browser_snapshot`. Snapshots with 255+ refs are grounded in two passes (one `Choice` per window, then a final `Choice` among winners). URLs are stripped from Jev request state to halve tokens; display text keeps them. Requires `TYPESAFE_API_KEY` (and optional `TYPESAFE_MODEL`) in the environment, plus opting in via `/browser jev on`.
+The full snapshot stays inside the plugin: it is sent to Jev (`jev-latest` via `https://api.typesafe.ai/v1/systemone`) as one `Choice` (which ref?) in a single request, then the plugin returns only the top candidates with `exists`/`confidence` (`exists` is derived from the `none_of_above` probability, so no second question is needed). Act with `browser_execute click("<ref>")`. If confidence is low or choice is `none_of_above`, fall back to `browser_snapshot`. Large snapshots are grounded in two passes (one `Choice` per ~10k-char window, then a final `Choice` among winners). Only compact element labels reach Jev; full lines with URLs stay in the plugin for display. Requires `TYPESAFE_API_KEY` (and optional `TYPESAFE_MODEL`) in the environment, plus opting in via `/browser jev on`.
 
 ## One-call actions with `browser_act`
 
