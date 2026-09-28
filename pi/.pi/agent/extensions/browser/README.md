@@ -6,8 +6,8 @@ The extension exposes four tools:
 
 - `browser_snapshot` lists tabs and returns a compact page snapshot with generation-qualified refs such as `e1_<uuid>`.
 - `browser_execute` runs a batch of direct DOM actions in the page using those refs.
-- `browser_find` grounds a natural-language goal (e.g. "the Login button") to a snapshot ref via Jev, returning only top candidates. Needs `TYPESAFE_API_KEY`.
-- `browser_act` finds *and* clicks in one call with confidence gating and one stale-ref retry. Needs `TYPESAFE_API_KEY`.
+- `browser_find` grounds a natural-language goal (e.g. "the Login button") to a snapshot ref via Jev, returning only top candidates. Opt-in via `/browser jev on`; needs `TYPESAFE_API_KEY`.
+- `browser_act` finds *and* clicks in one call with confidence gating and one stale-ref retry. Opt-in via `/browser jev on`; needs `TYPESAFE_API_KEY`.
 
 ## Browser lifecycle
 
@@ -125,6 +125,16 @@ Code runs inside the selected page, not in Pi's Node.js process. Direct DOM acti
 
 Browser tool calls are serialized within each Pi session. Cancellation stops pending `sleep()`/`waitFor()` helpers on a best-effort basis; it cannot roll back clicks or reliably stop arbitrary JavaScript, native timers, or network requests. Separate Pi sessions' page actions are not coordinated; only browser startup is locked.
 
+## Jev grounding opt-in
+
+`browser_find` and `browser_act` call the external Jev API, so they stay inactive until you opt in:
+
+- `/browser jev` toggles them on/off for this session and saves the preference to `~/.local/share/pi-browser/settings.json` (explicit `/browser jev on|off` still works).
+- `/browser status` reports the current state.
+- `PI_BROWSER_JEV=1` forces them on (use `0` to force off), overriding the saved preference. Useful in non-interactive modes where there is no `/` command.
+
+Opting in only reveals the tools; grounding calls still need `TYPESAFE_API_KEY` (and optional `TYPESAFE_MODEL`) in the environment.
+
 ## Fast grounding with `browser_find`
 
 `browser_snapshot` can dump up to 3000 nodes for the big LLM to read on every loop. When you already know what element you want, use `browser_find` instead:
@@ -134,7 +144,7 @@ Browser tool calls are serialized within each Pi session. Cancellation stops pen
 { goal: "the Login button", topK: 5 }
 ```
 
-The full snapshot stays inside the plugin: it is sent to Jev (`jev-latest` via `https://api.typesafe.ai/v1/systemone`) as one `Choice` (which ref?) plus one `Noul` (does it exist?) in a single request, then the plugin returns only the top candidates with `exists`/`confidence`. Act with `browser_execute click("<ref>")`. If confidence is low or choice is `none_of_above`, fall back to `browser_snapshot`. Snapshots with 255+ refs are grounded in two passes (one `Choice` per window, then a final `Choice` among winners). URLs are stripped from Jev request state to halve tokens; display text keeps them. Requires `TYPESAFE_API_KEY` (and optional `TYPESAFE_MODEL`) in the environment.
+The full snapshot stays inside the plugin: it is sent to Jev (`jev-latest` via `https://api.typesafe.ai/v1/systemone`) as one `Choice` (which ref?) plus one `Noul` (does it exist?) in a single request, then the plugin returns only the top candidates with `exists`/`confidence`. Act with `browser_execute click("<ref>")`. If confidence is low or choice is `none_of_above`, fall back to `browser_snapshot`. Snapshots with 255+ refs are grounded in two passes (one `Choice` per window, then a final `Choice` among winners). URLs are stripped from Jev request state to halve tokens; display text keeps them. Requires `TYPESAFE_API_KEY` (and optional `TYPESAFE_MODEL`) in the environment, plus opting in via `/browser jev on`.
 
 ## One-call actions with `browser_act`
 
