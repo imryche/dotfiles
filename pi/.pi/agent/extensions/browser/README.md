@@ -17,7 +17,7 @@ No manual startup is needed. The first browser tool call connects to `http://127
 - `/browser status` reports availability without launching anything.
 - Pi exit, session switches, and `/reload` disconnect CDP but **leave Chromium running**.
 - Independent Pi sessions share one browser. A kernel `flock` startup lock prevents simultaneous launches and is released automatically if Pi dies. It does not serialize different sessions' actions on shared tabs.
-- `chromium` and `flock` must be on `PATH`, with a graphical desktop available. Launch errors are logged to `~/.local/share/pi-browser/launcher.log`.
+- `chromium` and `flock` must be on `PATH`, with a graphical desktop available. Set `PI_BROWSER_CHROMIUM` to use a different Chromium binary. Launch errors are logged to `~/.local/share/pi-browser/launcher.log`.
 
 The default endpoint is reserved for the Pi browser. An already-running CDP browser there is reused rather than replaced; avoid starting your everyday profile on this port. A malformed/occupied endpoint causes an error, not another launch.
 
@@ -64,9 +64,10 @@ return text("[data-status]");
 Available helpers:
 
 - `ref(id)` and `query(selector)` resolve an element.
-- `click(target)`, `fill(target, value)`, and `check(target, checked)` mutate controls directly.
+- `click(target)`, `fill(target, value)`, and `check(target, checked)` mutate controls directly. `fill()` focuses the target and uses the native value setter (framework-safe); contenteditable targets are replaced through the editing pipeline.
+- `trustedClick(target)` clicks via real CDP mouse events for pages that depend on trusted input (custom dropdowns, canvas, `isTrusted` checks). Takes a snapshot ref or CSS selector string, not an element.
 - `text(target)` and `attr(target, name)` read the page.
-- `sleep(ms)` and `waitFor(selector, timeout)` wait explicitly.
+- `sleep(ms)` and `waitFor(selectorOrRef, timeout)` wait explicitly; `waitFor` also accepts a snapshot ref.
 - Return `goto(url)`, `snapshot()`, `screenshot(options)`, or `recording(options)` to request that operation.
 
 ### Scoped snapshots
