@@ -2,10 +2,12 @@
 
 Fast Chromium control over a persistent, loopback-only Chrome DevTools Protocol connection.
 
-The extension exposes two tools:
+The extension exposes four tools:
 
 - `browser_snapshot` lists tabs and returns a compact page snapshot with generation-qualified refs such as `e1_<uuid>`.
 - `browser_execute` runs a batch of direct DOM actions in the page using those refs.
+- `browser_find` grounds a natural-language goal (e.g. "the Login button") to a snapshot ref via Jev, returning only top candidates. Needs `TYPESAFE_API_KEY`.
+- `browser_act` finds *and* clicks in one call with confidence gating and one stale-ref retry. Needs `TYPESAFE_API_KEY`.
 
 ## Browser lifecycle
 
@@ -122,8 +124,26 @@ Code runs inside the selected page, not in Pi's Node.js process. Direct DOM acti
 
 Browser tool calls are serialized within each Pi session. Cancellation stops pending `sleep()`/`waitFor()` helpers on a best-effort basis; it cannot roll back clicks or reliably stop arbitrary JavaScript, native timers, or network requests. Separate Pi sessions' page actions are not coordinated; only browser startup is locked.
 
-## Tests
+## Fast grounding with `browser_find`
 
-Run `npm ci` then `npm test` in this directory (Node 22.15+). Tests exercise the actual DOM runtime with LinkeDOM and the CDP/tab lifecycle with fakes; Pi registration/UI imports are stubbed by `../test-support/loader.mjs`. No running browser is required. Startup tests exercise connect/reuse/launch, failure and cancellation, command behavior, and real cross-process `flock` contention. These are regression tests, not full Chromium integration coverage.
+`browser_snapshot` can dump up to 3000 nodes for the big LLM to read on every loop. When you already know what element you want, use `browser_find` instead:
+
+```js
+// Arguments to browser_find:
+{ goal: "the Login button", topK: 5 }
+```
+
+The full snapshot stays inside the plugin: it is sent to Jev (`jev-latest` via `https://api.typesafe.ai/v1/systemone`) as one `Choice` (which ref?) plus one `Noul` (does it exist?) in a single request, then the plugin returns only the top candidates with `exists`/`confidence`. Act with `browser_execute click("<ref>")`. If confidence is low or choice is `none_of_above`, fall back to `browser_snapshot`. Snapshots with 255+ refs are grounded in two passes (one `Choice` per window, then a final `Choice` among winners). URLs are stripped from Jev request state to halve tokens; display text keeps them. Requires `TYPESAFE_API_KEY` (and optional `TYPESAFE_MODEL`) in the environment.
+
+## One-call actions with `browser_act`
+
+`browser_find` only grounds; `browser_act` goes all the way: snapshot → Jev ground → gate → click → verify, in one tool call.
+
+```js
+// Arguments to browser_act:
+{ goal: "click the Login button" }
+```
+
+Auto-click gate: top probability ≥ 0.5 **and** `exists` ≥ 0.5, otherwise it does NOT act and returns the top candidates instead. On success it reports clicked ref plus navigated/stayed and the resulting URL (navigation is detected even when it destroys the execution context). On `Stale or unknown ref` it re-snapshots, re-grounds once, and retries if confidence holds. Below-threshold and retry-exhausted outcomes cost no clicks.
 
 CDP provides full control of the dedicated browser profile. Only sign it into services Pi is allowed to access, and treat all page content as untrusted.
