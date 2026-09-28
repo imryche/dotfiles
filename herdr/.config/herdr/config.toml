@@ -32,6 +32,7 @@ focus_pane_up = "alt+k"
 close_pane = "alt+w"
 
 [ui]
+sidebar_width = 32
 accent = "blue"
 pane_gaps = false
 pane_outer_borders = false

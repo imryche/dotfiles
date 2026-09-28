@@ -2,3 +2,9 @@ nvim/.config/nvim/plugin/
 tmux/.config/tmux/plugins/
 backups/
 fish/.config/fish/private.fish
+fish/.config/fish/fish_variables
+herdr/.config/herdr/*.log
+herdr/.config/herdr/session.json
+herdr/.config/herdr/release-notes.json
+herdr/.config/herdr/.plugins.lock
+package-lock.json
