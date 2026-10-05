@@ -1,0 +1,25 @@
+{
+  "theme": "omarchy-system",
+  "lastChangelogVersion": "1.0.2",
+  "defaultProvider": "openai",
+  "defaultModel": "gpt-6.1-sol",
+  "defaultThinkingLevel": "high",
+  "hideThinkingBlock": true,
+  "packages": [],
+  "defaultTools": [
+    "+codemode"
+  ],
+  "terminal": {
+    "imageWidthCells": 80
+  },
+  "modelThinkingLevels": {
+    "openai-codex/gpt-6-astra": "low",
+    "openai-codex/gpt-5.6-sol": "low"
+  },
+  "tuiMode": "fullscreen",
+  "enabledModels": [
+    "meta/muse-spark-1.3-contributor",
+    "openai/gpt-6.1-sol"
+  ],
+  "deviceId": "0470a9bd-67fc-4697-aeee-f7eb4055888a"
+}
