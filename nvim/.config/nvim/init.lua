@@ -74,8 +74,12 @@ vim.keymap.set('n', '<leader>0', ':only<cr>')
 
 -- Buffer actions
 vim.keymap.set('n', '<leader>q', ':q<cr>')
-vim.keymap.set('n', '<leader>w', ':w<cr>')
+vim.keymap.set('n', '<leader>w', '<cmd>bdelete<cr>', { desc = 'Close buffer' })
+vim.keymap.set('n', '<leader>s', '<cmd>write<cr>', { desc = 'Save buffer' })
+vim.keymap.set('n', '<leader>S', '<cmd>wall<cr>', { desc = 'Save all buffers' })
 vim.keymap.set('n', '<leader><Tab>', '<C-^>')
+vim.keymap.set('n', 'gn', '<cmd>bnext<cr>', { desc = 'Next buffer' })
+vim.keymap.set('n', 'gp', '<cmd>bprevious<cr>', { desc = 'Previous buffer' })
 
 vim.api.nvim_create_autocmd('CursorMoved', {
   group = vim.api.nvim_create_augroup('auto-hlsearch', { clear = true }),
@@ -131,7 +135,7 @@ require('lualine').setup {
   tabline = {
     lualine_c = { {
       'buffers',
-      show_filename_only = false,
+      show_filename_only = true,
       hide_filename_extension = false,
       show_modified_status = true,
       mode = 0,
@@ -196,8 +200,8 @@ do
   vim.keymap.set('n', '<leader>f', builtin.find_files, { desc = 'File picker' })
   vim.keymap.set('n', '<leader>b', builtin.buffers, { desc = 'Buffer picker' })
   vim.keymap.set('n', '<leader>/', builtin.live_grep, { desc = 'Global search' })
-  vim.keymap.set('n', '<leader>s', builtin.lsp_document_symbols, { desc = 'Document symbols' })
-  vim.keymap.set('n', '<leader>S', builtin.lsp_workspace_symbols, { desc = 'Workspace symbols' })
+  vim.keymap.set('n', '<leader>ls', builtin.lsp_document_symbols, { desc = 'Document symbols' })
+  vim.keymap.set('n', '<leader>lS', builtin.lsp_workspace_symbols, { desc = 'Workspace symbols' })
   vim.keymap.set('n', '<leader>d', function()
     builtin.diagnostics { bufnr = 0 }
   end, { desc = 'Buffer diagnostics' })
@@ -252,13 +256,11 @@ vim.lsp.config('cssls', {
 })
 vim.lsp.enable 'cssls'
 
-vim.lsp.config('tailwindcss', {
-  filetypes = { 'html', 'htmldjango' },
-})
-vim.lsp.enable 'tailwindcss'
+-- Astro components need their own server; denols handles standalone JS/TS.
+vim.lsp.enable 'astro'
 
 vim.lsp.config('emmet_language_server', {
-  filetypes = { 'html', 'htmldjango' },
+  filetypes = { 'html', 'htmldjango', 'astro' },
 })
 vim.lsp.enable 'emmet_language_server'
 
@@ -339,6 +341,8 @@ require('conform').setup {
     css = { 'prettierd', 'prettier', stop_after_first = true },
     html = { 'prettierd', 'prettier', stop_after_first = true },
     htmldjango = { 'prettierd', 'prettier', stop_after_first = true },
+    -- Use project-local Prettier with prettier-plugin-astro in its config.
+    astro = { 'prettier' },
     markdown = { 'prettier' },
     sh = { 'shfmt' },
     ['_'] = { 'trim_whitespace', 'trim_newlines' },
@@ -385,10 +389,13 @@ do
   local ts = require 'nvim-treesitter'
   ts.setup {}
   ts.install {
+    'astro',
     'bash',
     'c',
     'diff',
+    'css',
     'html',
+    'javascript',
     'lua',
     'luadoc',
     'markdown',
@@ -398,6 +405,7 @@ do
     'vimdoc',
     'python',
     'typescript',
+    'tsx',
     'sql',
     'go',
   }

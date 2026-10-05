@@ -1,45 +1,69 @@
-import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
-import { getModel, getModels } from "@earendil-works/pi-ai";
-import { openaiCodexOAuthProvider } from "@earendil-works/pi-ai/oauth";
+import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 
-const PROVIDER = "openai-codex";
-const BASE_MODEL = "gpt-5.5";
-const FAST_MODEL = "gpt-5.5-fast";
+const STATE_TYPE = "gpt-fast-state";
+
+interface FastState {
+  enabled: boolean;
+}
+
+function supportsFastMode(model: ExtensionContext["model"]): boolean {
+  return !!model &&
+    (model.provider === "openai-codex" || model.provider === "openai") &&
+    model.id.startsWith("gpt-");
+}
 
 export default function (pi: ExtensionAPI) {
-  const baseModel = getModel(PROVIDER, BASE_MODEL);
-  const existingModels = getModels(PROVIDER);
+  let enabled = false;
 
-  pi.registerProvider(PROVIDER, {
-    name: "ChatGPT Plus/Pro (Codex Subscription)",
-    baseUrl: baseModel.baseUrl,
-    api: baseModel.api,
-    oauth: openaiCodexOAuthProvider,
-    models: existingModels.some((model) => model.id === FAST_MODEL)
-      ? existingModels
-      : [
-          ...existingModels,
-          {
-            ...baseModel,
-            id: FAST_MODEL,
-            name: "GPT-5.5 Fast",
-            cost: {
-              input: baseModel.cost.input * 2.5,
-              output: baseModel.cost.output * 2.5,
-              cacheRead: baseModel.cost.cacheRead * 2.5,
-              cacheWrite: baseModel.cost.cacheWrite * 2.5,
-            },
-          },
-        ],
+  const clearStatus = (ctx: ExtensionContext) => {
+    // Clear the old footer indicator when reloading from earlier versions.
+    if (ctx.hasUI) ctx.ui.setStatus("gpt-fast", undefined);
+  };
+
+  const restoreState = (_event: unknown, ctx: ExtensionContext) => {
+    enabled = false;
+    for (const entry of ctx.sessionManager.getBranch()) {
+      if (entry.type !== "custom" || entry.customType !== STATE_TYPE) continue;
+      const data = entry.data as FastState | undefined;
+      if (typeof data?.enabled === "boolean") enabled = data.enabled;
+    }
+    clearStatus(ctx);
+  };
+
+  pi.on("session_start", restoreState);
+  pi.on("session_switch", restoreState);
+  pi.on("session_tree", restoreState);
+  pi.on("session_fork", restoreState);
+
+  pi.registerCommand("fast", {
+    description: "Toggle GPT fast mode (/fast [on|off|status])",
+    handler: async (args, ctx) => {
+      const action = args.trim().toLowerCase();
+      if (!["", "on", "off", "status"].includes(action)) {
+        ctx.ui.notify("Usage: /fast [on|off|status]", "warning");
+        return;
+      }
+
+      if (action !== "status") {
+        enabled = action === "" ? !enabled : action === "on";
+        pi.appendEntry<FastState>(STATE_TYPE, { enabled });
+      }
+      clearStatus(ctx);
+
+      const inactive = enabled && !supportsFastMode(ctx.model);
+      ctx.ui.notify(
+        `GPT fast mode ${enabled ? "on" : "off"}.${inactive ? " Applies when you select a GPT model on OpenAI/Codex." : ""}`,
+        "info",
+      );
+    },
   });
 
   pi.on("before_provider_request", (event, ctx) => {
-    if (ctx.model?.provider !== PROVIDER || ctx.model.id !== FAST_MODEL) return;
+    if (!enabled || !supportsFastMode(ctx.model)) return;
     if (!event.payload || typeof event.payload !== "object" || Array.isArray(event.payload)) return;
 
     return {
       ...(event.payload as Record<string, unknown>),
-      model: BASE_MODEL,
       service_tier: "priority",
     };
   });

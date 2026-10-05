@@ -32,7 +32,6 @@ vim.pack.add({
   gh 'mfussenegger/nvim-lint',
   gh 'stevearc/conform.nvim',
   { src = gh 'nvim-treesitter/nvim-treesitter', version = 'main' },
-  gh 'nvim-treesitter/nvim-treesitter-context',
   gh 'NeogitOrg/neogit',
   gh 'sindrets/diffview.nvim',
   gh 'lewis6991/gitsigns.nvim',
