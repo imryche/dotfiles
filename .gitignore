@@ -8,4 +8,5 @@ herdr/.config/herdr/session.json
 herdr/.config/herdr/session-snapshots/
 herdr/.config/herdr/release-notes.json
 herdr/.config/herdr/.plugins.lock
+pi/.pi/agent/settings.json
 package-lock.json
