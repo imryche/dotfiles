@@ -256,7 +256,7 @@ vim.lsp.config('cssls', {
 })
 vim.lsp.enable 'cssls'
 
--- Astro components need their own server; denols handles standalone JS/TS.
+-- Astro components need their own server; tsc handles standalone JS/TS.
 vim.lsp.enable 'astro'
 
 vim.lsp.config('emmet_language_server', {
@@ -264,32 +264,16 @@ vim.lsp.config('emmet_language_server', {
 })
 vim.lsp.enable 'emmet_language_server'
 
-vim.lsp.config('denols', {
-  cmd = { 'deno', 'lsp' },
-  filetypes = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' },
-  root_markers = { 'deno.json', 'deno.jsonc' },
-  settings = {
-    deno = {
-      enable = true,
-    },
-  },
-})
-vim.lsp.enable 'denols'
-
-vim.lsp.config('ts_ls', {
+-- TypeScript 7 provides a native LSP; use the mise-managed compiler.
+vim.lsp.config('tsc', {
+  cmd = { 'tsc', '--lsp', '--stdio' },
   filetypes = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' },
   root_dir = function(bufnr, on_dir)
-    -- Deno and ts_ls must not attach to the same project.
-    if vim.fs.root(bufnr, { 'deno.json', 'deno.jsonc' }) then
-      return
-    end
-    local root = vim.fs.root(bufnr, { 'tsconfig.json', 'jsconfig.json', 'package.json' })
-    if root then
-      on_dir(root)
-    end
+    local root = vim.fs.root(bufnr, { 'tsconfig.json', 'jsconfig.json', 'package.json', '.git' })
+    on_dir(root or vim.fn.getcwd())
   end,
 })
-vim.lsp.enable 'ts_ls'
+vim.lsp.enable 'tsc'
 
 vim.lsp.enable 'gopls'
 
@@ -337,6 +321,9 @@ require('conform').setup {
     python = { 'ruff_fix', 'ruff_format' },
     sql = { 'sql_formatter' },
     javascript = { 'prettierd', 'prettier', stop_after_first = true },
+    javascriptreact = { 'prettierd', 'prettier', stop_after_first = true },
+    typescript = { 'prettierd', 'prettier', stop_after_first = true },
+    typescriptreact = { 'prettierd', 'prettier', stop_after_first = true },
     json = { 'prettierd', 'prettier', stop_after_first = true },
     css = { 'prettierd', 'prettier', stop_after_first = true },
     html = { 'prettierd', 'prettier', stop_after_first = true },
