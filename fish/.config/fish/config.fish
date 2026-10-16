@@ -36,6 +36,7 @@ function ruff-fix-format
 end
 
 # git
+abbr -a lg lazygit
 abbr -a gp 'git push'
 abbr -a gpl 'git pull'
 abbr -a gf 'git fetch'
