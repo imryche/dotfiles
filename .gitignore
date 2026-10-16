@@ -8,5 +8,13 @@ herdr/.config/herdr/session.json
 herdr/.config/herdr/session-snapshots/
 herdr/.config/herdr/release-notes.json
 herdr/.config/herdr/.plugins.lock
-pi/.pi/agent/settings.json
+# Pi machine-local credentials, state, and generated configuration.
+/pi/.pi/agent/auth.json
+/pi/.pi/agent/models-store.json
+/pi/.pi/agent/npm/
+/pi/.pi/agent/sessions/
+/pi/.pi/agent/skills/
+/pi/.pi/agent/settings.json
+/pi/.pi/agent/themes/omarchy-system.json
+/pi/.pi/agent/extensions/herdr-agent-state.ts
 package-lock.json
