@@ -1,0 +1,6 @@
+# Bar flyouts share Hello's active-window gradient and thin outline.
+# Unspecified surface colors fall back to the theme background/foreground.
+[popups]
+border = "hyprland.active-border"
+border-alpha = 1.0
+border-width = 1

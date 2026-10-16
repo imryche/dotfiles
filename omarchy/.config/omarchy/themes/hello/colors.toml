@@ -14,9 +14,9 @@ dark_foreground = "#4b4e55"
 light_foreground = "#cbc2be"
 bright_foreground = "#a5aeb4"
 
-hyprland_active_border = "rgba(798186ee) rgba(caccccee)"
-hyprland_inactive_border = "rgb(1e1e1e)"
-active_border_color = "#a8adb0"
+hyprland_active_border = "rgba(85888ce6) rgba(5e6165e6) 90deg"
+hyprland_inactive_border = "rgba(343638e6)"
+active_border_color = "#85888c"
 active_tab_background = "#798186"
 
 red = "#D98080"

@@ -62,6 +62,11 @@ not regenerate this standalone pi theme.
 - Window borders: 1 logical px.
 - Active border: `#85888C` → `#5E6165`, 90-degree gradient, alpha `e6` (~90%).
 - Inactive border: `#343638`, alpha `e6` (~90%).
+- Shared border tokens in `colors.toml` match `hyprland.lua`, including gradient
+  direction and alpha, so generated shell borders use the same treatment.
+  The legacy solid `active_border_color` token matches the lighter gradient stop.
+- `shell.popups.toml` gives bar flyouts the same gradient with a 1 px outline,
+  replacing their default 2 px borders.
 - Corners: rounding 8, rounding power 2.
 - Gaps: inner 3, outer 6.
 - Blur: enabled, size 9, passes 3 (browsers excluded).
