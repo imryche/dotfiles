@@ -65,8 +65,7 @@
           "id": "omarchy.monitor"
         },
         {
-          "id": "omarchy.power",
-          "showPercentage": true
+          "id": "omarchy.power"
         }
       ]
     }
