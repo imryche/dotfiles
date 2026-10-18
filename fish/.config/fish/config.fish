@@ -2,7 +2,8 @@
 fish_add_path -g $HOME/.local/bin
 
 # editor
-set -gx EDITOR hx
+set -gx EDITOR nvim
+set -gx VISUAL nvim
 
 # python
 set -gx PYTHONBREAKPOINT ipdb.set_trace
@@ -25,7 +26,6 @@ type -q direnv && direnv hook fish | source
 # aliases
 abbr -a va 'source .venv/bin/activate.fish'
 abbr -a vd deactivate.fish
-abbr -a todo 'hx ~/todo.txt'
 abbr -a rr tuicr
 abbr -a cy 'codex --approve-for-me'
 
