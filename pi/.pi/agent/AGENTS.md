@@ -10,6 +10,7 @@
 
 ## Code Quality
 
+- Prefer single-word filenames without sacrificing clarity.
 - Change only what was requested. Preserve approved wording and unrelated content unless asked to rewrite them.
 - Diligence: Do the necessary grunt work to complete the agreed scope. Do not substitute shortcuts or half measures for a working result.
 - Before adding code, a file, a test, a doc, or an abstraction, question whether it is needed at all. Prefer deleting, simplifying, and less indirection over adding.
