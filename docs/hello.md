@@ -67,6 +67,10 @@ not regenerate this standalone pi theme.
   The legacy solid `active_border_color` token matches the lighter gradient stop.
 - `shell.popups.toml` gives bar flyouts the same gradient with a 1 px outline,
   replacing their default 2 px borders.
+- `shell.menu.toml` sets the menu outline to 1 px, preserving its existing colors.
+  Clipboard and emoji menus share this styling.
+- `shell.notifications.toml` sets notification outlines to 1 px, preserving
+  their existing gradient and colors.
 - Corners: rounding 8, rounding power 2.
 - Gaps: inner 3, outer 6.
 - Blur: enabled, size 9, passes 3 (browsers excluded).

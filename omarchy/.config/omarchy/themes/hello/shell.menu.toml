@@ -1,0 +1,16 @@
+# Preserve the menu's colors while matching Hello's thin window borders.
+# Section overrides replace the generated section, so keep all menu tokens.
+[menu]
+background                = "#101315"
+background-alpha          = 1.0
+text                      = "#cacccc"
+border                    = "hyprland.active-border-foreground"
+border-alpha              = 1.0
+border-width              = 1
+scrim                     = "#101315"
+scrim-alpha               = 0.5
+selected-background       = "#cacccc"
+selected-background-alpha = 0.08
+selected-text             = "#798186"
+selected-border           = "hyprland.active-border-foreground"
+selected-border-alpha     = 0.25
