@@ -417,6 +417,7 @@ install_ghostty() {
 
 configure_ghostty() { stow_dotfiles ghostty; }
 configure_herdr() { stow_dotfiles herdr; }
+configure_herdr_app() { stow_dotfiles herdr-app; }
 configure_tuicr() { stow_dotfiles tuicr; }
 
 # Helix text editor
@@ -582,6 +583,7 @@ main() {
     install_ghostty
     configure_ghostty
     configure_herdr
+    configure_herdr_app
     configure_tuicr
     install_helix
     configure_helix
