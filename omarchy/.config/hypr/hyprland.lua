@@ -25,6 +25,19 @@ require("hypr.autostart")
 -- Toggle config flags dynamically.
 require("default.hypr.toggles")
 
+-- Muted, sanded-glass blur for translucent windows and the glassy bar.
+hl.config({
+  decoration = {
+    blur = {
+      size = 12,
+      passes = 6,
+      brightness = 0.6,
+      noise = 0.03,
+      vibrancy = 0.0,
+    },
+  },
+})
+
 -- Add any other personal Hyprland configuration below.
 -- o.window("qemu", { workspace = "5" })
 
