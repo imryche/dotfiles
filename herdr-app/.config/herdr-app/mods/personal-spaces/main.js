@@ -5,7 +5,8 @@
 
 import { View, div, image, svg } from "gpui-kit";
 import { v_flex, h_flex } from "gpui-base";
-import { spaces, machines, panes, run, openOverlay, exec, hc, theme, shared, setShared, watchFolder, window, layout } from "herdr";
+import { spaces, machines, panes, run, openOverlay, exec, hc, theme, shared, setShared, watchFolder, window, layout, appHome, readTextFile } from "herdr";
+import Agents from "./agents.js";
 
 function find(node, id) {
   if (node?.id === id) return node;
@@ -76,6 +77,28 @@ export default class Spaces extends View {
     this.reconnecting = JSON.parse(localStorage.getItem("machines.reconnecting") ?? "{}");
     for (const state of Object.values(this.reconnecting)) state.busy = false;
     this.folded = new Set(JSON.parse(localStorage.getItem("machines.folded") ?? "[]"));
+    cx.spawn(async cx => {
+      if (!localStorage.getItem("agents.migration")) {
+        try {
+          const raw = await readTextFile(`${appHome()}/data/personal-agents/store.json`);
+          if (raw !== null) {
+            const old = JSON.parse(raw);
+            const changed = JSON.parse(old.changed ?? "{}");
+            for (const [id, state] of Object.entries(JSON.parse(localStorage.getItem("changed") ?? "{}"))) {
+              const previous = changed[id];
+              if (!previous || (state.s !== previous.s && state.at >= previous.at) || (state.s === previous.s && state.at < previous.at)) changed[id] = state;
+            }
+            localStorage.setItem("changed", JSON.stringify(changed));
+            const pins = new Set([...JSON.parse(old.pins ?? "[]"), ...JSON.parse(localStorage.getItem("pins") ?? "[]")]);
+            if (pins.size) localStorage.setItem("pins", JSON.stringify([...pins]));
+            localStorage.setItem("agents.migration", "1");
+          }
+        } catch (e) { console.error("Could not migrate agent state", e); }
+      }
+      this.agents = new Agents();
+      this.agents.init(undefined, cx);
+      cx.notify();
+    });
     this.refreshMachines(cx);
     cx.timer.every(15000, cx => this.refreshMachines(cx));
     // `git status` walks the whole tree, on another machine a process there:
@@ -537,21 +560,12 @@ export default class Spaces extends View {
     const rows = this.grouped(t, collapsed);
     const count = rows.length + this.tabRows;
     const height = Math.min(360, Math.max(70, 8 + count * 30 + Math.max(0, count - 1) * 4 + 38));
-    if (this.targetHeight !== height) {
-      this.targetHeight = height;
-      this.resizeTimer?.cancel();
-      if (height >= (this.spaceHeight ?? 0)) {
-        this.spaceHeight = height;
-        run("layout.resize", { id: "spaces", px: height });
-      } else {
-        // Leave room for closing tabs until the native height transition finishes.
-        this.resizeTimer = cx.timer.after(200, () => {
-          this.spaceHeight = height;
-          run("layout.resize", { id: "spaces", px: height });
-        });
-      }
+    if (this.autoHeight !== height) {
+      this.autoHeight = height;
+      this.manualHeight = null;
     }
-    return v_flex().size_full().min_h(0).bg(t.chrome).text_size(13)
+    const shownHeight = this.manualHeight ?? height;
+    const spaceList = v_flex().size_full().min_h(0).bg(t.chrome).text_size(13)
       .child(v_flex().flex_1().min_h(0).px(8).pt(8).gap(4).overflow_y_scrollbar().mode("always")
         .on_mouse_up("left", (_e, cx) => { this.pressed = null; cx.notify(); })
         .children(rows))
@@ -565,5 +579,22 @@ export default class Spaces extends View {
           .on_click(() => run("space.new"))
           .child(h_flex().size(18).flex_none().items_center().justify_center().child(svg("mods/workspace-chrome/plus.svg").size(14)))
           .when(!collapsed, el => el.child("New space"))));
+    return v_flex().id("sidebar-lists").size_full().min_h(0)
+      .on_mouse_move((e, cx) => {
+        if (!this.dragging) return;
+        this.manualHeight = Math.max(70, Math.min(360, this.dragging.height + e.position.y - this.dragging.y));
+        cx.notify();
+      })
+      .on_mouse_up("left", (_e, cx) => { if (this.dragging) { this.dragging = null; cx.notify(); } })
+      .on_hover((on, cx) => { if (!on && this.dragging) { this.dragging = null; cx.notify(); } })
+      .child(div().id("sidebar-spaces").h(shownHeight).flex_none()
+        .when(!this.dragging, el => el.transition("height", { duration: 200, easing: "ease-out" })).child(spaceList))
+      .child(div().relative().flex_1().min_h(90)
+        .when(Boolean(this.agents), el => el.child(this.agents.render(cx)))
+        .child(div().id("sidebar-divider").absolute().top(0).left(0).right(0).h(6).cursor_row_resize()
+          .on_mouse_down("left", (e, cx) => {
+            this.dragging = { y: e.position.y, height: shownHeight };
+            cx.stop_propagation();
+          })));
   }
 }
