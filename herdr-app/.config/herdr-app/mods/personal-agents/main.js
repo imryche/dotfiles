@@ -17,6 +17,17 @@ function find(node, id) {
 // The sidebar's rail goes by its width, not a flag: dragging its edge narrows it too.
 const narrow = () => (find(layout(), "sidebar")?.size?.px ?? Infinity) < 160;
 
+function hover(view, id, on, cx) {
+  on ? view.hovered.add(id) : view.hovered.delete(id);
+  cx.notify();
+}
+
+function highlight(view, id, color) {
+  const on = view.hovered.has(id);
+  return div().id(`hover-${id}`).absolute().inset_0().rounded(8).bg(color)
+    .opacity(on ? 1 : 0).transition("opacity", { duration: on ? 100 : 150, easing: "ease-out" });
+}
+
 // To the rail (on macOS wide enough for the traffic lights), or back to the width it had.
 function toggleSidebar() {
   const width = find(layout(), "sidebar")?.size?.px;
@@ -78,6 +89,7 @@ export default class Agents extends View {
   init(_props, cx) {
     if (props()?.sortMenu) return;
     this.folded = new Set();
+    this.hovered = new Set();
     // Each agent's last state and when it changed (ms), kept across restarts.
     this.changed = JSON.parse(localStorage.getItem("changed") ?? "{}");
     this.pendingPins = JSON.parse(localStorage.getItem("pins") ?? "[]");
@@ -190,6 +202,7 @@ export default class Agents extends View {
     const on = k.address === shown;
     return h_flex()
       .id(`sub-${k.address}`)
+      .relative()
       .pl(39)
       .pr(8)
       .rounded(8)
@@ -199,7 +212,8 @@ export default class Agents extends View {
       .items_center()
       .text_size(12.5)
       .when(on, (el) => el.bg(t.raised))
-      .hover((s) => s.bg(t.hover))
+      .on_hover((on, cx) => hover(this, `sub-${k.address}`, on, cx))
+      .child(highlight(this, `sub-${k.address}`, t.hover))
       .on_click(() => this.peek(k.address))
       .children(s.lines.map(l => div().self_start().mt(-4).w(9).h(17).mr(4).flex_none()
         .when(Boolean(l), el => el.border_l(1.5).border_color(t.input))
@@ -301,12 +315,14 @@ export default class Agents extends View {
       if (collapsed) {
         return h_flex()
           .id(`ag-${a.address}`)
+          .relative()
           .h(26)
           .px(8)
           .flex_none()
           .items_center()
           .gap(4)
-          .hover((s) => s.bg(t.hover))
+          .on_hover((on, cx) => hover(this, `agent-${a.address}`, on, cx))
+          .child(highlight(this, `agent-${a.address}`, t.hover))
           .on_mouse_down("right", togglePin)
           .on_click(() => run("pane.focus", { pane: a.pane }))
           .child(div().flex_1().min_w(0).whitespace_nowrap().text_right().text_color(t.muted).child(String(i + 1)))
@@ -322,6 +338,7 @@ export default class Agents extends View {
       const description = full && more ? a.space_name || null : null;
       return v_flex()
         .id(`ag-${a.address}`)
+        .relative()
         .px(8)
         .h(46)
         .flex_none()
@@ -329,7 +346,8 @@ export default class Agents extends View {
         .justify_center()
         .gap(2)
         .when(a.focused, (el) => el.bg(t.foreground + "0d"))
-        .when(!a.focused, (el) => el.hover((s) => s.bg(t.foreground + "08")))
+        .on_hover((on, cx) => hover(this, `agent-${a.address}`, on, cx))
+        .when(!a.focused, el => el.child(highlight(this, `agent-${a.address}`, t.foreground + "08")))
         .cursor_pointer()
         .on_mouse_down("right", togglePin)
         .on_click(() => run("pane.focus", { pane: a.pane }))

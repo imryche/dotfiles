@@ -19,6 +19,17 @@ function find(node, id) {
 // The sidebar's rail goes by its width, not a flag: dragging its edge narrows it too.
 const narrow = () => (find(layout(), "sidebar")?.size?.px ?? Infinity) < 160;
 
+function hover(view, id, on, cx) {
+  on ? view.hovered.add(id) : view.hovered.delete(id);
+  cx.notify();
+}
+
+function highlight(view, id, color) {
+  const on = view.hovered.has(id);
+  return div().id(`hover-${id}`).absolute().inset_0().rounded(8).bg(color)
+    .opacity(on ? 1 : 0).transition("opacity", { duration: on ? 100 : 150, easing: "ease-out" });
+}
+
 // Where a space is now: its first terminal's live folder, else where it was made.
 // `ps`: panes(), read once by the caller (each read copies every pane).
 function place(s, ps) {
@@ -60,6 +71,7 @@ export default class Spaces extends View {
     this.born = {};
     this.pressed = null;
     this.over = null;
+    this.hovered = new Set();
     this.machines = [];
     this.reconnecting = JSON.parse(localStorage.getItem("machines.reconnecting") ?? "{}");
     for (const state of Object.values(this.reconnecting)) state.busy = false;
@@ -384,7 +396,8 @@ export default class Spaces extends View {
       .flex_none()
       .justify_center()
       .rounded(8)
-      .when(!on, (el) => el.hover((s) => s.bg(t.foreground + "0d")))
+      .on_hover((hovered, cx) => hover(this, `space-${w.id}`, hovered, cx))
+      .when(!on, el => el.child(highlight(this, `space-${w.id}`, t.foreground + "0d")))
       .when(this.pressed === w.id && this.over !== w.id, (el) => el.opacity(0.5))
       .when(this.pressed !== null && this.over === w.id && this.pressed !== w.id, (el) => el.child(
         div().absolute().left(0).right(0).h(2).bg(t.accent)
@@ -436,13 +449,13 @@ export default class Spaces extends View {
       const pane = allPanes.find(p => p.tab === tab.id && p.program?.agent) ?? allPanes.find(p => p.tab === tab.id);
       const program = pane?.program;
       const name = tab.named ? tab.name : program?.name ?? pane?.title ?? "Terminal";
-      return h_flex().id(`nested-tab-${tab.id}`).ml(27).h(30).pl(8).pr(2).gap(7).items_center().flex_none().rounded(8)
+      return h_flex().id(`nested-tab-${tab.id}`).relative().ml(27).h(30).pl(8).pr(2).gap(7).items_center().flex_none().rounded(8)
         .bg(tab.active ? t.raised : t.chrome).text_color(tab.active ? t.foreground : t.muted)
-        .when(!tab.active, el => el.hover(s => s.bg(t.foreground + "0d")))
+        .child(highlight(this, `tab-${tab.id}`, t.foreground + "0d"))
         .on_hover((on, cx) => {
           if (on) this.hoveredTab = tab.id;
           else if (this.hoveredTab === tab.id) this.hoveredTab = null;
-          cx.notify();
+          hover(this, `tab-${tab.id}`, on, cx);
         })
         .on_mouse_down("left", (e, cx) => {
           cx.stop_propagation();
@@ -469,8 +482,10 @@ export default class Spaces extends View {
             .on_click((_e, cx) => { cx.stop_propagation(); this.hoveredTab = null; this.hoveredClose = null; run("tab.close", { id: tab.id }); cx.notify(); })
             .child(svg("mods/pane/close.svg").size(12).text_color(this.hoveredClose === tab.id ? t.foreground : t.dim)))));
     });
-    rows.push(h_flex().id("nested-tab-new").ml(27).h(30).px(8).gap(7).items_center().flex_none().rounded(8).text_color(t.muted).cursor_pointer()
-      .hover(s => s.bg(t.foreground + "0d").text_color(t.foreground))
+    rows.push(h_flex().id("nested-tab-new").relative().ml(27).h(30).px(8).gap(7).items_center().flex_none().rounded(8).text_color(t.muted).cursor_pointer()
+      .hover(s => s.text_color(t.foreground))
+      .on_hover((on, cx) => hover(this, "tab-new", on, cx))
+      .child(highlight(this, "tab-new", t.foreground + "0d"))
       .on_click(() => openOverlay({ mod: "new-menu", kind: "popup", width: 250, height: 512 }))
       .child(svg("mods/workspace-chrome/plus.svg").size(13)).child("New tab"));
     return rows;
@@ -479,12 +494,14 @@ export default class Spaces extends View {
   compact({ w, i }, t) {
     return h_flex()
       .id(`space-${w.id}`)
+      .relative()
       .h(30)
       .flex_none()
       .justify_center()
       .gap(4)
       .when(w.active, (el) => el.bg(t.raised))
-      .hover((s) => s.bg(t.hover))
+      .on_hover((on, cx) => hover(this, `space-${w.id}`, on, cx))
+      .child(highlight(this, `space-${w.id}`, t.hover))
       .on_click(() => run("space.select", { id: w.id }))
       .child(div().text_color(w.active ? t.foreground : t.muted).child(String(i + 1)))
       .child(div().text_color(tone(t, w.status)).child(glyph(w.status)));
@@ -516,10 +533,12 @@ export default class Spaces extends View {
         .on_mouse_up("left", (_e, cx) => { this.pressed = null; cx.notify(); })
         .children(rows))
       .child(h_flex().h(38).px(8).items_center().text_color(t.muted)
-        .child(h_flex().id("space-new").h(30).flex_1().gap(9).items_center().rounded(8).cursor_pointer()
+        .child(h_flex().id("space-new").relative().h(30).flex_1().gap(9).items_center().rounded(8).cursor_pointer()
           .when(collapsed, el => el.justify_center())
           .when(!collapsed, el => el.px(8))
-          .hover(s => s.bg(t.foreground + "0d").text_color(t.foreground))
+          .hover(s => s.text_color(t.foreground))
+          .on_hover((on, cx) => hover(this, "space-new", on, cx))
+          .child(highlight(this, "space-new", t.foreground + "0d"))
           .on_click(() => run("space.new"))
           .child(h_flex().size(18).flex_none().items_center().justify_center().child(svg("mods/workspace-chrome/plus.svg").size(14)))
           .when(!collapsed, el => el.child("New space"))));
