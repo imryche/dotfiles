@@ -24,6 +24,7 @@ type -q mise && mise activate fish | source
 type -q direnv && direnv hook fish | source
 
 # aliases
+alias ssh='ghostty +ssh --'
 abbr -a va 'source .venv/bin/activate.fish'
 abbr -a vd deactivate.fish
 abbr -a rr tuicr
