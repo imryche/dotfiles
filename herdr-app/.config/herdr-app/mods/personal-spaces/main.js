@@ -309,7 +309,20 @@ export default class Spaces extends View {
   // The rows, under a header per machine once one isn't this computer.
   grouped(t, collapsed) {
     const rows = this.ordered();
-    const draw = (r) => collapsed ? [this.compact(r, t)] : [this.row(r, t), ...(r.w.active ? this.tabs(r.w, t) : [])];
+    const allPanes = panes();
+    this.tabRows = 0;
+    const draw = (r) => {
+      if (collapsed) return [this.compact(r, t)];
+      const count = r.w.tabs.filter(tab => !tab.settled).length + 1;
+      if (r.w.active) this.tabRows += count;
+      return [v_flex().id(`space-group-${r.w.id}`).flex_none()
+        .child(this.row(r, t))
+        .child(div().id(`space-tabs-${r.w.id}`).flex_none().h(r.w.active ? count * 34 : 0).overflow_hidden()
+          .transition("height", { duration: 200, easing: "ease-out" })
+          .child(v_flex().id(`space-tabs-content-${r.w.id}`).pt(4).gap(4)
+            .opacity(r.w.active ? 1 : 0).transition("opacity", { duration: r.w.active ? 120 : 100, easing: r.w.active ? "ease-out" : "ease-in" })
+            .children(this.tabs(r.w, t, allPanes))))];
+    };
     const remote = [...new Set([...rows.map(r => r.w.machine).filter(Boolean), ...this.machines.map(m => m.name), ...Object.keys(this.reconnecting)])].sort();
     const loading = m => {
       const layout = machines().find(k => k.name === m)?.layout;
@@ -441,9 +454,8 @@ export default class Spaces extends View {
       );
   }
 
-  tabs(space, t) {
+  tabs(space, t, allPanes) {
     const shown = space.tabs.filter(tab => !tab.settled);
-    const allPanes = panes();
     const stop = (_e, cx) => cx.stop_propagation();
     const rows = shown.map((tab, i) => {
       const pane = allPanes.find(p => p.tab === tab.id && p.program?.agent) ?? allPanes.find(p => p.tab === tab.id);
@@ -482,10 +494,10 @@ export default class Spaces extends View {
             .on_click((_e, cx) => { cx.stop_propagation(); this.hoveredTab = null; this.hoveredClose = null; run("tab.close", { id: tab.id }); cx.notify(); })
             .child(svg("mods/pane/close.svg").size(12).text_color(this.hoveredClose === tab.id ? t.foreground : t.dim)))));
     });
-    rows.push(h_flex().id("nested-tab-new").relative().ml(27).h(30).px(8).gap(7).items_center().flex_none().rounded(8).text_color(t.muted).cursor_pointer()
+    rows.push(h_flex().id(`nested-tab-new-${space.id}`).relative().ml(27).h(30).px(8).gap(7).items_center().flex_none().rounded(8).text_color(t.muted).cursor_pointer()
       .hover(s => s.text_color(t.foreground))
-      .on_hover((on, cx) => hover(this, "tab-new", on, cx))
-      .child(highlight(this, "tab-new", t.foreground + "0d"))
+      .on_hover((on, cx) => hover(this, `tab-new-${space.id}`, on, cx))
+      .child(highlight(this, `tab-new-${space.id}`, t.foreground + "0d"))
       .on_click(() => openOverlay({ mod: "new-menu", kind: "popup", width: 250, height: 512 }))
       .child(svg("mods/workspace-chrome/plus.svg").size(13)).child("New tab"));
     return rows;
@@ -507,7 +519,7 @@ export default class Spaces extends View {
       .child(div().text_color(tone(t, w.status)).child(glyph(w.status)));
   }
 
-  render() {
+  render(cx) {
     const t = theme();
     const collapsed = narrow();
     const palette = ["ansi6", "ansi3", "ansi4", "ansi5", "ansi2", "ansi1"];
@@ -523,10 +535,21 @@ export default class Spaces extends View {
     }
     if (changed) setShared("space.colors", kept);
     const rows = this.grouped(t, collapsed);
-    const height = Math.min(360, Math.max(70, 8 + rows.length * 30 + Math.max(0, rows.length - 1) * 4 + 38));
-    if (this.spaceHeight !== height) {
-      this.spaceHeight = height;
-      run("layout.resize", { id: "spaces", px: height });
+    const count = rows.length + this.tabRows;
+    const height = Math.min(360, Math.max(70, 8 + count * 30 + Math.max(0, count - 1) * 4 + 38));
+    if (this.targetHeight !== height) {
+      this.targetHeight = height;
+      this.resizeTimer?.cancel();
+      if (height >= (this.spaceHeight ?? 0)) {
+        this.spaceHeight = height;
+        run("layout.resize", { id: "spaces", px: height });
+      } else {
+        // Leave room for closing tabs until the native height transition finishes.
+        this.resizeTimer = cx.timer.after(200, () => {
+          this.spaceHeight = height;
+          run("layout.resize", { id: "spaces", px: height });
+        });
+      }
     }
     return v_flex().size_full().min_h(0).bg(t.chrome).text_size(13)
       .child(v_flex().flex_1().min_h(0).px(8).pt(8).gap(4).overflow_y_scrollbar().mode("always")
