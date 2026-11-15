@@ -417,7 +417,13 @@ install_ghostty() {
 
 configure_ghostty() { stow_dotfiles ghostty; }
 configure_herdr() { stow_dotfiles herdr; }
-configure_herdr_app() { stow_dotfiles herdr-app; }
+configure_herdr_app() {
+    local mod_dir="$HOME/.config/herdr-app/mods/personal-spaces"
+    mkdir -p "$mod_dir"
+    stow_dotfiles herdr-app
+    # Herdr rejects imported modules that resolve outside the mod directory.
+    cp --remove-destination "$DOTFILES_DIR/herdr-app/.config/herdr-app/mods/personal-spaces/agents.js" "$mod_dir/agents.js"
+}
 configure_tuicr() { stow_dotfiles tuicr; }
 
 # Helix text editor
