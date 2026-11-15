@@ -395,13 +395,9 @@ export default class Agents extends View {
       .size_full()
       .min_h(0)
       .bg(t.chrome)
-      .border_t(1)
-      .border_color(t.border)
+      .when(list.length > 0, (el) => el.border_t(1).border_color(t.border))
       .text_size(13)
-      .when(!collapsed, (el) => el.child(div().px(16).pt(12).pb(2).text_size(11.5).font_medium().text_color(t.muted).child("Agents")))
-      .when(list.length === 0 && !collapsed, (el) =>
-        el.child(div().px(12).text_size(12).text_color(t.dim).child("No agent status yet. Agents show up here when they report their status. Older versions and agents inside tmux may not.")),
-      )
+      .when(list.length > 0 && !collapsed, (el) => el.child(div().px(16).pt(12).pb(2).text_size(11.5).font_medium().text_color(t.muted).child("Agents")))
       .child(v_flex().id("ag-list").flex_1().min_h(0).px(collapsed ? 0 : 8).gap(4).overflow_y_scrollbar().mode("always").children(rows))
       .when(collapsed, (el) =>
         el.child(
