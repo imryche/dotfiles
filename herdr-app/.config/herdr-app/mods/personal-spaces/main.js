@@ -5,7 +5,8 @@
 
 import { View, div, image, svg } from "gpui-kit";
 import { v_flex, h_flex } from "gpui-base";
-import { spaces, machines, panes, run, openOverlay, exec, hc, theme, shared, setShared, watchFolder, window, layout } from "herdr";
+import { spaces, machines, panes, run, openOverlay, exec, hc, theme, shared, setShared, watchFolder, window, layout, appHome, readTextFile } from "herdr";
+import Agents from "./agents.js";
 
 function find(node, id) {
   if (node?.id === id) return node;
@@ -18,6 +19,17 @@ function find(node, id) {
 
 // The sidebar's rail goes by its width, not a flag: dragging its edge narrows it too.
 const narrow = () => (find(layout(), "sidebar")?.size?.px ?? Infinity) < 160;
+
+function hover(view, id, on, cx) {
+  on ? view.hovered.add(id) : view.hovered.delete(id);
+  cx.notify();
+}
+
+function highlight(view, id, color) {
+  const on = view.hovered.has(id);
+  return div().id(`hover-${id}`).absolute().inset_0().rounded(8).bg(color)
+    .opacity(on ? 1 : 0).transition("opacity", { duration: on ? 100 : 150, easing: "ease-out" });
+}
 
 // Where a space is now: its first terminal's live folder, else where it was made.
 // `ps`: panes(), read once by the caller (each read copies every pane).
@@ -60,10 +72,33 @@ export default class Spaces extends View {
     this.born = {};
     this.pressed = null;
     this.over = null;
+    this.hovered = new Set();
     this.machines = [];
     this.reconnecting = JSON.parse(localStorage.getItem("machines.reconnecting") ?? "{}");
     for (const state of Object.values(this.reconnecting)) state.busy = false;
     this.folded = new Set(JSON.parse(localStorage.getItem("machines.folded") ?? "[]"));
+    cx.spawn(async cx => {
+      if (!localStorage.getItem("agents.migration")) {
+        try {
+          const raw = await readTextFile(`${appHome()}/data/personal-agents/store.json`);
+          if (raw !== null) {
+            const old = JSON.parse(raw);
+            const changed = JSON.parse(old.changed ?? "{}");
+            for (const [id, state] of Object.entries(JSON.parse(localStorage.getItem("changed") ?? "{}"))) {
+              const previous = changed[id];
+              if (!previous || (state.s !== previous.s && state.at >= previous.at) || (state.s === previous.s && state.at < previous.at)) changed[id] = state;
+            }
+            localStorage.setItem("changed", JSON.stringify(changed));
+            const pins = new Set([...JSON.parse(old.pins ?? "[]"), ...JSON.parse(localStorage.getItem("pins") ?? "[]")]);
+            if (pins.size) localStorage.setItem("pins", JSON.stringify([...pins]));
+            localStorage.setItem("agents.migration", "1");
+          }
+        } catch (e) { console.error("Could not migrate agent state", e); }
+      }
+      this.agents = new Agents();
+      this.agents.init(undefined, cx);
+      cx.notify();
+    });
     this.refreshMachines(cx);
     cx.timer.every(15000, cx => this.refreshMachines(cx));
     // `git status` walks the whole tree, on another machine a process there:
@@ -297,7 +332,20 @@ export default class Spaces extends View {
   // The rows, under a header per machine once one isn't this computer.
   grouped(t, collapsed) {
     const rows = this.ordered();
-    const draw = (r) => collapsed ? [this.compact(r, t)] : [this.row(r, t), ...(r.w.active ? this.tabs(r.w, t) : [])];
+    const allPanes = panes();
+    this.tabRows = 0;
+    const draw = (r) => {
+      if (collapsed) return [this.compact(r, t)];
+      const count = r.w.tabs.filter(tab => !tab.settled).length + 1;
+      if (r.w.active) this.tabRows += count;
+      return [v_flex().id(`space-group-${r.w.id}`).flex_none()
+        .child(this.row(r, t))
+        .child(div().id(`space-tabs-${r.w.id}`).flex_none().h(r.w.active ? count * 34 : 0).overflow_hidden()
+          .transition("height", { duration: 200, easing: "ease-out" })
+          .child(v_flex().id(`space-tabs-content-${r.w.id}`).pt(4).gap(4)
+            .opacity(r.w.active ? 1 : 0).transition("opacity", { duration: r.w.active ? 120 : 100, easing: r.w.active ? "ease-out" : "ease-in" })
+            .children(this.tabs(r.w, t, allPanes))))];
+    };
     const remote = [...new Set([...rows.map(r => r.w.machine).filter(Boolean), ...this.machines.map(m => m.name), ...Object.keys(this.reconnecting)])].sort();
     const loading = m => {
       const layout = machines().find(k => k.name === m)?.layout;
@@ -384,7 +432,8 @@ export default class Spaces extends View {
       .flex_none()
       .justify_center()
       .rounded(8)
-      .when(!on, (el) => el.hover((s) => s.bg(t.foreground + "0d")))
+      .on_hover((hovered, cx) => hover(this, `space-${w.id}`, hovered, cx))
+      .when(!on, el => el.child(highlight(this, `space-${w.id}`, t.foreground + "0d")))
       .when(this.pressed === w.id && this.over !== w.id, (el) => el.opacity(0.5))
       .when(this.pressed !== null && this.over === w.id && this.pressed !== w.id, (el) => el.child(
         div().absolute().left(0).right(0).h(2).bg(t.accent)
@@ -428,21 +477,20 @@ export default class Spaces extends View {
       );
   }
 
-  tabs(space, t) {
+  tabs(space, t, allPanes) {
     const shown = space.tabs.filter(tab => !tab.settled);
-    const allPanes = panes();
     const stop = (_e, cx) => cx.stop_propagation();
     const rows = shown.map((tab, i) => {
       const pane = allPanes.find(p => p.tab === tab.id && p.program?.agent) ?? allPanes.find(p => p.tab === tab.id);
       const program = pane?.program;
       const name = tab.named ? tab.name : program?.name ?? pane?.title ?? "Terminal";
-      return h_flex().id(`nested-tab-${tab.id}`).ml(27).h(30).pl(8).pr(2).gap(7).items_center().flex_none().rounded(8)
+      return h_flex().id(`nested-tab-${tab.id}`).relative().ml(27).h(30).pl(8).pr(2).gap(7).items_center().flex_none().rounded(8)
         .bg(tab.active ? t.raised : t.chrome).text_color(tab.active ? t.foreground : t.muted)
-        .when(!tab.active, el => el.hover(s => s.bg(t.foreground + "0d")))
+        .child(highlight(this, `tab-${tab.id}`, t.foreground + "0d"))
         .on_hover((on, cx) => {
           if (on) this.hoveredTab = tab.id;
           else if (this.hoveredTab === tab.id) this.hoveredTab = null;
-          cx.notify();
+          hover(this, `tab-${tab.id}`, on, cx);
         })
         .on_mouse_down("left", (e, cx) => {
           cx.stop_propagation();
@@ -469,8 +517,10 @@ export default class Spaces extends View {
             .on_click((_e, cx) => { cx.stop_propagation(); this.hoveredTab = null; this.hoveredClose = null; run("tab.close", { id: tab.id }); cx.notify(); })
             .child(svg("mods/pane/close.svg").size(12).text_color(this.hoveredClose === tab.id ? t.foreground : t.dim)))));
     });
-    rows.push(h_flex().id("nested-tab-new").ml(27).h(30).px(8).gap(7).items_center().flex_none().rounded(8).text_color(t.muted).cursor_pointer()
-      .hover(s => s.bg(t.foreground + "0d").text_color(t.foreground))
+    rows.push(h_flex().id(`nested-tab-new-${space.id}`).relative().ml(27).h(30).px(8).gap(7).items_center().flex_none().rounded(8).text_color(t.muted).cursor_pointer()
+      .hover(s => s.text_color(t.foreground))
+      .on_hover((on, cx) => hover(this, `tab-new-${space.id}`, on, cx))
+      .child(highlight(this, `tab-new-${space.id}`, t.foreground + "0d"))
       .on_click(() => openOverlay({ mod: "new-menu", kind: "popup", width: 250, height: 512 }))
       .child(svg("mods/workspace-chrome/plus.svg").size(13)).child("New tab"));
     return rows;
@@ -479,18 +529,20 @@ export default class Spaces extends View {
   compact({ w, i }, t) {
     return h_flex()
       .id(`space-${w.id}`)
+      .relative()
       .h(30)
       .flex_none()
       .justify_center()
       .gap(4)
       .when(w.active, (el) => el.bg(t.raised))
-      .hover((s) => s.bg(t.hover))
+      .on_hover((on, cx) => hover(this, `space-${w.id}`, on, cx))
+      .child(highlight(this, `space-${w.id}`, t.hover))
       .on_click(() => run("space.select", { id: w.id }))
       .child(div().text_color(w.active ? t.foreground : t.muted).child(String(i + 1)))
       .child(div().text_color(tone(t, w.status)).child(glyph(w.status)));
   }
 
-  render() {
+  render(cx) {
     const t = theme();
     const collapsed = narrow();
     const palette = ["ansi6", "ansi3", "ansi4", "ansi5", "ansi2", "ansi1"];
@@ -506,22 +558,43 @@ export default class Spaces extends View {
     }
     if (changed) setShared("space.colors", kept);
     const rows = this.grouped(t, collapsed);
-    const height = Math.min(360, Math.max(70, 8 + rows.length * 30 + Math.max(0, rows.length - 1) * 4 + 38));
-    if (this.spaceHeight !== height) {
-      this.spaceHeight = height;
-      run("layout.resize", { id: "spaces", px: height });
+    const count = rows.length + this.tabRows;
+    const height = Math.min(360, Math.max(70, 8 + count * 30 + Math.max(0, count - 1) * 4 + 38));
+    if (this.autoHeight !== height) {
+      this.autoHeight = height;
+      this.manualHeight = null;
     }
-    return v_flex().size_full().min_h(0).bg(t.chrome).text_size(13)
+    const shownHeight = this.manualHeight ?? height;
+    const spaceList = v_flex().size_full().min_h(0).bg(t.chrome).text_size(13)
       .child(v_flex().flex_1().min_h(0).px(8).pt(8).gap(4).overflow_y_scrollbar().mode("always")
         .on_mouse_up("left", (_e, cx) => { this.pressed = null; cx.notify(); })
         .children(rows))
       .child(h_flex().h(38).px(8).items_center().text_color(t.muted)
-        .child(h_flex().id("space-new").h(30).flex_1().gap(9).items_center().rounded(8).cursor_pointer()
+        .child(h_flex().id("space-new").relative().h(30).flex_1().gap(9).items_center().rounded(8).cursor_pointer()
           .when(collapsed, el => el.justify_center())
           .when(!collapsed, el => el.px(8))
-          .hover(s => s.bg(t.foreground + "0d").text_color(t.foreground))
+          .hover(s => s.text_color(t.foreground))
+          .on_hover((on, cx) => hover(this, "space-new", on, cx))
+          .child(highlight(this, "space-new", t.foreground + "0d"))
           .on_click(() => run("space.new"))
           .child(h_flex().size(18).flex_none().items_center().justify_center().child(svg("mods/workspace-chrome/plus.svg").size(14)))
           .when(!collapsed, el => el.child("New space"))));
+    return v_flex().id("sidebar-lists").size_full().min_h(0)
+      .on_mouse_move((e, cx) => {
+        if (!this.dragging) return;
+        this.manualHeight = Math.max(70, Math.min(360, this.dragging.height + e.position.y - this.dragging.y));
+        cx.notify();
+      })
+      .on_mouse_up("left", (_e, cx) => { if (this.dragging) { this.dragging = null; cx.notify(); } })
+      .on_hover((on, cx) => { if (!on && this.dragging) { this.dragging = null; cx.notify(); } })
+      .child(div().id("sidebar-spaces").h(shownHeight).flex_none()
+        .when(!this.dragging, el => el.transition("height", { duration: 200, easing: "ease-out" })).child(spaceList))
+      .child(div().relative().flex_1().min_h(90)
+        .when(Boolean(this.agents), el => el.child(this.agents.render(cx)))
+        .child(div().id("sidebar-divider").absolute().top(0).left(0).right(0).h(6).cursor_row_resize()
+          .on_mouse_down("left", (e, cx) => {
+            this.dragging = { y: e.position.y, height: shownHeight };
+            cx.stop_propagation();
+          })));
   }
 }

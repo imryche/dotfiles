@@ -12,32 +12,10 @@
       "children": [
         {
           "id": "sidebar-lists",
-          "type": "column",
-          "children": [
-            {
-              "id": "spaces",
-              "type": "block",
-              "content": {
-                "mod": "personal-spaces"
-              },
-              "size": {
-                "px": 100
-              },
-              "min": 70,
-              "max": 360
-            },
-            {
-              "id": "agents",
-              "type": "block",
-              "content": {
-                "mod": "personal-agents"
-              },
-              "size": {
-                "weight": 1
-              },
-              "min": 90
-            }
-          ]
+          "type": "block",
+          "content": {
+            "mod": "personal-spaces"
+          }
         }
       ],
       "size": {
