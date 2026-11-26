@@ -8,6 +8,7 @@ const ITEM_GAP = 3;
 const LIST_INSET = 8;
 const TAB_INSET = 10;
 const ICON_SLOT = 19;
+const STATUS_SLOT = 16;
 const CHROME_ICON_SIZE = 18;
 const TOOL_SIZE = 26;
 const rank = { blocked: 4, done: 3, working: 2, idle: 1 };
@@ -88,7 +89,7 @@ function indicator(status, t) {
 }
 
 function trailing(element) {
-  return div().w(16).flex_none().flex().items_center().justify_center().child(element);
+  return div().w(STATUS_SLOT).flex_none().flex().items_center().justify_center().child(element);
 }
 
 function fade(id, on, color, duration) {
@@ -352,25 +353,27 @@ export default class Sidebar extends View {
       }
     }
     setAgentOrder(order);
-    const toolbar = (id, label, icon, action) => {
+    const toolbar = (id, label, icon, action, iconSize = CHROME_ICON_SIZE) => {
       const hovered = this.hovered.has(id);
       return h_flex().id(id).relative().size(TOOL_SIZE).rounded(6).items_center().justify_center().cursor_pointer()
         .text_color(t.muted).hover(el => el.text_color(t.foreground)).tooltip(label).on_click(action)
         .on_hover((on, cx) => { on ? this.hovered.add(id) : this.hovered.delete(id); cx.notify(); })
         .child(fade(`hover-${id}`, hovered, t.foreground + "0d", hovered ? 100 : 150).rounded(6))
-        .child(art(icon).size(CHROME_ICON_SIZE));
+        .child(art(icon).size(iconSize));
     };
     return v_flex().id("sidebar-lists").size_full().min_h(0).bg(t.chrome).text_size(13)
       .on_mouse_up("left", () => { this.pressed = null; })
       .child(h_flex().px(collapsed ? 4 : 10).py(7).gap(2).items_center().flex_none()
         .when(collapsed, el => el.flex_col().justify_center())
-        .when(!collapsed, el => el.pl(LIST_INSET + TAB_INSET + (ICON_SLOT - TOOL_SIZE) / 2))
+        .when(!collapsed, el => el.pt(11)
+          .pl(LIST_INSET + TAB_INSET + (ICON_SLOT - TOOL_SIZE) / 2)
+          .pr(LIST_INSET + TAB_INSET + (STATUS_SLOT - TOOL_SIZE) / 2))
         .child(toolbar("sidebar-toggle-width", collapsed ? "Expand sidebar" : "Collapse sidebar", "sidebar", () => {
           if (!collapsed) setShared("sidebar.width", width);
           run("layout.resize", { id: "sidebar", px: collapsed ? (shared("sidebar.width") ?? 268) : window()?.platform === "macos" ? 76 : 44 });
         }))
         .when(!collapsed, el => el.child(div().flex_1()))
-        .child(toolbar("sidebar-new", "New tab, space or worktree", "plus", addMenu)))
+        .child(toolbar("sidebar-new", "New tab, space or worktree", "plus", addMenu, 15)))
       .child(v_flex().id("sidebar-scroll").flex_1().min_h(0).px(collapsed ? 3 : LIST_INSET).pb(8).gap(ITEM_GAP)
         .overflow_y_scrollbar().track_scroll(this.scroll).children(items));
   }
