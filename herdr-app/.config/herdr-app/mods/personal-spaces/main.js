@@ -5,6 +5,9 @@ import { agents, closeOverlay, focused, hc, layout, machines, nextCommand, openO
 
 const art = name => svg(`mods/workspace-chrome/${name}.svg`);
 const ITEM_GAP = 3;
+const ROW_HEIGHT = 30;
+const PITCH = ROW_HEIGHT + ITEM_GAP;
+const SLIDE = { response: 220, damping: 1 };
 const LIST_INSET = 8;
 const TAB_INSET = 10;
 const ICON_SLOT = 19;
@@ -131,6 +134,7 @@ export default class Sidebar extends View {
     const from = rows.findIndex(row => row.tab === active);
     const index = from < 0 ? (step > 0 ? 0 : rows.length - 1) : (from + step + rows.length) % rows.length;
     const target = rows[index];
+    this.drag = null;
     if (target.tab !== active) run("tab.select", { id: target.tab });
     this.scroll.scroll_to_item(target.index);
   }
@@ -242,31 +246,89 @@ export default class Sidebar extends View {
             .child(art(agent.pinned ? "pin-off" : "pin").size(12)))))));
   }
 
+  startDrag(rows, i, e, cx) {
+    const { space, tab } = rows[i];
+    this.drag = null;
+    if (tab && e.click_count === 2) { run("tab.rename", { id: tab.id }); cx.notify(); return; }
+    this.drag = { rows, i, machine: space.machine ?? null, start: e.position.y,
+      origin: e.bounds.y - i * PITCH, scroll: this.scroll.offset().y, delta: 0, target: i };
+    cx.notify();
+  }
+
+  trackDrag(e, cx, release = false) {
+    const d = this.drag;
+    if (!d || d.settling) return;
+    if (!release && e.pressed_button !== "left") { this.drag = null; cx.notify(); return; }
+    const dy = e.position.y - d.start;
+    const scroll = this.scroll.offset().y - d.scroll;
+    const y = e.position.y - d.origin + scroll;
+    const local = e.local_position;
+    const inside = local.x >= 0 && local.x < e.bounds.width && local.y >= 0 && local.y < e.bounds.height
+      && y >= 0 && y < d.rows.length * PITCH - ITEM_GAP;
+    const target = inside ? Math.floor((y + ITEM_GAP / 2) / PITCH) : -1;
+    d.moving ||= Math.abs(dy) >= 4;
+    d.delta = dy + scroll;
+    d.target = target;
+    if (release) {
+      const from = d.rows[d.i], to = d.rows[target];
+      if (!d.moving) {
+        this.drag = null;
+        if (target === d.i) run(from.tab ? "tab.select" : "space.select", { id: from.tab?.id ?? from.space.id });
+      } else {
+        d.settling = true;
+        if (to && to.space.id !== from.space.id) run("space.move", { id: from.space.id, index: to.space.index });
+        else if (to?.tab && target !== d.i) run("tab.move", { id: from.tab.id, index: to.tab.index });
+        cx.timer.after(240, cx => { if (this.drag === d) { this.drag = null; cx.notify(); } });
+      }
+    }
+    cx.notify();
+  }
+
+  dragList(d, render, currentRows, t) {
+    const { rows, i, target } = d;
+    const source = rows[i].space.id, dest = rows[target]?.space.id;
+    const group = dest != null && dest !== source;
+    const indices = rows.map((_, n) => n);
+    const lifted = group ? indices.filter(n => rows[n].space.id === source) : [i];
+    const others = indices.filter(n => !lifted.includes(n));
+    const order = [...others];
+    let insert = lifted[0];
+    if (group) {
+      const targets = others.filter(n => rows[n].space.id === dest);
+      insert = target < i ? others.indexOf(targets[0]) : others.indexOf(targets[targets.length - 1]) + 1;
+    } else if (target >= 0) insert = target;
+    order.splice(insert, 0, ...lifted);
+    // Hit-test original slots, not these moving surfaces. Paint the pickup last.
+    return div().id("reorder-list").relative().h(rows.length * PITCH - ITEM_GAP).flex_none()
+      .children([...others, ...lifted].map(n => {
+        const row = rows[n], key = row.tab?.id ?? row.space.id;
+        const held = lifted.includes(n) && d.moving;
+        const follow = held ? d.delta : 0;
+        const slide = held && !d.settling ? 0 : (order.indexOf(n) - n) * PITCH - follow;
+        return div().id(`track-${key}`).absolute().left(0).right(0).top(n * PITCH + follow).h(ROW_HEIGHT)
+          .child(div().id(`slide-${key}`).absolute().left(0).right(0).top(slide).h(ROW_HEIGHT).spring("top", SLIDE)
+            .when(held, el => el.bg(t.raised).rounded_full().shadow_sm().cursor_grabbing())
+            .child(render(row).when(Boolean(d.settling), el => el.on_mouse_down("left", (e, cx) => {
+              const index = currentRows.findIndex(r => (r.tab?.id ?? r.space.id) === key);
+              if (index >= 0) this.startDrag(currentRows, index, e, cx);
+            }))));
+      }));
+  }
+
   row(row, t, collapsed, rim) {
     const { tab, space, title, program, branch, status, active } = row;
     const id = `tab-${tab.id}`;
     const hovered = this.hovered.has(id);
     const context = [title, space.name, branch && branch !== space.name && branch, statusName[status]].filter(Boolean).join("\n");
-    return h_flex().id(id).relative().h(30).flex_none().rounded_full().items_center()
-      .when(collapsed, el => el.justify_center().tooltip(context))
-      .when(!collapsed, el => el.px(TAB_INSET).gap(7))
-      .cursor_pointer()
+    return h_flex().id(id).relative().h(ROW_HEIGHT).flex_none().rounded_full().items_center()
       .on_hover((on, cx) => { on ? this.hovered.add(id) : this.hovered.delete(id); cx.notify(); })
-      .on_mouse_down("left", e => {
-        this.pressed = { space: space.id, tab: tab.id };
-        if (e.click_count === 2) run("tab.rename", { id: tab.id });
-      })
-      .on_mouse_up("left", () => {
-        const from = this.pressed;
-        this.pressed = null;
-        if (from?.space !== space.id) return;
-        if (from.tab !== tab.id) run("tab.move", { id: from.tab, index: tab.index });
-        else run("tab.select", { id: tab.id });
-      })
+      .when(collapsed, el => el.justify_center())
+      .when(!collapsed, el => el.px(TAB_INSET).gap(7))
+      .when(!this.drag?.moving, el => el.cursor_pointer().when(collapsed, icon => icon.tooltip(context)))
       .on_mouse_down("right", () => openOverlay({ mod: "personal-spaces", kind: "popup", width: 244, props: { rowMenu: tab.id, space: space.id } }))
       .child(fade(`selected-${id}`, active, t.selected ?? t.raised, 130).rounded_full()
         .when(rim?.color && rim.width > 0, el => el.border(rim.width).border_color(t[rim.color] ?? rim.color)))
-      .child(fade(`hover-${id}`, hovered, t.foreground + "0d", hovered ? 100 : 150).rounded_full())
+      .when(!this.drag?.moving, el => el.child(fade(`hover-${id}`, hovered, t.foreground + "0d", hovered ? 100 : 150).rounded_full()))
       .child(programIcon(program, t))
       .when(!collapsed, el => el
         .child(div().flex_1().min_w(0).truncate().text_color(active || status === "blocked" ? t.foreground : t.muted).child(title))
@@ -275,7 +337,7 @@ export default class Sidebar extends View {
       .when(collapsed && status !== "idle" && Boolean(status), el => el.child(div().absolute().right(3).top(3).child(indicator(status, t))));
   }
 
-  machineGroup(name, rows, emptySpaces, state, t, collapsed, multiMachine, rim) {
+  machineGroup(name, groups, state, t, collapsed, multiMachine, rim) {
     const id = name ?? "local";
     const repair = this.reconnecting[name];
     const machine = this.machines.find(m => m.name === name) ?? repair?.machine;
@@ -303,7 +365,10 @@ export default class Sidebar extends View {
         .when(multiMachine && !loading && !offline && !rebuilding, el => el.child(div().id(`machine-add-${id}`).p(4).rounded(4)
           .hover(s => s.bg(t.raised)).tooltip(`New space on ${name ?? "this computer"}`)
           .on_click((_e, cx) => { cx.stop_propagation(); run("space.new", { machine: name ?? "" }); }).child(art("plus").size(11))))
-        .when(folded, el => el.child(trailing(indicator(rows.reduce((top, row) => urgency(top, row.status), null), t)))));
+        .when(folded, el => {
+          const status = groups.flatMap(group => group.rows).reduce((top, row) => urgency(top, row.status), null);
+          return el.child(trailing(indicator(status, t)));
+        }));
     const items = [{ element: heading }];
     if (folded) return items;
     if (rebuilding && !collapsed) {
@@ -312,14 +377,21 @@ export default class Sidebar extends View {
         .child(div().id(`reconnect-${id}`).cursor_pointer().text_color(t.foreground).on_click((_e, cx) => this.reconnect(machine, cx)).child(repair?.busy ? "Connecting…" : "Connect")) });
       return items;
     }
-    for (const row of rows) items.push({ element: this.row(row, t, collapsed, rim), tab: row.tab.id });
-    for (const s of emptySpaces) items.push({ element:
-      h_flex().id(`empty-space-${s.id}`).h(30).gap(7).items_center().rounded(12).text_color(t.muted).hover(el => el.bg(t.hover))
+    const rows = groups.flatMap(({ space, rows }) => space.tabs.length ? rows : [{ space }]);
+    const render = row => {
+      if (row.tab) return this.row(row, t, collapsed, rim);
+      const { space } = row;
+      return h_flex().id(`empty-space-${space.id}`).h(ROW_HEIGHT).gap(7).items_center().rounded(12).text_color(t.muted)
         .when(collapsed, el => el.justify_center()).when(!collapsed, el => el.px(TAB_INSET))
-        .on_click(() => run("space.select", { id: s.id })).tooltip(s.name)
-        .on_mouse_down("right", () => openOverlay({ mod: "menu", kind: "popup", width: 200, height: 260, props: { tab: "space", target: { id: s.id } } }))
+        .when(!this.drag?.moving, el => el.hover(s => s.bg(t.hover)).tooltip(space.name))
+        .on_mouse_down("right", () => openOverlay({ mod: "menu", kind: "popup", width: 200, height: 260, props: { tab: "space", target: { id: space.id } } }))
         .child(h_flex().w(ICON_SLOT).flex_none().items_center().justify_center().child(art("folder").size(14)))
-        .when(!collapsed, el => el.child(div().truncate().child(s.name))) });
+        .when(!collapsed, el => el.child(div().truncate().child(space.name)));
+    };
+    if (this.drag?.machine === name) {
+      items.push({ element: this.dragList(this.drag, render, rows, t), slots: rows.map(row => row.tab?.id) });
+    } else rows.forEach((row, i) => items.push({ tab: row.tab?.id, element: render(row)
+      .on_mouse_down("left", (e, cx) => this.startDrag(rows, i, e, cx)) }));
     const note = loading ? "Loading…" : offline ? (machine?.state ?? "Offline").replace(/_/g, " ") : items.length === 1 ? "No open tabs" : null;
     if (note && !collapsed) items.push({ element: div().px(8).py(3).text_size(11.5).text_color(t.dim).child(note) });
     return items;
@@ -341,14 +413,18 @@ export default class Sidebar extends View {
     const order = [];
     const items = [];
     this.navigation = [];
-    // Keep rows as direct children so the scroll handle can reveal them by index.
+    // Keyboard navigation uses the saved slots, never a transient drag preview.
+    let slot = 0;
     for (const name of [null, ...[...remote].sort()]) {
-      if (items.length) items.push(div().h(13 - 2 * ITEM_GAP).flex_none());
+      if (items.length) { items.push(div().h(13 - 2 * ITEM_GAP).flex_none()); slot++; }
       const mine = allSpaces.filter(s => (s.machine ?? null) === name).sort((a, b) => a.index - b.index);
-      const rows = mine.flatMap(s => tabRows(s, byTab));
-      order.push(...rows.flatMap(row => row.agents.filter(a => a.depth === 0).map(a => a.address)));
-      for (const { element, tab } of this.machineGroup(name, rows, mine.filter(s => !s.tabs.length), states.get(name), t, collapsed, remote.size > 0, rim)) {
-        if (tab) this.navigation.push({ tab, index: items.length });
+      const groups = mine.map(space => ({ space, rows: tabRows(space, byTab) }));
+      order.push(...groups.flatMap(({ rows }) => rows.flatMap(row => row.agents.filter(a => a.depth === 0).map(a => a.address))));
+      for (const { element, tab, slots = [tab] } of this.machineGroup(name, groups, states.get(name), t, collapsed, remote.size > 0, rim)) {
+        for (const id of slots) {
+          if (id) this.navigation.push({ tab: id, index: slot });
+          slot++;
+        }
         items.push(element);
       }
     }
@@ -362,7 +438,6 @@ export default class Sidebar extends View {
         .child(art(icon).size(iconSize));
     };
     return v_flex().id("sidebar-lists").size_full().min_h(0).bg(t.chrome).text_size(13)
-      .on_mouse_up("left", () => { this.pressed = null; })
       .child(h_flex().px(collapsed ? 4 : 10).py(7).gap(2).items_center().flex_none()
         .when(collapsed, el => el.flex_col().justify_center())
         .when(!collapsed, el => el.pt(11)
@@ -375,6 +450,8 @@ export default class Sidebar extends View {
         .when(!collapsed, el => el.child(div().flex_1()))
         .child(toolbar("sidebar-new", "New tab, space or worktree", "plus", addMenu, 15)))
       .child(v_flex().id("sidebar-scroll").flex_1().min_h(0).px(collapsed ? 3 : LIST_INSET).pb(8).gap(ITEM_GAP)
-        .overflow_y_scrollbar().track_scroll(this.scroll).children(items));
+        .overflow_y_scrollbar().track_scroll(this.scroll)
+        .on_window_mouse_move((e, cx) => this.trackDrag(e, cx))
+        .on_window_mouse_up("left", (e, cx) => this.trackDrag(e, cx, true)).children(items));
   }
 }
