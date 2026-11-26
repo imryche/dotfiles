@@ -14,7 +14,7 @@ const rank = { blocked: 4, done: 3, working: 2, idle: 1 };
 const statusName = { blocked: "Needs you", done: "Done", working: "Working", idle: "Idle" };
 const urgency = (a, b) => (rank[b] ?? 0) > (rank[a] ?? 0) ? b : a;
 const statusOf = status => status === "error" ? "blocked" : status;
-const addMenu = () => openOverlay({ mod: "new-menu", kind: "popup", width: 250, height: 512 });
+const addMenu = () => openOverlay({ mod: "personal-spaces", kind: "popup", width: 210, props: { newMenu: true } });
 
 function findNode(node, id) {
   if (node?.id === id) return node;
@@ -97,8 +97,9 @@ function fade(id, on, color, duration) {
 }
 
 export default class Sidebar extends View {
-  init(p, cx) {
-    if (p?.rowMenu) {
+  init(_props, cx) {
+    const p = props();
+    if (p?.rowMenu || p?.newMenu) {
       this.menuIndex = 0;
       this.handle = cx.focus_handle();
       this.handle.focus();
@@ -182,6 +183,23 @@ export default class Sidebar extends View {
     });
   }
 
+  newMenu(p, t) {
+    const space = spaces().find(s => s.active);
+    const items = [
+      ["terminal", "Terminal", () => run("tab.new", { space: space?.id })],
+      ["plus", "New space", () => run("space.new")],
+    ];
+    if (space) {
+      const worktree = (action, width, height) => () => openOverlay({ mod: "worktree", kind: "dialog", width, height,
+        props: { space: space.id, folder: panes().find(pane => pane.focused)?.cwd, action } });
+      items.push(
+        ["branch", "New worktree…", worktree("new", 460, 280)],
+        ["branch", "Open worktree…", worktree("open", 560, 480)],
+      );
+    }
+    return this.menu(p, t, items);
+  }
+
   rowMenu(p, t) {
     const group = spaces().find(s => s.id === p.space);
     const tab = group?.tabs.find(tab => tab.id === p.rowMenu);
@@ -196,8 +214,12 @@ export default class Sidebar extends View {
       ...list.map(a => ["terminal", a.pane_name || a.name || a.template || a.program?.name || a.address,
         () => a.depth ? run("terminal.peek", { terminal: a.address }) : run("agent.focus", { terminal: a.address }), a]),
     ];
+    return this.menu(p, t, items);
+  }
+
+  menu(p, t, items) {
     const choose = fn => { closeOverlay(p.overlay); fn(); };
-    return v_flex().id("tab-actions").track_focus(this.handle).w_full().max_h(440).overflow_y_scrollbar().p(5).bg(t.popover)
+    return v_flex().id("sidebar-menu").track_focus(this.handle).w_full().max_h(440).overflow_y_scrollbar().p(5).bg(t.popover)
       .on_key_down((e, cx) => {
         const delta = e.key === "up" ? -1 : e.key === "down" ? 1 : 0;
         if (!delta && e.key !== "enter") return;
@@ -206,7 +228,7 @@ export default class Sidebar extends View {
         else if (items[this.menuIndex]) choose(items[this.menuIndex][2]);
       })
       .children(items.map(([icon, label, action, agent], i) => v_flex()
-        .when(i === 4, el => el.child(div().px(8).pt(8).pb(3).text_size(11).text_color(t.dim).child("Agents in this tab")))
+        .when(i === 4 && Boolean(agent), el => el.child(div().px(8).pt(8).pb(3).text_size(11).text_color(t.dim).child("Agents in this tab")))
         .child(h_flex().id(`action-${i}`).h(30).pl(8 + Math.min(agent?.depth ?? 0, 4) * 12).pr(5).gap(7).items_center().rounded(6)
           .bg(i === this.menuIndex ? t.raised : t.popover).hover(s => s.bg(t.hover)).text_color(t.foreground).text_size(12)
           .on_click(() => choose(action))
@@ -305,6 +327,7 @@ export default class Sidebar extends View {
   render() {
     const t = theme();
     const p = props();
+    if (p?.newMenu) return this.newMenu(p, t);
     if (p?.rowMenu) return this.rowMenu(p, t);
     const root = layout();
     const width = findNode(root, "sidebar")?.size?.px ?? 268;
