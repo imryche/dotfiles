@@ -68,7 +68,7 @@
                   },
                   "focus": {
                     "width": 1,
-                    "color": "#373a3c"
+                    "color": "#eeeeef12"
                   },
                   "radius": 10,
                   "gap": 8,
@@ -117,7 +117,8 @@
       "resizable": false
     }
   ],
-  "background": "canvas",
+  "background": "chrome",
+  "terminal_opacity": 0,
   "terminal_padding": [
     14,
     12

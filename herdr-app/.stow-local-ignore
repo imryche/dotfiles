@@ -1,2 +1,0 @@
-# Herdr requires imported modules to be real files inside the mod directory.
-^/\.config/herdr-app/mods/personal-spaces/agents\.js$

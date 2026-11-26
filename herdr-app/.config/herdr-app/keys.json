@@ -80,6 +80,10 @@
     "f2": "tab.rename",
     "shift-f2": "space.rename"
   },
+  "layout:personal": {
+    "alt-n": "personal-spaces.next",
+    "alt-p": "personal-spaces.prev"
+  },
   "terminal": {
     "ctrl-backspace": "send:\u0017",
     "ctrl-left": "send:\u001bb",
